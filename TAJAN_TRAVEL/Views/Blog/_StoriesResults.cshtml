@@ -1,0 +1,129 @@
+@model StoriesViewModel
+@using TAJAN_TRAVEL.Models.ViewModels
+@{
+    string PageUrl(int p) => Url.Action("Index", "Blog", new
+    {
+        category = string.IsNullOrWhiteSpace(Model.Category) ? null : Model.Category,
+        page = p > 1 ? p : (int?)null
+    })!;
+
+    string chipBase = "shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] border transition";
+    string chipOn = chipBase + " bg-tajan-red text-white border-tajan-red";
+    string chipOff = chipBase + " bg-white text-tajan-red border-tajan-red/20 hover:border-tajan-gold hover:text-tajan-gold";
+}
+
+@* Story data for the popup (merged by the page script) *@
+<script type="application/json" data-stories-json>@Html.Raw(StoryJson.Serialize(Model.Posts.Append(Model.Featured)))</script>
+
+@* ---------- Filter chips ---------- *@
+<nav class="flex gap-2 overflow-x-auto no-scrollbar md:flex-wrap md:justify-start pb-1 mb-10" aria-label="@T["Story categories"]">
+    <a data-stories-link href="@Url.Action("Index", "Blog")" class="@(!Model.IsFiltered ? chipOn : chipOff)">@T["All"]</a>
+    @foreach (var c in Model.Categories)
+    {
+        <a data-stories-link href="@Url.Action("Index", "Blog", new { category = c.Slug })"
+           class="@(Model.Category == c.Slug ? chipOn : chipOff)">@Lang.Pick(c.NameEn, c.NameFr)</a>
+    }
+</nav>
+
+@* ---------- Featured story ---------- *@
+@if (Model.Featured != null)
+{
+    var f = Model.Featured;
+    <div class="flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.25em] text-tajan-gold mb-6">
+        <span class="w-6 h-px bg-tajan-gold"></span><span>@T["Featured Story"]</span>
+    </div>
+
+    <article class="grid grid-cols-1 md:grid-cols-[1.15fr_1fr] gap-6 md:gap-12 items-center mb-20 cursor-pointer group" data-story="@f.Slug">
+        <div class="relative aspect-[4/3] rounded-lg overflow-hidden bg-tajan-sand/40">
+            @if (!string.IsNullOrEmpty(f.CoverImageUrl))
+            {
+                <img src="@f.CoverImageUrl" alt="@Lang.Pick(f.TitleEn, f.TitleFr)" onerror="this.style.display='none'"
+                     class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700" />
+            }
+            @if (!string.IsNullOrEmpty(f.CoverImageCaption))
+            {
+                <span class="absolute left-4 bottom-3 text-[10px] uppercase tracking-[0.2em] text-white/90 drop-shadow">@Lang.Pick(f.CoverImageCaption, f.CoverImageCaptionFr)</span>
+            }
+        </div>
+        <div>
+            <div class="text-[10px] font-medium uppercase tracking-[0.25em] text-tajan-gold mb-3">@(Lang.PickN(f.Category?.NameEn, f.Category?.NameFr) ?? T["Travel Journal"])</div>
+            <h2 class="font-display text-4xl sm:text-5xl text-tajan-red leading-[1.05] mb-4">@Lang.Pick(f.TitleEn, f.TitleFr)</h2>
+            <p class="text-sm text-tajan-red/70 leading-relaxed mb-5 max-w-sm">@Lang.Pick(f.SummaryEn, f.SummaryFr)</p>
+            <div class="text-[10px] font-medium uppercase tracking-[0.15em] text-tajan-red/55 mb-4">
+                @(Lang.PickN(f.Category?.NameEn, f.Category?.NameFr) ?? T["Travel Journal"]) &bull; @f.ReadTimeMinutes @T["MIN READ"]
+            </div>
+            <button type="button" class="text-[11px] font-medium uppercase tracking-[0.18em] text-tajan-red border-b-2 border-tajan-gold pb-1 hover:text-tajan-gold transition">
+                @T["Read the story →"]
+            </button>
+        </div>
+    </article>
+}
+
+@* ---------- More stories ---------- *@
+<div class="flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.25em] text-tajan-gold mb-4">
+    <span class="w-6 h-px bg-tajan-gold"></span><span>@T["From the Journal"]</span>
+</div>
+<h2 class="font-display text-3xl sm:text-4xl text-tajan-red mb-2">@T["More Stories From Egypt"]</h2>
+<p class="text-sm text-tajan-red/65 mb-10">@T["Ideas, discoveries, and inspiration for your next journey."]</p>
+
+@if (!Model.Posts.Any())
+{
+    <p class="text-center text-tajan-red/60 py-20">@T["No stories here yet — try another category."]</p>
+}
+else
+{
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12" data-stories-grid>
+        @foreach (var p in Model.Posts)
+        {
+            <article class="group cursor-pointer" data-story="@p.Slug">
+                <div class="relative aspect-[4/5] sm:aspect-[3/4] rounded-md overflow-hidden bg-tajan-sand/40 mb-4">
+                    @if (!string.IsNullOrEmpty(p.CoverImageUrl))
+                    {
+                        <img src="@p.CoverImageUrl" alt="@Lang.Pick(p.TitleEn, p.TitleFr)" loading="lazy" onerror="this.style.display='none'"
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    }
+                </div>
+                @if (p.Category != null)
+                {
+                    <div class="text-[10px] font-medium uppercase tracking-[0.2em] text-tajan-gold mb-2">@Lang.Pick(p.Category.NameEn, p.Category.NameFr)</div>
+                }
+                <h3 class="font-display text-xl text-tajan-red leading-snug mb-2 group-hover:text-tajan-gold transition">@Lang.Pick(p.TitleEn, p.TitleFr)</h3>
+                <p class="text-[13px] text-tajan-red/70 leading-relaxed mb-4">@Lang.Pick(p.SummaryEn, p.SummaryFr)</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-medium uppercase tracking-[0.15em] text-tajan-red/50">@p.ReadTimeMinutes @T["MIN READ"]</span>
+                    <button type="button" class="text-[10px] font-medium uppercase tracking-[0.18em] text-tajan-red border-b-2 border-tajan-gold pb-0.5 hover:text-tajan-gold transition">
+                        @T["Read Story →"]
+                    </button>
+                </div>
+            </article>
+        }
+    </div>
+
+    <div data-stories-pager>
+        @if (Model.TotalPages > 1)
+        {
+            <div class="hidden md:flex justify-center items-center gap-2 mt-14">
+                <a data-stories-link href="@PageUrl(Math.Max(Model.CurrentPage - 1, 1))" aria-label="@T["Previous page"]"
+                   class="w-8 h-8 flex items-center justify-center text-tajan-red/60 hover:text-tajan-red">&lsaquo;</a>
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a data-stories-link href="@PageUrl(i)"
+                       class="w-8 h-8 flex items-center justify-center rounded-full text-sm transition
+                              @(i == Model.CurrentPage ? "bg-tajan-red text-white" : "text-tajan-red/70 hover:bg-tajan-sand/40")">@i</a>
+                }
+                <a data-stories-link href="@PageUrl(Math.Min(Model.CurrentPage + 1, Model.TotalPages))" aria-label="@T["Next page"]"
+                   class="w-8 h-8 flex items-center justify-center text-tajan-red/60 hover:text-tajan-red">&rsaquo;</a>
+            </div>
+
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                <div class="md:hidden mt-10">
+                    <button type="button" data-stories-more data-next-url="@PageUrl(Model.CurrentPage + 1)"
+                            class="w-full bg-[#C8A44D] text-black py-3.5 text-xs font-medium uppercase tracking-[0.2em] rounded-md hover:bg-[#B8943D] transition">
+                        @T["See More Stories"]
+                    </button>
+                </div>
+            }
+        }
+    </div>
+}

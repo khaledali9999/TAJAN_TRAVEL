@@ -1,0 +1,130 @@
+@model List<Tour>
+
+<!-- Featured day tours -->
+<section class="max-w-7xl mx-auto px-6 py-24">
+    <div class="text-center mb-14">
+        @await Html.PartialAsync("_SectionLabel", "Featured Egypt Day Tours")
+
+        <h2 class="font-display text-3xl sm:text-4xl">@T["Egypt in a Day"]</h2>
+        <p class="text-tajan-red/70 mt-3">@T["Private day tours in Egypt, designed to make every moment count."]</p>
+    </div>
+
+    <div class="relative" id="dayToursSlider">
+
+        <!-- Prev -->
+        <button type="button" aria-label="@T["Previous"]" data-dir="-1"
+                class="slider-btn absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10
+                       w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-tajan-red/10
+                       shadow-[0_4px_20px_rgba(0,0,0,0.1)] flex items-center justify-center
+                       text-tajan-red hover:bg-tajan-red hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                <path d="M15 6l-6 6 6 6" />
+            </svg>
+        </button>
+
+        <!-- Track -->
+        <div id="dayToursTrack"
+             class="flex items-start gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4
+                    [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            @foreach (var tour in Model)
+            {
+                <div class="relative snap-start shrink-0
+                            w-[85%] sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]">
+                    @await Html.PartialAsync("_TourCard", tour)
+                </div>
+            }
+
+            <!-- See more card (Facebook style): دايرة فيها سهم + النص تحتها -->
+            <div class="snap-start shrink-0
+                        w-[85%] sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]">
+                <a asp-controller="Tours" asp-action="Index"
+                   class="group aspect-[3/4] w-full flex flex-col items-center justify-center gap-3 text-center">
+                    <span class="w-14 h-14 rounded-full bg-tajan-red flex items-center justify-center
+                                 text-white group-hover:bg-tajan-red/85 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="w-6 h-6">
+                            <path d="M5 12h14" />
+                            <path d="M13 6l6 6-6 6" />
+                        </svg>
+                    </span>
+                    <span class="text-sm font-medium text-tajan-red">@T["See more"]</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Next -->
+        <button type="button" aria-label="@T["Next"]" data-dir="1"
+                class="slider-btn absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10
+                       w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-tajan-red/10
+                       shadow-[0_4px_20px_rgba(0,0,0,0.1)] flex items-center justify-center
+                       text-tajan-red hover:bg-tajan-red hover:text-white transition">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                <path d="M9 6l6 6-6 6" />
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        (function () {
+            const root  = document.getElementById('dayToursSlider');
+            const track = document.getElementById('dayToursTrack');
+            const prev  = root.querySelector('[data-dir="-1"]');
+            const next  = root.querySelector('[data-dir="1"]');
+            const GAP = 24; // gap-6
+            let timer;
+
+            const atEnd   = () => track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
+            const atStart = () => track.scrollLeft <= 5;
+
+            function step() {
+                const card = track.firstElementChild;
+                return card ? card.getBoundingClientRect().width + GAP : 0;
+            }
+
+            function updateBtns() {
+                prev.classList.toggle('opacity-40', atStart());
+                prev.classList.toggle('pointer-events-none', atStart());
+                next.classList.toggle('opacity-40', atEnd());
+                next.classList.toggle('pointer-events-none', atEnd());
+            }
+
+            function move(dir) {
+                if ((dir > 0 && atEnd()) || (dir < 0 && atStart())) return; // يقف عند الطرف
+                track.scrollBy({ left: step() * dir, behavior: 'smooth' });
+            }
+
+            function start() {
+                stop();
+                if (atEnd()) return;
+                timer = setInterval(() => {
+                    if (atEnd()) { stop(); return; } // وصل لكارت View All → يقف
+                    move(1);
+                }, 3000);
+            }
+            function stop() { clearInterval(timer); }
+
+            [prev, next].forEach(btn => {
+                btn.addEventListener('click', () => {
+                    move(Number(btn.dataset.dir));
+                    start();
+                });
+            });
+
+            track.addEventListener('scroll', updateBtns, { passive: true });
+            root.addEventListener('mouseenter', stop);
+            root.addEventListener('mouseleave', start);
+            root.addEventListener('touchstart', stop, { passive: true });
+            root.addEventListener('touchend', start, { passive: true });
+
+            document.addEventListener('visibilitychange', () => {
+                document.hidden ? stop() : start();
+            });
+
+            updateBtns();
+            start();
+        })();
+    </script>
+</section>

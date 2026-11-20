@@ -1,0 +1,74 @@
+@model DestinationFormVm
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "New destination" : "Edit destination";
+    var formAction = Url.Action(isNew ? "Create" : "Edit", new { area = "Admin", id = isNew ? (int?)null : Model.Id });
+}
+
+<a asp-action="Index" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-tajan-red">
+    <i data-lucide="arrow-left" class="h-4 w-4"></i> Back to destinations
+</a>
+
+<form action="@formAction" method="post" enctype="multipart/form-data" class="mt-4">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+
+    <datalist id="catList">
+        @foreach (var c in Model.CategorySuggestions)
+        {
+            <option value="@c"></option>
+        }
+    </datalist>
+
+    <div class="space-y-6">
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Basics</h2>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                @Html.AdminText(m => m.NameEn, "Name (English)", required: true)
+                @Html.AdminText(m => m.NameFr, "Name (Français)", required: true)
+                @Html.AdminText(m => m.Category, "Category", required: true, hint: "e.g. Nile, Desert, Coastal, City & Culture", list: "catList")
+                @Html.AdminText(m => m.CategoryFr, "Category (Français)", hint: "e.g. Nil, Désert, Côtier, Ville & Culture")
+                @Html.AdminText(m => m.BestTime, "Best time to visit", placeholder: "Oct – April")
+                @Html.AdminText(m => m.BestTimeFr, "Best time to visit (Français)", placeholder: "Oct. – Avril")
+                @Html.AdminText(m => m.KnownFor, "Known for", placeholder: "Ancient Wonders")
+                @Html.AdminText(m => m.KnownForFr, "Known for (Français)", placeholder: "Merveilles antiques")
+                @Html.AdminText(m => m.Slug, "URL slug", hint: isNew ? "Leave empty to generate it from the English name." : "Changing it breaks existing links to this destination.", placeholder: "luxor")
+                @Html.AdminNumber(m => m.DisplayOrder, "Display order", hint: "Lower numbers appear first.")
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Text</h2>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                @Html.AdminTextArea(m => m.DescriptionEn, "Short tagline (English)", rows: 3, required: true, hint: "Shown on destination cards.")
+                @Html.AdminTextArea(m => m.DescriptionFr, "Short tagline (Français)", rows: 3, required: true)
+                @Html.AdminTextArea(m => m.LongDescriptionEn, "Long description (English)", rows: 8)
+                @Html.AdminTextArea(m => m.LongDescriptionFr, "Long description (Français)", rows: 8)
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Cover image</h2>
+            <div class="mt-5">
+                @Html.AdminImage(m => m.CoverImageUrl, "CoverFile", "Cover image", hint: "Shown on destination cards.")
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Background / hero image</h2>
+            <div class="mt-5">
+                @Html.AdminImage(m => m.HeroImageUrl, "HeroFile", "Hero image (page background)", hint: "Large wide image at the top of the destination page. If empty, the cover image is used.")
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Visibility</h2>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                @Html.AdminToggle(m => m.IsActive, "Active", "Visible on the website.")
+                @Html.AdminToggle(m => m.IsFeatured, "Featured", "Shown on the home page.")
+            </div>
+        </section>
+    </div>
+
+    <partial name="_FormActions" model='isNew ? "Create destination" : "Save changes"' />
+</form>

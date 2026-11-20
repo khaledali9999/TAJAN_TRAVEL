@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = T["Request Received"];
+}
+
+<section class="bg-tajan-cream pt-32 sm:pt-40 pb-20 sm:pb-28 min-h-[70vh]">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+
+        <div class="w-16 h-16 rounded-full border border-tajan-gold flex items-center justify-center mx-auto mb-8 sm:mb-10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-tajan-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+
+        @await Html.PartialAsync("_SectionLabel", T["Request Received"])
+
+        <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight text-tajan-red mb-8">
+            @T["We've got your details, and"]<br class="hidden sm:block" /> @T["we're excited to dive in"]
+        </h1>
+
+        <p class="max-w-2xl mx-auto text-base sm:text-lg text-tajan-red/70 leading-relaxed mb-10 sm:mb-12">
+            @T["Thank you for sharing your travel plans with us. Our team is already looking over your preferences to handcraft a journey through Egypt built completely around you."]
+        </p>
+
+        <p class="max-w-3xl mx-auto text-sm sm:text-base font-medium text-tajan-gold leading-relaxed mb-10 sm:mb-12">
+            @T["One of our travel specialists will reach out to you personally within 24 hours to start bringing your trip to life."]
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
+            <a asp-controller="Home" asp-action="Index"
+               class="inline-flex items-center justify-center bg-tajan-red text-tajan-gold px-8 py-4 rounded-lg text-sm tracking-wide hover:bg-tajan-red/90 transition">
+                @T["Return to Homepage"]
+            </a>
+            <a asp-controller="Destinations" asp-action="Index"
+               class="inline-flex items-center justify-center border border-tajan-red text-tajan-red px-8 py-4 rounded-lg text-sm tracking-wide hover:bg-tajan-red hover:text-white transition">
+                @T["Explore Destinations"]
+            </a>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,58 @@
+@model List<ContactMessage>
+@{
+    ViewData["Title"] = "Notifications";
+    var unread = Model.Count(m => !m.IsRead);
+}
+
+<div class="mb-5 flex items-center justify-between">
+    <p class="text-sm text-slate-500">@unread unread · @Model.Count messages</p>
+    @if (unread > 0)
+    {
+        <form asp-area="Admin" asp-action="MarkAllRead" method="post">
+            <button type="submit" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-tajan-cream">Mark all as read</button>
+        </form>
+    }
+</div>
+
+<div class="space-y-3">
+    @foreach (var m in Model)
+    {
+        <article class="card flex gap-4 p-5 @(m.IsRead ? "" : "border-l-4 border-tajan-gold")">
+            <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="font-medium text-[#2A1215]">@m.Subject</div>
+                    <div class="text-xs text-slate-400">@AdminFormat.When(m.CreatedAt)</div>
+                </div>
+                <div class="mt-0.5 text-xs text-slate-500">
+                    @m.FullName · <a href="mailto:@m.Email" class="hover:underline">@m.Email</a>
+                    @if (!string.IsNullOrWhiteSpace(m.PhoneNumber)) { <span> · @m.PhoneNumber</span> }
+                </div>
+                <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-700">@m.Message</p>
+            </div>
+            <div class="flex shrink-0 flex-col items-end gap-2">
+                @if (!m.IsRead)
+                {
+                    <form asp-area="Admin" asp-action="MarkRead" method="post">
+                        <input type="hidden" name="id" value="@m.Id" />
+                        <button type="submit" class="rounded-md border border-slate-200 px-3 py-1.5 text-xs text-slate-600 hover:bg-tajan-cream">Mark read</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-area="Admin" asp-action="MarkUnread" method="post">
+                        <input type="hidden" name="id" value="@m.Id" />
+                        <button type="submit" class="rounded-md border border-slate-200 px-3 py-1.5 text-xs text-slate-600 hover:bg-tajan-cream">Mark unread</button>
+                    </form>
+                }
+                <form asp-area="Admin" asp-action="Delete" method="post" data-confirm="Delete this message permanently?">
+                    <input type="hidden" name="id" value="@m.Id" />
+                    <button type="submit" class="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600" title="Delete"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                </form>
+            </div>
+        </article>
+    }
+    @if (!Model.Any())
+    {
+        <div class="card px-6 py-12 text-center text-sm text-slate-400">No messages yet.</div>
+    }
+</div>

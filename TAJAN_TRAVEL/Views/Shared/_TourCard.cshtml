@@ -1,0 +1,38 @@
+@model Tour
+@{
+    var badge = Model.IsPrivate ? T["Private Day Tour"] : Model.Type.ToString();
+}
+
+<a asp-controller="Tours" asp-action="Details" asp-route-slug="@Model.Slug" class="group block">
+    <div class="relative overflow-hidden aspect-[4/5] bg-tajan-sand/30">
+        @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+        {
+            <img src="@Model.CoverImageUrl" alt="@Lang.Pick(Model.TitleEn, Model.TitleFr)"
+                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+        }
+        <span class="absolute top-3 left-3 bg-white/90 text-tajan-red text-[10px] uppercase tracking-widest px-3 py-1">
+            @badge
+        </span>
+
+        <button type="button"
+                data-wishlist-heart
+                data-type="0"
+                data-ref-id="@Model.Id"
+                aria-label="@T["Save to wishlist"]"
+                aria-pressed="false"
+                class="wishlist-heart-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center text-tajan-red hover:text-tajan-gold transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+            </svg>
+        </button>
+    </div>
+    <div class="pt-4">
+        <div class="text-[11px] uppercase tracking-widest text-tajan-gold mb-1">
+            @Lang.Pick(Model.Destination?.NameEn, Model.Destination?.NameFr)
+        </div>
+        <h3 class="font-display text-lg text-tajan-red group-hover:text-tajan-gold transition">
+            @Lang.Pick(Model.TitleEn, Model.TitleFr)
+        </h3>
+        <div class="text-sm text-tajan-red/70 mt-1">@T["From"] @SiteCurrency.Format(Model.PriceFrom, Model.Currency)</div>
+    </div>
+</a>

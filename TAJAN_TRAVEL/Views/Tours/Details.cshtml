@@ -1,0 +1,684 @@
+﻿@model TourDetailsViewModel
+@{
+    var tour = Model.Tour;
+    var tourTitle = Lang.Pick(tour.TitleEn, tour.TitleFr);
+    ViewData["Title"] = tourTitle;
+
+    string BadgeText(dynamic t) => Lang.PickN(t.ActivityType?.NameEn, t.ActivityType?.NameFr) ?? (t.IsFeatured ? T["New"] : null);
+
+    // one item per line (admin textareas) -> list
+    List<string> Lines(string? s) => (s ?? "")
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Where(x => x.Length > 0).ToList();
+
+    // ---- images: first one big + 4 small ----
+    var imgs = new List<string>();
+    if (!string.IsNullOrEmpty(tour.CoverImageUrl)) imgs.Add(tour.CoverImageUrl);
+    foreach (var i in tour.Images) imgs.Add(i.ImageUrl);
+    imgs = imgs.Distinct().ToList();
+    var total = imgs.Count;
+
+    string tourLabel = tour.DurationDays <= 1 ? T["Private Day Tour"].ToString() : T["Private Journey"].ToString();
+
+    // ---- content from the database (each section is hidden when empty) ----
+    var quote = Lang.PickN(tour.QuoteEn, tour.QuoteFr);
+    var highlights = Lines(Lang.PickN(tour.HighlightsEn, tour.HighlightsFr));
+    var included = Lines(Lang.PickN(tour.IncludedEn, tour.IncludedFr));
+    var excluded = Lines(Lang.PickN(tour.ExcludedEn, tour.ExcludedFr));
+    var importantInfo = Lines(Lang.PickN(tour.ImportantInfoEn, tour.ImportantInfoFr));
+    var availability = Lang.PickN(tour.AvailabilityEn, tour.AvailabilityFr);
+    var paymentNote = Lang.PickN(tour.PaymentNoteEn, tour.PaymentNoteFr);
+
+    // ---- prices (per person by group size) - shown ONLY in the Pricing tab ----
+    var prices = tour.Prices.OrderBy(p => p.Persons).ToList();
+    string MoneyOf(decimal v, string? c) => SiteCurrency.Format(v, c);
+    string Money(decimal v) => MoneyOf(v, tour.Currency);
+    string PersonsLabel(int n) => n == 1 ? T["Single (1 Person)"].ToString() : n + " " + T["Persons"];
+
+    // ---- duration ----
+    string durationText = tour.DurationDays <= 1
+        ? (tour.DurationHours.HasValue ? tour.DurationHours.Value + " " + T["Hours"] : T["1 Day"].ToString())
+        : tour.DurationDays + " " + T["Days"];
+
+    // ---- quick facts ----
+    var facts = new List<(string Label, string Value, string Icon)>
+    {
+        (T["Duration"].ToString(), durationText,
+            "<circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/>"),
+        (T["Tour Type"].ToString(), tour.IsPrivate ? T["Private"].ToString() : T["Group"].ToString(),
+            "<circle cx='12' cy='8' r='3.5'/><path d='M5 20c.7-4 3.5-6 7-6s6.3 2 7 6'/>"),
+        (T["Destination"].ToString(), Lang.PickN(tour.Destination?.NameEn, tour.Destination?.NameFr) ?? T["Egypt"].ToString(),
+            "<path d='M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21z'/><circle cx='12' cy='9.5' r='2.3'/>")
+    };
+    if (!string.IsNullOrWhiteSpace(availability))
+        facts.Add((T["Availability"].ToString(), availability!,
+            "<rect x='3' y='5' width='18' height='16' rx='2'/><path d='M3 10h18M8 3v4M16 3v4'/>"));
+
+    // ---- tabs: only the ones that have content ----
+    var tabs = new List<(string Id, string Label)> { ("description", T["Description"].ToString()) };
+    if (included.Any() || excluded.Any()) tabs.Add(("included", T["Included & Excluded"].ToString()));
+    if (prices.Any() || tour.PriceFrom > 0) tabs.Add(("pricing", T["Pricing"].ToString()));
+    if (tour.Itinerary.Any()) tabs.Add(("itinerary", T["Itinerary"].ToString()));
+    if (importantInfo.Any()) tabs.Add(("info", T["Important Information"].ToString()));
+
+    var inputCls = "w-full bg-white border border-tajan-red/10 rounded-lg px-4 py-3 text-sm text-tajan-red placeholder:text-tajan-red/50 focus:outline-none focus:border-tajan-gold";
+    var labelCls = "block text-[10px] uppercase tracking-widest text-tajan-red/60 mb-1.5";
+}
+
+<div class="bg-tajan-cream min-h-screen pt-20 sm:pt-28">
+
+    @* ===================== Title + Gallery ===================== *@
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10">
+
+        <div class="flex items-center gap-3 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.3em] text-tajan-gold mb-3">
+            <span class="w-6 sm:w-8 h-px bg-tajan-gold"></span>
+            <span>@tourLabel</span>
+        </div>
+        <h1 class="font-display text-3xl sm:text-5xl text-tajan-red leading-tight mb-6 sm:mb-8">@tourTitle</h1>
+
+        @* ---- Desktop gallery ---- *@
+        <div class="hidden md:block relative">
+            <div class="grid grid-cols-4 grid-rows-2 gap-3 h-[380px]">
+                <div class="col-span-2 row-span-2 rounded-2xl overflow-hidden bg-tajan-sand/40">
+                    @if (total > 0)
+                    {
+                        <button type="button" data-gallery-open data-idx="0" class="block w-full h-full cursor-zoom-in" aria-label="@T["View all photos"]">
+                            <img src="@imgs[0]" alt="@tourTitle" class="w-full h-full object-cover hover:scale-[1.02] transition duration-500" />
+                        </button>
+                    }
+                </div>
+                @for (var i = 1; i <= 4; i++)
+                {
+                    <div class="relative overflow-hidden bg-tajan-sand/40 @(i == 2 ? "rounded-tr-2xl" : "") @(i == 4 ? "rounded-br-2xl" : "")">
+                        @if (i < total)
+                        {
+                            <button type="button" data-gallery-open data-idx="@i" class="block w-full h-full cursor-zoom-in" aria-label="@T["View all photos"]">
+                                <img src="@imgs[i]" alt="" class="w-full h-full object-cover hover:scale-[1.04] transition duration-500" />
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+            @if (total > 0)
+            {
+                <button type="button" data-gallery-open data-idx="0"
+                        class="absolute bottom-4 right-4 bg-white/95 text-tajan-red text-xs font-medium rounded-full px-4 py-2 shadow hover:bg-white transition">
+                    @T["View all photos"] (@total)
+                </button>
+            }
+        </div>
+
+        @* ---- Mobile gallery ---- *@
+        <div class="md:hidden">
+            <div class="relative aspect-[4/3] rounded-2xl overflow-hidden bg-tajan-sand/40">
+                @if (total > 0)
+                {
+                    <button type="button" data-gallery-open data-current class="block w-full h-full" aria-label="@T["View all photos"]">
+                        <img id="mainPhoto" src="@imgs[0]" alt="@tourTitle" class="w-full h-full object-cover" />
+                    </button>
+                    <span class="absolute bottom-3 left-3 bg-black/60 text-white text-[11px] rounded-full px-3 py-1.5 pointer-events-none">
+                        <span id="photoCounter">1</span> / @total @T["Photos"]
+                    </span>
+                    <button type="button" data-gallery-open data-current
+                            class="absolute bottom-3 right-3 bg-black/60 text-white text-[11px] rounded-full px-3 py-1.5">
+                        @T["View all photos"]
+                    </button>
+                }
+            </div>
+            @if (total > 1)
+            {
+                <div class="flex gap-2 mt-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    @for (var i = 0; i < total; i++)
+                    {
+                        <button type="button" data-idx="@i" data-src="@imgs[i]"
+                                class="thumb shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 @(i == 0 ? "border-tajan-gold" : "border-transparent")">
+                            <img src="@imgs[i]" alt="" class="w-full h-full object-cover" />
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    @* ===================== Quick Facts ===================== *@
+    <section class="mt-8 sm:mt-10 sm:border-y sm:border-tajan-red/10 sm:bg-tajan-cream">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-0 sm:py-7 grid grid-cols-2 gap-3 sm:gap-0 sm:divide-x sm:divide-tajan-red/10
+                    sm:[grid-template-columns:repeat(var(--cols),minmax(0,1fr))]"
+             style="--cols:@facts.Count">
+            @foreach (var f in facts)
+            {
+                <div class="bg-white sm:bg-transparent rounded-xl sm:rounded-none border border-tajan-red/5 sm:border-0 p-4 sm:px-8 sm:py-0">
+                    <div class="flex items-center gap-2 text-[9px] sm:text-[10px] uppercase tracking-widest text-tajan-red/60 mb-1.5">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                             stroke-linejoin="round" class="w-4 h-4 text-tajan-gold shrink-0">
+                            @Html.Raw(f.Icon)
+                        </svg>
+                        @f.Label
+                    </div>
+                    <div class="font-display text-base sm:text-lg font-semibold text-tajan-red pl-6">@f.Value</div>
+                </div>
+            }
+        </div>
+    </section>
+
+    @* ===================== Tabs ===================== *@
+    <section class="sticky top-20 z-30 bg-tajan-cream mt-8 sm:mt-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div id="tabsBar" class="flex items-center gap-1 sm:gap-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-tajan-red/10 pb-4">
+                @for (var i = 0; i < tabs.Count; i++)
+                {
+                    <button type="button" data-tab="@tabs[i].Id"
+                            class="tab-btn shrink-0 whitespace-nowrap px-4 sm:px-6 py-2.5 text-[11px] sm:text-sm uppercase tracking-wide transition
+                               @(i == 0 ? "bg-tajan-red text-white rounded-lg font-display font-semibold"
+                                        : "text-tajan-red/70 sm:border-l sm:border-tajan-red/15 sm:first:border-0")">
+                        @tabs[i].Label
+                    </button>
+                }
+            </div>
+        </div>
+    </section>
+
+    @* ===================== Content + Form ===================== *@
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start">
+
+        <div>
+            @* Description *@
+            <div id="panel-description" class="tab-panel bg-white rounded-2xl border border-tajan-red/5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-6 sm:p-8">
+                @if (!string.IsNullOrWhiteSpace(quote))
+                {
+                    <p class="font-display text-xl sm:text-2xl italic sm:not-italic leading-snug text-tajan-red mb-6">“@quote”</p>
+                }
+
+                @{
+                    var description = Lang.PickN(tour.DescriptionEn, tour.DescriptionFr);
+                }
+                @if (!string.IsNullOrWhiteSpace(description))
+                {
+                    <p class="text-xs sm:text-sm text-tajan-red/80 leading-relaxed whitespace-pre-line @(highlights.Any() ? "mb-8" : "")">@description</p>
+                }
+
+                @if (highlights.Any())
+                {
+                    <h3 class="font-display text-base sm:text-lg font-semibold text-tajan-red mb-4">@T["Experience Highlights"]</h3>
+                    <ul class="space-y-4">
+                        @foreach (var h in highlights)
+                        {
+                            <li class="flex gap-3 text-xs sm:text-[13px] text-tajan-red/80 leading-relaxed">
+                                <span class="mt-1.5 w-2 h-2 rotate-45 border border-tajan-gold shrink-0"></span>
+                                <span>@h</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+            @* Included & Excluded *@
+            @if (tabs.Any(t => t.Id == "included"))
+            {
+                <div id="panel-included" class="tab-panel hidden bg-white rounded-2xl border border-tajan-red/5 p-6 sm:p-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        @if (included.Any())
+                        {
+                            <div>
+                                <h3 class="font-display text-xl text-tajan-red mb-4">@T["Included"]</h3>
+                                <ul class="space-y-3">
+                                    @foreach (var it in included)
+                                    {
+                                        <li class="flex gap-3 text-sm text-tajan-red/80 leading-relaxed">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-tajan-gold shrink-0 mt-0.5"><path d="M20 6 9 17l-5-5" /></svg>
+                                            <span>@it</span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                        @if (excluded.Any())
+                        {
+                            <div>
+                                <h3 class="font-display text-xl text-tajan-red mb-4">@T["Not included"]</h3>
+                                <ul class="space-y-3">
+                                    @foreach (var it in excluded)
+                                    {
+                                        <li class="flex gap-3 text-sm text-tajan-red/80 leading-relaxed">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-tajan-red/40 shrink-0 mt-0.5"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                                            <span>@it</span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @* Pricing (the only place prices are shown) *@
+            @if (tabs.Any(t => t.Id == "pricing"))
+            {
+                <div id="panel-pricing" class="tab-panel hidden bg-white rounded-2xl border border-tajan-red/5 p-6 sm:p-8">
+                    <h3 class="font-display text-xl text-tajan-red mb-4">@T["Pricing"]</h3>
+                    @if (prices.Any())
+                    {
+                        <ul class="max-w-md">
+                            @foreach (var p in prices)
+                            {
+                                <li class="flex items-center justify-between gap-3 py-3 border-b border-tajan-red/10 last:border-b-0">
+                                    <span class="text-sm font-medium text-tajan-red">@PersonsLabel(p.Persons)</span>
+                                    <span class="flex items-baseline gap-3 whitespace-nowrap">
+                                        <span class="text-sm text-tajan-red/70">@T["Per Person"]</span>
+                                        <span class="text-base font-bold text-tajan-gold">@Money(p.PricePerPerson)</span>
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="font-display text-3xl text-tajan-red">
+                            @T["From"] @Money(tour.PriceFrom)
+                            <span class="text-sm font-sans text-tajan-red/50">@T["/ person"]</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(paymentNote))
+                    {
+                        <p class="text-sm text-tajan-red/70 mt-4">@paymentNote</p>
+                    }
+                </div>
+            }
+
+            @* Itinerary *@
+            @if (tabs.Any(t => t.Id == "itinerary"))
+            {
+                <div id="panel-itinerary" class="tab-panel hidden bg-white rounded-2xl border border-tajan-red/5 p-6 sm:p-8">
+                    <h3 class="font-display text-xl text-tajan-red mb-6">@T["Itinerary"]</h3>
+                    <div class="space-y-6">
+                        @foreach (var day in tour.Itinerary)
+                        {
+                            <div class="flex gap-4">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-9 h-9 rounded-full bg-tajan-red text-white flex items-center justify-center text-xs font-semibold shrink-0">@day.DayNumber</div>
+                                    <div class="flex-1 w-px bg-tajan-gold/30 mt-1"></div>
+                                </div>
+                                <div class="pb-2">
+                                    <h4 class="font-display text-lg text-tajan-red mb-1">@Lang.Pick(day.TitleEn, day.TitleFr)</h4>
+                                    <p class="text-sm text-tajan-red/70 whitespace-pre-line">@Lang.Pick(day.DescriptionEn, day.DescriptionFr)</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @* Important info *@
+            @if (tabs.Any(t => t.Id == "info"))
+            {
+                <div id="panel-info" class="tab-panel hidden bg-white rounded-2xl border border-tajan-red/5 p-6 sm:p-8">
+                    <h3 class="font-display text-xl text-tajan-red mb-4">@T["Important Information"]</h3>
+                    <ul class="space-y-3">
+                        @foreach (var it in importantInfo)
+                        {
+                            <li class="flex gap-3 text-sm text-tajan-red/80 leading-relaxed">
+                                <span class="mt-1.5 w-2 h-2 rotate-45 border border-tajan-gold shrink-0"></span>
+                                <span>@it</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+
+        @* ---------- Plan Your Tour form ---------- *@
+        <aside class="space-y-6 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+
+            <form asp-controller="Inquiry" asp-action="Create" asp-route-tourId="@tour.Id" method="post"
+                  class="bg-white rounded-2xl border border-tajan-red/5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-6 space-y-4">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="TourId" value="@tour.Id" />
+                <input type="hidden" name="TourTitle" value="@tour.TitleEn" />
+
+                <h3 class="font-display text-xl sm:text-2xl text-tajan-red">@T["Plan Your Tour"]</h3>
+
+                <div>
+                    <label class="@labelCls">@T["Name"]</label>
+                    <input type="text" name="FullName" placeholder="@T["Enter Your Name"]" class="@inputCls" required />
+                </div>
+                <div>
+                    <label class="@labelCls">@T["Mobile Number"]</label>
+                    <div class="flex items-stretch bg-white border border-tajan-red/10 rounded-lg focus-within:border-tajan-gold transition">
+                        @* Country code (native <select> stretched invisibly over the visible "+20 v" label) *@
+                        <div class="relative shrink-0 border-r border-tajan-red/10">
+                            <span class="flex items-center gap-1.5 h-full pl-4 pr-3 text-sm font-medium text-tajan-red whitespace-nowrap pointer-events-none">
+                                <span id="tourDialCodeText">+20</span>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-tajan-red/50"></i>
+                            </span>
+                            <select id="tourCountryCode" name="CountryCode" aria-label="@T["Country code"]"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-sm">
+                                @foreach (var c in CountryDialCodes.All)
+                                {
+                                    <option value="@c.Dial" selected="@(c.Dial == "+20")">@c.Name (@c.Dial)</option>
+                                }
+                            </select>
+                        </div>
+                        <input id="tourPhoneNumber" type="tel" inputmode="tel" name="PhoneNumber" placeholder="@T["Enter Your Mobile Number"]" autocomplete="tel-national"
+                               class="flex-1 min-w-0 bg-transparent rounded-r-lg px-4 py-3 text-sm text-tajan-red placeholder:text-tajan-red/50 focus:outline-none" required />
+                    </div>
+                </div>
+                <div>
+                    <label class="@labelCls">@T["Email"]</label>
+                    <input type="email" name="Email" placeholder="@T["Enter Your Email"]" class="@inputCls" required />
+                </div>
+                <div>
+                    <label class="@labelCls">@T["Date"]</label>
+                    <input type="date" name="FromDate" class="@inputCls" />
+                </div>
+
+                <div>
+                    <div class="@labelCls">@T["Travelers"]</div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <div class="text-[9px] uppercase tracking-widest text-tajan-red/50 mb-1">@T["Adults (12+ Yrs)"]</div>
+                            <select name="Adults" class="@inputCls">
+                                @for (var n = 1; n <= 10; n++)
+                                {
+                                    <option value="@n" selected="@(n == 1)">@n Adult@(n == 1 ? "" : "s")</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <div class="text-[9px] uppercase tracking-widest text-tajan-red/50 mb-1">@T["Children"]</div>
+                            <input id="tourChildren" name="Children" type="number" min="0" step="1" inputmode="numeric" value="0" class="@inputCls" />
+                        </div>
+                    </div>
+                    <div id="tourChildAges" class="hidden mt-3 flex flex-wrap gap-2"></div>
+                </div>
+
+                <div>
+                    <label class="@labelCls">@T["Country"]</label>
+                    <select name="Country" required autocomplete="country-name" class="@inputCls">
+                        <option value="">@T["Select your country"]</option>
+                        @foreach (var c in InquiryOptions.Countries)
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label class="@labelCls">@T["Language"]</label>
+                    <select name="Language" class="@inputCls">
+                        @foreach (var l in InquiryOptions.Languages)
+                        {
+                            <option value="@l">@l</option>
+                        }
+                    </select>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-tajan-red text-white rounded-lg py-3.5 text-sm font-semibold hover:bg-tajan-red/90 transition">
+                    @T["Request This Tour"]
+                </button>
+            </form>
+        </aside>
+    </section>
+
+    @* ===================== You Might Also Like ===================== *@
+    @if (Model.RelatedTours.Any())
+    {
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+            <div class="flex items-end justify-between mb-6 sm:mb-8">
+                <h2 class="font-display text-2xl sm:text-3xl text-tajan-red">@T["You Might Also Like"]</h2>
+                <a asp-controller="Tours" asp-action="Index"
+                   class="text-[11px] sm:text-xs uppercase tracking-widest text-tajan-gold hover:text-tajan-red transition">
+                    @T["View All Tours →"]
+                </a>
+            </div>
+
+            <div class="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-x-auto sm:overflow-visible
+                        snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0">
+                @foreach (var related in Model.RelatedTours)
+                {
+                    var relatedBadge = BadgeText(related);
+                    <a asp-controller="Tours" asp-action="Details" asp-route-slug="@related.Slug"
+                       class="snap-start shrink-0 w-[72%] sm:w-auto bg-white rounded-xl overflow-hidden
+                              shadow-[0_2px_10px_rgba(0,0,0,0.06)] group block">
+                        <div class="relative aspect-[4/3] overflow-hidden">
+                            @if (!string.IsNullOrEmpty(related.CoverImageUrl))
+                            {
+                                <img src="@related.CoverImageUrl" alt="@Lang.Pick(related.TitleEn, related.TitleFr)"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                            }
+                            @if (!string.IsNullOrEmpty(relatedBadge))
+                            {
+                                <span class="absolute top-3 left-3 bg-black/60 text-white text-[10px] px-3 py-1 rounded-full">@relatedBadge</span>
+                            }
+                        </div>
+                        <div class="p-4 sm:p-5">
+                            <div class="text-[10px] font-semibold uppercase tracking-widest text-tajan-gold mb-1.5">
+                                @Lang.Pick(related.Destination?.NameEn, related.Destination?.NameFr)
+                            </div>
+                            <h3 class="font-display text-base sm:text-lg text-tajan-red mb-5">@Lang.Pick(related.TitleEn, related.TitleFr)</h3>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs sm:text-sm font-semibold text-tajan-red">@T["From"] @MoneyOf(related.PriceFrom, related.Currency)</span>
+                                <span class="w-7 h-7 rounded-full bg-tajan-cream border border-tajan-red/10 flex items-center justify-center text-tajan-red text-xs">&rsaquo;</span>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    @* ===================== Build Your Trip ===================== *@
+    <section class="px-4 sm:px-6 py-6">
+        <div class="max-w-6xl mx-auto bg-[#FAF6F0] rounded-3xl border border-tajan-gold/15
+                    shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-6 sm:p-10
+                    grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
+            <div>
+                <span class="inline-block text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-tajan-red
+                             border border-tajan-red rounded-full px-4 py-1.5 mb-5">@T["Build Your Trip"]</span>
+                <h2 class="font-display text-2xl sm:text-4xl font-semibold text-tajan-red mb-4">@T["Your Egypt, Your Way."]</h2>
+                <p class="text-xs sm:text-base text-tajan-red/80 leading-relaxed mb-6">
+                    @T["Don't see the Egypt trip you're looking for? Tell us what you have in mind, and our local travel experts will create a personalized itinerary around your interests, pace, and budget."]
+                </p>
+                <div class="flex flex-wrap gap-2 sm:gap-3 mb-7 text-[11px] sm:text-sm font-medium text-tajan-red">
+                    <span class="border border-tajan-gold/25 rounded-full px-3 sm:px-4 py-1.5">@T["100% Tailor-Made"]</span>
+                    <span class="border border-tajan-gold/25 rounded-full px-3 sm:px-4 py-1.5">@T["Personalized Itineraries"]</span>
+                    <span class="border border-tajan-gold/25 rounded-full px-3 sm:px-4 py-1.5">@T["Local Experts"]</span>
+                    <span class="border border-tajan-gold/25 rounded-full px-3 sm:px-4 py-1.5">@T["24h Proposal"]</span>
+                </div>
+                <a asp-controller="Inquiry" asp-action="Create"
+                   class="flex sm:inline-flex w-full sm:w-auto justify-center items-center gap-3 bg-tajan-red text-tajan-sand font-semibold
+                          px-6 py-3.5 text-xs sm:text-sm uppercase tracking-wide rounded-lg hover:bg-tajan-red/90 transition">
+                    @T["Design Your Egypt Tour"] <span aria-hidden="true">&rarr;</span>
+                </a>
+            </div>
+            <div class="aspect-[16/9] sm:aspect-[4/3] overflow-hidden rounded-xl">
+                <img src="/ChatGPT Image Sep 9, 2026, 12_20_02 PM.png" alt="@T["Sailboat on the Nile"]" class="w-full h-full object-cover" />
+            </div>
+        </div>
+    </section>
+
+</div>
+
+@* ===================== Photo lightbox ===================== *@
+@if (total > 0)
+{
+    <div id="lightbox" class="hidden fixed inset-0 z-[120] bg-black/95 flex-col" role="dialog" aria-modal="true" aria-label="@T["Photos"]">
+        <div class="flex items-center justify-between px-4 sm:px-6 py-3 text-white">
+            <div class="text-sm"><span id="lbCounter">1</span> / @total</div>
+            <button type="button" id="lbClose" aria-label="@T["Close"]"
+                    class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-5 h-5"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            </button>
+        </div>
+
+        <div class="relative flex-1 min-h-0 flex items-center justify-center px-2 sm:px-16">
+            <button type="button" id="lbPrev" aria-label="@T["Previous"]"
+                    class="absolute left-2 sm:left-5 z-10 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+            <img id="lbImage" src="" alt="@tourTitle" class="max-w-full max-h-full object-contain select-none" />
+            <button type="button" id="lbNext" aria-label="@T["Next"]"
+                    class="absolute right-2 sm:right-5 z-10 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+        </div>
+
+        <div id="lbThumbs" class="flex gap-2 overflow-x-auto px-4 sm:px-6 py-3 justify-start sm:justify-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            @for (var i = 0; i < total; i++)
+            {
+                <button type="button" data-lb-thumb="@i"
+                        class="shrink-0 w-16 h-12 sm:w-20 sm:h-14 rounded-md overflow-hidden border-2 border-transparent opacity-60 hover:opacity-100 transition">
+                    <img src="@imgs[i]" alt="" class="w-full h-full object-cover" loading="lazy" />
+                </button>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/child-ages.js" asp-append-version="true"></script>
+    <script>
+        // Children: ask for each child's age (no limit)
+        (function () {
+            var sel = document.getElementById('tourChildren');
+            if (!sel || !window.TajanChildAges) return;
+            // Enter inside the number box asks for the ages instead of submitting the form
+            sel.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { e.preventDefault(); sel.blur(); }
+            });
+            var api = TajanChildAges.attach({
+                input: sel,
+                container: document.getElementById('tourChildAges'),
+                setCount: function (n) { sel.value = n; },
+                max: 999, minAge: 2, maxAge: 12,
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, string>
+               {
+                   ["title"] = T["Child {n}"].ToString(),
+                   ["question"] = T["How old is this child?"].ToString(),
+                   ["unit"] = T["years old"].ToString(),
+                   ["confirm"] = T["Confirm"].ToString(),
+                   ["cancel"] = T["Cancel"].ToString(),
+                   ["error"] = T["Please enter an age between 2 and 12."].ToString(),
+                   ["chip"] = T["Child {n}: {age} yrs"].ToString(),
+                   ["edit"] = T["Edit"].ToString()
+               }))
+            });
+            // every child needs an age: if one is missing the age popup opens and the form waits
+            var form = sel.closest('form');
+            if (form) form.addEventListener('submit', function (e) {
+                var n = Math.max(0, parseInt(sel.value, 10) || 0);
+                if (api.ages().length < n) { e.preventDefault(); api.sync(); }
+            });
+        })();
+
+        // Phone: show the selected country code + keep the number field to phone characters
+        (function () {
+            var sel = document.getElementById('tourCountryCode');
+            var txt = document.getElementById('tourDialCodeText');
+            if (sel && txt) sel.addEventListener('change', function () { txt.textContent = sel.value; });
+            var ph = document.getElementById('tourPhoneNumber');
+            if (ph) ph.addEventListener('input', function () { ph.value = ph.value.replace(/[^\d+\s\-()]/g, ''); });
+        })();
+
+        // Tabs
+        (function () {
+            const btns = document.querySelectorAll('.tab-btn');
+            const panels = document.querySelectorAll('.tab-panel');
+            const active = ['bg-tajan-red', 'text-white', 'rounded-lg', 'font-display', 'font-semibold'];
+            const idle = ['text-tajan-red/70'];
+
+            btns.forEach(b => b.addEventListener('click', () => {
+                btns.forEach(x => { x.classList.remove(...active); x.classList.add(...idle); });
+                b.classList.remove(...idle); b.classList.add(...active);
+                panels.forEach(p => p.classList.add('hidden'));
+                const panel = document.getElementById('panel-' + b.dataset.tab);
+                if (panel) panel.classList.remove('hidden');
+            }));
+        })();
+
+        // Mobile thumbnails
+        (function () {
+            const main = document.getElementById('mainPhoto');
+            const counter = document.getElementById('photoCounter');
+            document.querySelectorAll('.thumb').forEach(t => t.addEventListener('click', () => {
+                if (!main) return;
+                main.src = t.dataset.src;
+                counter.textContent = Number(t.dataset.idx) + 1;
+                document.querySelectorAll('.thumb').forEach(x => { x.classList.remove('border-tajan-gold'); x.classList.add('border-transparent'); });
+                t.classList.remove('border-transparent'); t.classList.add('border-tajan-gold');
+            }));
+        })();
+
+        // Photo lightbox ("View all photos")
+        (function () {
+            const box = document.getElementById('lightbox');
+            if (!box) return;
+            const photos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(imgs).Replace("<", "\\u003c"));
+            const img = document.getElementById('lbImage');
+            const counter = document.getElementById('lbCounter');
+            const thumbs = box.querySelectorAll('[data-lb-thumb]');
+            let cur = 0, lastFocus = null;
+
+            function show(i) {
+                cur = (i + photos.length) % photos.length;
+                img.src = photos[cur];
+                counter.textContent = cur + 1;
+                thumbs.forEach((t, k) => {
+                    const on = k === cur;
+                    t.classList.toggle('border-tajan-gold', on);
+                    t.classList.toggle('border-transparent', !on);
+                    t.classList.toggle('opacity-100', on);
+                    t.classList.toggle('opacity-60', !on);
+                    if (on) t.scrollIntoView({ block: 'nearest', inline: 'center' });
+                });
+            }
+            function open(i) {
+                lastFocus = document.activeElement;
+                box.classList.remove('hidden');
+                box.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+                show(i);
+                document.getElementById('lbClose').focus();
+            }
+            function close() {
+                box.classList.add('hidden');
+                box.classList.remove('flex');
+                document.body.style.overflow = '';
+                if (lastFocus) lastFocus.focus();
+            }
+
+            document.querySelectorAll('[data-gallery-open]').forEach(el => el.addEventListener('click', () => {
+                let idx = 0;
+                if (el.hasAttribute('data-current')) idx = (Number(document.getElementById('photoCounter').textContent) || 1) - 1;
+                else idx = Number(el.dataset.idx) || 0;
+                open(idx);
+            }));
+
+            document.getElementById('lbClose').addEventListener('click', close);
+            document.getElementById('lbPrev').addEventListener('click', () => show(cur - 1));
+            document.getElementById('lbNext').addEventListener('click', () => show(cur + 1));
+            thumbs.forEach((t, k) => t.addEventListener('click', () => show(k)));
+
+            // click on the dark area (not on the photo / buttons) closes
+            box.addEventListener('click', e => { if (e.target === box || e.target === box.children[1]) close(); });
+
+            document.addEventListener('keydown', e => {
+                if (box.classList.contains('hidden')) return;
+                if (e.key === 'Escape') close();
+                else if (e.key === 'ArrowLeft') show(cur - 1);
+                else if (e.key === 'ArrowRight') show(cur + 1);
+            });
+
+            // swipe on touch screens
+            let x0 = null;
+            img.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+            img.addEventListener('touchend', e => {
+                if (x0 === null) return;
+                const dx = e.changedTouches[0].clientX - x0;
+                if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+                x0 = null;
+            });
+        })();
+    </script>
+}

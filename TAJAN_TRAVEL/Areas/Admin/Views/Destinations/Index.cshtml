@@ -1,0 +1,60 @@
+@model List<DestinationRowVm>
+@{
+    ViewData["Title"] = "Destinations";
+}
+
+<div class="flex items-center justify-between">
+    <p class="text-sm text-slate-500">@Model.Count @(Model.Count == 1 ? "destination" : "destinations")</p>
+    <a asp-action="Create" class="inline-flex items-center gap-2 rounded-lg bg-tajan-red px-4 py-2 text-sm font-medium text-white hover:bg-[#3a171b]">
+        <i data-lucide="plus" class="h-4 w-4"></i> New destination
+    </a>
+</div>
+
+<div class="card mt-5 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full min-w-[760px] text-sm">
+            <thead>
+                <tr class="bg-slate-50/70 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3">Destination</th>
+                    <th class="px-3 py-3">Category</th>
+                    <th class="px-3 py-3">Tours</th>
+                    <th class="px-3 py-3 text-center">Featured</th>
+                    <th class="px-3 py-3 text-center">Active</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model)
+                {
+                    <tr class="border-t border-slate-100 hover:bg-tajan-cream/60">
+                        <td class="px-6 py-3">
+                            <div class="flex items-center gap-3">
+                                @if (!string.IsNullOrWhiteSpace(d.CoverImageUrl))
+                                {
+                                    <img src="@Url.Content(d.CoverImageUrl)" alt="" class="h-10 w-14 rounded object-cover" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="h-10 w-14 rounded bg-tajan-sand/40"></div>
+                                }
+                                <div class="min-w-0">
+                                    <a asp-action="Edit" asp-route-id="@d.Id" class="block truncate font-medium text-[#2A1215] hover:text-tajan-red hover:underline">@d.NameEn</a>
+                                    <div class="truncate text-xs text-slate-400">@d.NameFr</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-3 py-3 text-slate-600">@d.Category</td>
+                        <td class="px-3 py-3 text-slate-600">@d.ToursCount</td>
+                        <td class="px-3 py-3 text-center"><partial name="_Toggle" model='new ToggleVm("Destinations", d.Id, "featured", d.IsFeatured)' /></td>
+                        <td class="px-3 py-3 text-center"><partial name="_Toggle" model='new ToggleVm("Destinations", d.Id, "active", d.IsActive)' /></td>
+                        <td class="px-6 py-3"><partial name="_RowActions" model='new RowActionsVm("Destinations", d.Id, "Delete the destination “" + d.NameEn + "”? This is only possible when it has no tours.")' /></td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">No destinations yet.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

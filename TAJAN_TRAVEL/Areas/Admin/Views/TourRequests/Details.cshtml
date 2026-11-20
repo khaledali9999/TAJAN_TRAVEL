@@ -1,0 +1,127 @@
+@model Inquiry
+@{
+    var code = AdminFormat.Rq(Model.Id);
+    ViewData["Title"] = code;
+    var guests = Model.Adults + Model.Children + Model.Infants;
+}
+
+<a asp-action="Index" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-tajan-red">
+    <i data-lucide="arrow-left" class="h-4 w-4"></i> Back to requests
+</a>
+
+<div class="mt-4 grid gap-6 lg:grid-cols-3">
+    <section class="card p-6 lg:col-span-2">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+                <div class="text-xs text-slate-400">@AdminFormat.When(Model.CreatedAt)</div>
+                <h2 class="mt-1 font-display text-[22px] font-semibold text-[#2A1215]">@Model.FullName</h2>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="rounded bg-[#F3E9DD] px-2 py-0.5 text-[11px] text-[#6B4A3A]">@AdminFormat.TypeLabel(Model.Type)</span>
+                <span class="rounded-full px-2.5 py-1 text-xs font-medium @AdminFormat.StatusPill(Model.Status)">@AdminFormat.Pretty(Model.Status.ToString())</span>
+            </div>
+        </div>
+
+        <dl class="mt-6 grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
+            <div>
+                <dt class="text-xs text-slate-400">Email</dt>
+                <dd class="mt-1 text-slate-800">@Model.Email</dd>
+            </div>
+            <div>
+                <dt class="text-xs text-slate-400">Phone</dt>
+                <dd class="mt-1 text-slate-800">@Model.PhoneNumber</dd>
+            </div>
+            <div>
+                <dt class="text-xs text-slate-400">Country</dt>
+                <dd class="mt-1 text-slate-800">@(string.IsNullOrWhiteSpace(Model.Country) ? "—" : Model.Country)</dd>
+            </div>
+            <div>
+                <dt class="text-xs text-slate-400">Language</dt>
+                <dd class="mt-1 text-slate-800">@(string.IsNullOrWhiteSpace(Model.Language) ? "—" : Model.Language)</dd>
+            </div>
+            <div>
+                <dt class="text-xs text-slate-400">Tour</dt>
+                <dd class="mt-1 text-slate-800">
+                    @(Model.Tour?.TitleEn ?? "Custom itinerary")
+                    @if (Model.Tour?.Destination != null)
+                    {
+                        <span class="text-slate-400"> · @Model.Tour.Destination.NameEn</span>
+                    }
+                </dd>
+            </div>
+            <div>
+                <dt class="text-xs text-slate-400">Interests</dt>
+                <dd class="mt-1 text-slate-800">@(string.IsNullOrWhiteSpace(Model.PreferredCategory) ? "—" : Model.PreferredCategory)</dd>
+            </div>
+            <div>
+                <dt class="text-xs text-slate-400">Trip dates</dt>
+                <dd class="mt-1 text-slate-800">
+                    @if (Model.PreferredDate.HasValue)
+                    {
+                        <span>@AdminFormat.FullDay(Model.PreferredDate.Value)@(Model.PreferredEndDate.HasValue ? " – " + AdminFormat.FullDay(Model.PreferredEndDate.Value) : "")</span>
+                    }
+                    else
+                    {
+                        <span>Not decided</span>
+                    }
+                    <span class="text-slate-400"> · @AdminFormat.Pretty(Model.DateFlexibility.ToString())</span>
+                </dd>
+            </div>
+            <div>
+                <dt class="text-xs text-slate-400">Travelers</dt>
+                <dd class="mt-1 text-slate-800">
+                    @guests @(guests == 1 ? "guest" : "guests")
+                    <span class="text-slate-400"> · @Model.Adults adults, @Model.Children children@(string.IsNullOrWhiteSpace(Model.ChildrenAges) ? "" : " (ages " + Model.ChildrenAges + ")"), @Model.Infants infants</span>
+                </dd>
+            </div>
+            <div>
+                <dt class="text-xs text-slate-400">Preferred contact</dt>
+                <dd class="mt-1 text-slate-800">@Model.PreferredContact</dd>
+            </div>
+        </dl>
+
+        <div class="mt-6 border-t border-slate-100 pt-5">
+            <div class="text-xs text-slate-400">Notes</div>
+            <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">@(string.IsNullOrWhiteSpace(Model.AdditionalNotes) ? "No additional notes." : Model.AdditionalNotes)</p>
+        </div>
+    </section>
+
+    <aside class="space-y-6">
+        <section class="card p-6">
+            <h3 class="font-display text-[17px] font-semibold text-[#2A1215]">Status</h3>
+            <form asp-area="Admin" asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post" class="mt-4 space-y-3">
+                <select name="status" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold">
+                    @foreach (var s in Enum.GetValues<InquiryStatus>())
+                    {
+                        <option value="@s" selected="@(s == Model.Status)">@AdminFormat.Pretty(s.ToString())</option>
+                    }
+                </select>
+                <button type="submit" class="w-full rounded-lg bg-tajan-red py-2.5 text-sm font-medium text-white hover:bg-[#3a171b]">Update status</button>
+            </form>
+        </section>
+
+        <section class="card p-6">
+            <h3 class="font-display text-[17px] font-semibold text-[#2A1215]">Reply</h3>
+            <div class="mt-4 space-y-3">
+                <a href="@AdminFormat.MailUrl(Model.Email, code)"
+                   class="flex items-center justify-center gap-2 rounded-lg border border-slate-200 py-2.5 text-sm text-slate-700 hover:bg-tajan-cream">
+                    <i data-lucide="mail" class="h-4 w-4"></i> Email
+                </a>
+                <a href="@AdminFormat.WhatsAppUrl(Model.PhoneNumber)" target="_blank" rel="noopener"
+                   class="flex items-center justify-center gap-2 rounded-lg bg-tajan-gold py-2.5 text-sm font-medium text-tajan-red hover:brightness-105">
+                    <i data-lucide="message-circle" class="h-4 w-4"></i> WhatsApp
+                </a>
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h3 class="font-display text-[17px] font-semibold text-[#2A1215]">Danger zone</h3>
+            <form asp-area="Admin" asp-action="Delete" asp-route-id="@Model.Id" method="post" class="mt-4"
+                  data-confirm="Permanently delete @code? This cannot be undone.">
+                <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-lg border border-red-200 py-2.5 text-sm text-red-600 hover:bg-red-50">
+                    <i data-lucide="trash-2" class="h-4 w-4"></i> Delete request
+                </button>
+            </form>
+        </section>
+    </aside>
+</div>

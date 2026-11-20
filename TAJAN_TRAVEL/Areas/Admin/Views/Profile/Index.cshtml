@@ -1,0 +1,85 @@
+@model ProfilePageVm
+@{
+    ViewData["Title"] = "Settings";
+    const string ctl = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold";
+    const string lbl = "mb-1 block text-[11px] uppercase tracking-wide text-slate-500";
+
+    List<string> ErrorsOf(string key) =>
+        ViewData.ModelState.TryGetValue(key, out var entry)
+            ? entry.Errors.Select(e => e.ErrorMessage).Where(m => !string.IsNullOrEmpty(m)).ToList()
+            : new List<string>();
+
+    var profileErrors = ErrorsOf("profile");
+    var passwordErrors = ErrorsOf("password");
+}
+
+<div class="mx-auto grid max-w-4xl gap-6 lg:grid-cols-2">
+
+    <!-- My details -->
+    <div class="card overflow-hidden">
+        <div class="px-6 py-5">
+            <h2 class="font-display text-[18px] font-semibold text-[#2A1215]">My details</h2>
+            <p class="mt-1 text-xs text-slate-400">Your name and the email you use to sign in.</p>
+        </div>
+
+        <form asp-area="Admin" asp-controller="Profile" asp-action="SaveProfile" method="post" class="space-y-4 border-t border-slate-100 px-6 py-5">
+            @if (profileErrors.Count > 0)
+            {
+                <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    @foreach (var m in profileErrors) { <div>@m</div> }
+                </div>
+            }
+
+            <div>
+                <label class="@lbl">Name</label>
+                <input name="Name" value="@Model.Profile.Name" maxlength="100" required class="@ctl" autocomplete="name" />
+            </div>
+            <div>
+                <label class="@lbl">Email</label>
+                <input name="Email" type="email" value="@Model.Profile.Email" maxlength="150" required class="@ctl" autocomplete="email" />
+            </div>
+            <div>
+                <label class="@lbl">Role</label>
+                <div class="rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-[#2A1215]">@Model.Role</div>
+            </div>
+            <div>
+                <label class="@lbl">Current password <span class="normal-case text-slate-400">(to confirm changes)</span></label>
+                <input name="CurrentPassword" type="password" required class="@ctl" autocomplete="current-password" />
+            </div>
+
+            <button type="submit" class="rounded-lg bg-tajan-red px-4 py-2 text-sm font-medium text-white hover:bg-[#3a171b]">Save details</button>
+        </form>
+    </div>
+
+    <!-- Change password -->
+    <div class="card overflow-hidden">
+        <div class="px-6 py-5">
+            <h2 class="font-display text-[18px] font-semibold text-[#2A1215]">Change password</h2>
+            <p class="mt-1 text-xs text-slate-400">At least 8 characters. You stay signed in after changing it.</p>
+        </div>
+
+        <form asp-area="Admin" asp-controller="Profile" asp-action="ChangePassword" method="post" class="space-y-4 border-t border-slate-100 px-6 py-5">
+            @if (passwordErrors.Count > 0)
+            {
+                <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    @foreach (var m in passwordErrors) { <div>@m</div> }
+                </div>
+            }
+
+            <div>
+                <label class="@lbl">Current password</label>
+                <input name="CurrentPassword" type="password" required class="@ctl" autocomplete="current-password" />
+            </div>
+            <div>
+                <label class="@lbl">New password</label>
+                <input name="NewPassword" type="password" minlength="8" maxlength="128" required class="@ctl" autocomplete="new-password" />
+            </div>
+            <div>
+                <label class="@lbl">Confirm new password</label>
+                <input name="ConfirmPassword" type="password" minlength="8" maxlength="128" required class="@ctl" autocomplete="new-password" />
+            </div>
+
+            <button type="submit" class="rounded-lg bg-tajan-gold px-4 py-2 text-sm font-medium text-tajan-red hover:brightness-105">Update password</button>
+        </form>
+    </div>
+</div>

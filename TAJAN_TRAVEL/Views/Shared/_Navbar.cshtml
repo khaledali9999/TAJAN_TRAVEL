@@ -1,0 +1,266 @@
+<header id="site-header"
+        class="fixed top-0 left-0 right-0 z-40 transition-colors duration-300
+               bg-transparent border-b border-transparent">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+
+        <!-- Left group: Mobile menu + Logo + Desktop Nav -->
+        <div class="flex items-center gap-3 sm:gap-4 lg:gap-10">
+
+            <!-- Mobile menu toggle (next to logo, left side) -->
+            <button type="button"
+                    id="mobile-menu-btn"
+                    class="lg:hidden p-1.5 -ml-1.5 text-white transition-colors duration-300 order-first"
+                    aria-label="@T["Open menu"]"
+                    aria-expanded="false"
+                    aria-controls="mobile-menu"
+                    onclick="
+                        document.getElementById('mobile-menu').classList.toggle('hidden');
+                        document.getElementById('menu-icon-open').classList.toggle('hidden');
+                        document.getElementById('menu-icon-close').classList.toggle('hidden');
+                    ">
+                <svg id="menu-icon-open" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg id="menu-icon-close" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 hidden" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Logo -->
+            <a asp-controller="Home" asp-action="Index"
+               id="site-logo"
+               class="font-display text-base sm:text-lg lg:text-xl tracking-widest text-white shrink-0 transition-colors duration-300">
+                TAJAN <span class="text-tajan-gold">TRAVEL</span>
+            </a>
+
+            <!-- Desktop Nav -->
+            <nav id="site-nav"
+                 class="hidden lg:flex flex-nowrap items-center gap-8 whitespace-nowrap text-base tracking-wide text-white transition-colors duration-300">
+                <a asp-controller="Home" asp-action="Index" class="hover:text-tajan-gold transition-colors duration-300">@T["Home"]</a>
+                <a asp-controller="Tours" asp-action="Index" class="hover:text-tajan-gold transition-colors duration-300">@T["Tours"]</a>
+                <a asp-controller="Destinations" asp-action="Index" class="hover:text-tajan-gold transition-colors duration-300">@T["Destinations"]</a>
+                <a asp-controller="About" asp-action="Index" class="hover:text-tajan-gold transition-colors duration-300">@T["About us"]</a>
+                <a asp-controller="Blog" asp-action="Index" class="hover:text-tajan-gold transition-colors duration-300">@T["Stories"]</a>
+
+                <!-- More dropdown: keeps Nile Cruises + Blog accessible without crowding the bar -->
+                <div class="relative shrink-0" id="more-dropdown-wrap">
+                    @* An <a> (not a <button>) so it renders exactly like the other nav links: same font, spacing, colour and transition *@
+                    <a href="#" role="button" id="more-dropdown-btn"
+                       class="inline-flex items-center gap-1 hover:text-tajan-gold transition-colors duration-300 focus:outline-none"
+                       aria-haspopup="true" aria-expanded="false"
+                       onclick="event.preventDefault(); document.getElementById('more-dropdown-menu').classList.toggle('hidden')">
+                        @T["More"]
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </a>
+                    <div id="more-dropdown-menu"
+                         class="hidden absolute left-0 top-full mt-2 w-44 bg-tajan-cream text-tajan-red shadow-lg
+                                border border-tajan-gold/20 normal-case tracking-normal text-sm py-1 z-50">
+                        <a asp-controller="Contact" asp-action="Index" class="block px-4 py-2 hover:bg-tajan-gold/10 hover:text-tajan-gold transition">@T["Contact"]</a>
+                        <a asp-controller="Events" asp-action="Index" class="block px-4 py-2 hover:bg-tajan-gold/10 hover:text-tajan-gold transition">@T["Events"]</a>
+                        <a asp-controller="FAQ" asp-action="Index" class="block px-4 py-2 hover:bg-tajan-gold/10 hover:text-tajan-gold transition">@T["FAQs"]</a>
+
+                    </div>
+                </div>
+            </nav>
+
+        </div>
+
+        <!-- Right group: Actions -->
+        <div class="flex items-center gap-2 sm:gap-3 lg:gap-4">
+
+            <!-- Wishlist -->
+            <button type="button" id="wishlist-link"
+                    onclick="window.TajanWishlist && window.TajanWishlist.open()"
+                    class="hidden md:inline-flex items-center gap-1.5 text-tajan-gold text-xs lg:text-sm uppercase tracking-widest
+                           hover:opacity-80 transition whitespace-nowrap relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                </svg>
+                @T["Wishlist"]
+                <span data-wishlist-count
+                      class="hidden absolute -top-2 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-tajan-red text-white text-[10px] leading-4 text-center normal-case tracking-normal">0</span>
+            </button>
+
+            @* <button type="button" *@
+            @*         id="plan-ai-btn" *@
+            @*         class="inline-flex items-center gap-2 border border-tajan-gold text-white *@
+            @*                px-3 lg:px-4 py-2 text-[11px] lg:text-xs uppercase tracking-widest *@
+            @*                hover:bg-tajan-gold hover:text-white transition-colors duration-300 whitespace-nowrap" *@
+            @*         onclick="document.getElementById('chatbot-panel')?.classList.remove('hidden')"> *@
+            @*     ✦ Plan with AI *@
+            @* </button> *@
+
+            <!-- Language dropdown -->
+            <div class="relative hidden lg:block" id="lang-dropdown-wrap">
+                <button type="button" id="lang-dropdown-btn"
+                        class="inline-flex items-center gap-1 text-white text-xs uppercase tracking-widest
+                               transition-colors duration-300 focus:outline-none"
+                        aria-haspopup="true" aria-expanded="false"
+                        onclick="document.getElementById('lang-dropdown-menu').classList.toggle('hidden')">
+                    @Lang.Code.ToUpperInvariant()
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div id="lang-dropdown-menu"
+                     class="hidden absolute right-0 top-full mt-2 w-28 bg-tajan-cream text-tajan-red shadow-lg
+                            border border-tajan-gold/20 normal-case tracking-normal text-sm py-1 z-50">
+                    <a asp-controller="Language" asp-action="Set" asp-route-culture="en" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="block px-4 py-2 hover:bg-tajan-gold/10 hover:text-tajan-gold transition">English</a>
+                    <a asp-controller="Language" asp-action="Set" asp-route-culture="fr" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="block px-4 py-2 hover:bg-tajan-gold/10 hover:text-tajan-gold transition">Français</a>
+                </div>
+            </div>
+
+            <!-- Currency dropdown -->
+            <div class="relative hidden lg:block" id="currency-dropdown-wrap">
+                <button type="button" id="currency-dropdown-btn"
+                        class="inline-flex items-center gap-1 text-white text-xs uppercase tracking-widest
+                               transition-colors duration-300 focus:outline-none"
+                        aria-haspopup="true" aria-expanded="false"
+                        onclick="document.getElementById('currency-dropdown-menu').classList.toggle('hidden')">
+                    @SiteCurrency.Current
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div id="currency-dropdown-menu"
+                     class="hidden absolute right-0 top-full mt-2 w-28 bg-tajan-cream text-tajan-red shadow-lg
+                            border border-tajan-gold/20 normal-case tracking-normal text-sm py-1 z-50">
+                    <a asp-controller="Currency" asp-action="Set" asp-route-code="USD" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="block px-4 py-2 hover:bg-tajan-gold/10 hover:text-tajan-gold transition">USD ($)</a>
+                    <a asp-controller="Currency" asp-action="Set" asp-route-code="EUR" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="block px-4 py-2 hover:bg-tajan-gold/10 hover:text-tajan-gold transition">EUR (€)</a>
+
+                </div>
+            </div>
+
+            <a asp-controller="Inquiry" asp-action="Create"
+               class="hidden sm:inline-flex bg-[#D4B84C] text-black
+                      px-4 lg:px-6 py-2.5 lg:py-3 text-[11px] lg:text-xs uppercase tracking-widest
+                      hover:bg-[#C5A93F] transition whitespace-nowrap">
+                @T["Design Your Egypt Tour"]
+            </a>
+        </div>
+    </div>
+
+    <!-- Mobile Nav Panel -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-tajan-gold/20 bg-tajan-cream">
+        <nav class="flex flex-col px-4 sm:px-6 py-4 gap-1 text-sm tracking-wide text-tajan-red">
+            <a asp-controller="Home" asp-action="Index" class="py-2.5 hover:text-tajan-gold transition">@T["Home"]</a>
+            <a asp-controller="Tours" asp-action="Index" class="py-2.5 hover:text-tajan-gold transition">@T["Tours"]</a>
+            <a asp-controller="Destinations" asp-action="Index" class="py-2.5 hover:text-tajan-gold transition">@T["Destinations"]</a>
+            <a asp-controller="FAQ" asp-action="Index" class="py-2.5 hover:text-tajan-gold transition">@T["FAQs"]</a>
+            <a asp-controller="About" asp-action="Index" class="py-2.5 hover:text-tajan-gold transition">@T["Abouts Us"]</a>
+            <a asp-controller="Events" asp-action="Index" class="py-2.5 hover:text-tajan-gold transition">@T["Events"]</a>
+            <a asp-controller="Blog" asp-action="Index" class="py-2.5 hover:text-tajan-gold transition">@T["Stories"]</a>
+            <a asp-controller="Contact" asp-action="Index" class="py-2.5 hover:text-tajan-gold transition">@T["Contact"]</a>
+            <button type="button"
+                    onclick="window.TajanWishlist && window.TajanWishlist.open()"
+                    class="py-2.5 hover:text-tajan-gold transition flex items-center gap-1.5 text-left">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                </svg>
+                @T["Wishlist"]
+                <span data-wishlist-count
+                      class="hidden min-w-[18px] h-[18px] px-1 rounded-full bg-tajan-red text-white text-[10px] leading-[18px] text-center normal-case tracking-normal">0</span>
+            </button>
+
+            <div class="flex items-center gap-4 py-2.5 text-tajan-red/70 normal-case tracking-normal text-sm">
+                <span>@T["Language:"] <a asp-controller="Language" asp-action="Set" asp-route-culture="en" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="@(Lang.IsFrench ? "underline" : "font-bold")">EN</a> | <a asp-controller="Language" asp-action="Set" asp-route-culture="fr" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="@(Lang.IsFrench ? "font-bold" : "underline")">FR</a></span>
+                <span>@T["Currency:"] <a asp-controller="Currency" asp-action="Set" asp-route-code="USD" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="@(SiteCurrency.Current == "USD" ? "font-bold" : "underline")">USD</a> | <a asp-controller="Currency" asp-action="Set" asp-route-code="EUR" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" class="@(SiteCurrency.Current == "EUR" ? "font-bold" : "underline")">EUR</a></span>
+            </div>
+
+            <a asp-controller="Inquiry" asp-action="Create"
+               class="mt-2 sm:hidden inline-flex items-center justify-center bg-[#C8A44D] text-black
+                      px-6 py-3 text-xs uppercase tracking-widest hover:bg-[#C5A93F] transition">
+                @T["Design Your Egypt Tour"]
+            </a>
+        </nav>
+    </div>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const header = document.getElementById('site-header');
+        const logo = document.getElementById('site-logo');
+        const nav = document.getElementById('site-nav');
+        const planBtn = document.getElementById('plan-ai-btn');
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const heroSection = document.getElementById('hero-section');
+        const langBtn = document.getElementById('lang-dropdown-btn');
+        const currencyBtn = document.getElementById('currency-dropdown-btn');
+        const moreBtn = document.getElementById('more-dropdown-btn');
+        const moreMenu = document.getElementById('more-dropdown-menu');
+
+        // Elements that switch between white (transparent header) and red (solid header).
+        // Wishlist is excluded on purpose — it stays gold in both states, matching the reference design.
+        const themedEls = [logo, nav, planBtn, menuBtn, langBtn, currencyBtn].filter(Boolean);
+
+        function setSolid() {
+            if (moreMenu) moreMenu.classList.add('hidden');
+            header.classList.remove('bg-transparent', 'border-transparent');
+            header.classList.add('bg-tajan-cream/95', 'backdrop-blur', 'border-tajan-gold/20', 'shadow-sm');
+
+            themedEls.forEach(el => {
+                el.classList.remove('text-white');
+                el.classList.add('text-tajan-red');
+            });
+        }
+
+        function setTransparent() {
+            if (moreMenu) moreMenu.classList.add('hidden');
+            header.classList.add('bg-transparent', 'border-transparent');
+            header.classList.remove('bg-tajan-cream/95', 'backdrop-blur', 'border-tajan-gold/20', 'shadow-sm');
+
+            themedEls.forEach(el => {
+                el.classList.add('text-white');
+                el.classList.remove('text-tajan-red');
+            });
+        }
+
+        // لو مفيش هيرو سكشن في الصفحة، خلي الهيدر solid افتراضيًا
+        if (!heroSection) {
+            setSolid();
+            return;
+        }
+
+        // الهيدر fixed وطوله ~70px: لازم يتحول لـ solid أول ما نهاية الهيرو توصل لتحت الهيدر،
+        // مش لما الهيرو يختفي بالكامل. غير كده الهيدر يفضل شفاف بنص أبيض فوق خلفية فاتحة
+        // (النص بيختفي) وبعدين يعمل "قفزة" مفاجئة.
+        let ticking = false;
+        let isSolid = null;
+
+        function update() {
+            ticking = false;
+            const overHero = heroSection.getBoundingClientRect().bottom > header.offsetHeight;
+            if (overHero === !isSolid) return;            // no change
+            isSolid = !overHero;
+            overHero ? setTransparent() : setSolid();
+        }
+
+        function requestUpdate() {
+            if (!ticking) { ticking = true; requestAnimationFrame(update); }
+        }
+
+        update();                                          // correct state on load / refresh mid-page / back button
+        window.addEventListener('scroll', requestUpdate, { passive: true });
+        window.addEventListener('resize', requestUpdate);
+        window.addEventListener('pageshow', requestUpdate);
+    });
+
+    // Close the More / Language / Currency dropdowns when clicking outside of them
+    document.addEventListener('click', function (e) {
+        [
+            ['more-dropdown-wrap', 'more-dropdown-menu'],
+            ['lang-dropdown-wrap', 'lang-dropdown-menu'],
+            ['currency-dropdown-wrap', 'currency-dropdown-menu']
+        ].forEach(function ([wrapId, menuId]) {
+            const wrap = document.getElementById(wrapId);
+            const menu = document.getElementById(menuId);
+            if (wrap && menu && !wrap.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    });
+</script>

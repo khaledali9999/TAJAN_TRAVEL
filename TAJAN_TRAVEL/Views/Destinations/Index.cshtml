@@ -1,0 +1,228 @@
+﻿@model DestinationListViewModel
+@{
+    ViewData["Title"] = T["Destinations"];
+}
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<!-- id="hero-section" is used by the navbar to stay transparent over the image; height matches the About hero -->
+<section id="hero-section" class="relative min-h-[520px] h-[75vh] max-h-[720px] flex items-end overflow-hidden">
+    <div class="absolute inset-0">
+        <img src="/Sunset Stroll Over Santorini’s Caldera.png"
+             alt="@T["Egypt Destinations"]"
+             class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30"></div>
+    </div>
+    <div class="relative max-w-7xl mx-auto px-6 pb-12 text-white">
+        @* <div class="flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-tajan-gold mb-4"> *@
+        @*     <span class="w-8 h-px bg-tajan-gold/60"></span> *@
+        @*     <span>@T["Explore Egypt"]</span> *@
+        @* </div> *@
+        <h1 class="font-display text-4xl sm:text-5xl">@T["Where Will You Go Next?"]</h1>
+        <p class="mt-3 text-white/70 text-sm max-w-md">
+            @T["Iconic places. Hidden gems. All in one journey."]
+        </p>
+    </div>
+</section>
+
+<!-- ═══════════════ IMAGE SECTION ═══════════════ -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20">
+    <div class="relative overflow-hidden rounded-xl h-[360px] sm:h-[500px] lg:h-[800px] bg-tajan-sand/30">
+        @* Replace the file name below with your image (put it in wwwroot/images/destinations/) *@
+        <img src="/egypt_map_smaller.png"
+             alt="@T["Discover Egypt"]"
+             class="w-full h-full object-cover" />
+    </div>
+</section>
+
+<!-- ═══════════════ GRID ═══════════════ -->
+<section id="destinations-grid" class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 scroll-mt-20">
+
+    <div class="text-center mb-14">
+        <div class="text-xs uppercase tracking-[0.3em] text-tajan-gold mb-3">@T["Featured Destinations"]</div>
+        <h2 class="font-display text-3xl sm:text-4xl text-tajan-red">@T["Places Worth Discovering"]</h2>
+    </div>
+
+    <div id="destinations-results" class="transition-opacity duration-200">
+        @await Html.PartialAsync("_DestinationsResults", Model)
+    </div>
+</section>
+
+<!-- ═══════════════ WHAT CAN YOU EXPERIENCE ═══════════════ -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 pb-4">
+    <div class="bg-white rounded-2xl border border-tajan-red/5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] px-6 sm:px-12 py-8 sm:py-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-12 items-start">
+            <div>
+                <div class="text-[10px] uppercase tracking-[0.3em] text-tajan-gold mb-2">@T["Experiences"]</div>
+                <h2 class="font-display text-2xl sm:text-3xl text-tajan-red">@T["What Can You Experience?"]</h2>
+            </div>
+            <p class="text-sm text-tajan-red/65 leading-relaxed lg:pt-5 max-w-md">
+                @T["More than just a destination it's an experience. From adventure to culture, find the thing that matches your interests."]
+            </p>
+        </div>
+
+        <div class="grid grid-cols-4 lg:grid-cols-8 gap-x-3 gap-y-7 mt-9">
+            <div class="flex flex-col items-center text-center gap-2.5">
+                <span class="w-14 h-14 rounded-full bg-tajan-sand/30 border border-tajan-gold/20 flex items-center justify-center text-tajan-gold">
+                    <i data-lucide="tree-palm" class="w-5 h-5"></i>
+                </span>
+                <span class="text-[11px] sm:text-xs leading-tight text-tajan-red max-w-[90px]">@T["Beach & Islands"]</span>
+            </div>
+            <div class="flex flex-col items-center text-center gap-2.5">
+                <span class="w-14 h-14 rounded-full bg-tajan-sand/30 border border-tajan-gold/20 flex items-center justify-center text-tajan-gold">
+                    <i data-lucide="sun" class="w-5 h-5"></i>
+                </span>
+                <span class="text-[11px] sm:text-xs leading-tight text-tajan-red max-w-[90px]">@T["Desert Adventures"]</span>
+            </div>
+            <div class="flex flex-col items-center text-center gap-2.5">
+                <span class="w-14 h-14 rounded-full bg-tajan-sand/30 border border-tajan-gold/20 flex items-center justify-center text-tajan-gold">
+                    <i data-lucide="landmark" class="w-5 h-5"></i>
+                </span>
+                <span class="text-[11px] sm:text-xs leading-tight text-tajan-red max-w-[90px]">@T["Ancient Egypt"]</span>
+            </div>
+            <div class="flex flex-col items-center text-center gap-2.5">
+                <span class="w-14 h-14 rounded-full bg-tajan-sand/30 border border-tajan-gold/20 flex items-center justify-center text-tajan-gold">
+                    <i data-lucide="ship" class="w-5 h-5"></i>
+                </span>
+                <span class="text-[11px] sm:text-xs leading-tight text-tajan-red max-w-[90px]">@T["Nile Cruises"]</span>
+            </div>
+            <div class="flex flex-col items-center text-center gap-2.5">
+                <span class="w-14 h-14 rounded-full bg-tajan-sand/30 border border-tajan-gold/20 flex items-center justify-center text-tajan-gold">
+                    <i data-lucide="fish" class="w-5 h-5"></i>
+                </span>
+                <span class="text-[11px] sm:text-xs leading-tight text-tajan-red max-w-[90px]">@T["Diving & Snorkeling"]</span>
+            </div>
+            <div class="flex flex-col items-center text-center gap-2.5">
+                <span class="w-14 h-14 rounded-full bg-tajan-sand/30 border border-tajan-gold/20 flex items-center justify-center text-tajan-gold">
+                    <i data-lucide="waves" class="w-5 h-5"></i>
+                </span>
+                <span class="text-[11px] sm:text-xs leading-tight text-tajan-red max-w-[90px]">@T["Water Sports"]</span>
+            </div>
+            <div class="flex flex-col items-center text-center gap-2.5">
+                <span class="w-14 h-14 rounded-full bg-tajan-sand/30 border border-tajan-gold/20 flex items-center justify-center text-tajan-gold">
+                    <i data-lucide="tent" class="w-5 h-5"></i>
+                </span>
+                <span class="text-[11px] sm:text-xs leading-tight text-tajan-red max-w-[90px]">@T["Camping"]</span>
+            </div>
+            <div class="flex flex-col items-center text-center gap-2.5">
+                <span class="w-14 h-14 rounded-full bg-tajan-sand/30 border border-tajan-gold/20 flex items-center justify-center text-tajan-gold">
+                    <i data-lucide="utensils" class="w-5 h-5"></i>
+                </span>
+                <span class="text-[11px] sm:text-xs leading-tight text-tajan-red max-w-[90px]">@T["Local Culture & Food"]</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ EGYPT IN A DAY ═══════════════ -->
+@if (Model.FeaturedTours.Any())
+{
+    @await Html.PartialAsync("_DayToursSlider", Model.FeaturedTours)
+}
+
+<!-- ═══════════════ BUILD YOUR TRIP ═══════════════ -->
+<section class="py-16 px-6">
+    <div class="max-w-6xl mx-auto bg-[#FAF6F0] rounded-3xl border border-tajan-gold/15
+                shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-6 sm:p-10
+                grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+        <div>
+            <span class="inline-block text-[11px] font-semibold uppercase tracking-widest text-tajan-red
+                         border border-tajan-red rounded-full px-4 py-1.5 mb-6">
+                @T["Build Your Trip"]
+            </span>
+            <h2 class="font-display text-3xl sm:text-4xl font-semibold text-tajan-red mb-5">@T["Your Egypt, Your Way."]</h2>
+            <p class="text-tajan-red/80 leading-relaxed mb-6">
+                @T["Don't see the Egypt trip you're looking for? Tell us what you have in mind, and our local travel experts will create a personalized itinerary around your interests, pace, and budget."]
+            </p>
+            <div class="flex flex-wrap gap-3 mb-8 text-sm font-medium text-tajan-red">
+                <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["100% Tailor-Made"]</span>
+                <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["Personalized Itineraries"]</span>
+                <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["Local Experts"]</span>
+                <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["24h Proposal"]</span>
+            </div>
+            <a asp-controller="Inquiry" asp-action="Create"
+               class="inline-flex items-center gap-3 bg-tajan-red text-tajan-sand font-semibold
+                      px-6 py-3.5 text-sm uppercase tracking-wide rounded-lg hover:bg-tajan-red/90 transition">
+                @T["Design Your Egypt Tour →"]
+            </a>
+        </div>
+        <div class="aspect-[4/3] overflow-hidden rounded-xl">
+            <img src="/ChatGPT Image Sep 9, 2026, 12_20_02 PM.png" alt="@T["Sailboat on the Nile"]"
+                 class="w-full h-full object-cover" />
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ MORE DESTINATIONS. MORE STORIES. ═══════════════ -->
+<section class="px-6 pb-20">
+    <div class="max-w-6xl mx-auto bg-[#FAF6F0] rounded-3xl border border-tajan-gold/15
+                shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-5 sm:p-8
+                grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+        <div class="relative aspect-[4/3] overflow-hidden rounded-2xl bg-tajan-sand/30">
+            @* Replace with your image (put it in wwwroot/images/destinations/) *@
+            <img src="/Exotic Twilight Journeys Triptych.png" alt="@T["The world awaits"]"
+                 class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-black/35"></div>
+            <p class="absolute inset-0 flex items-center justify-center text-center px-6 font-display text-3xl sm:text-4xl text-white">
+                @T["The world awaits"]
+            </p>
+        </div>
+        <div>
+            <div class="text-[10px] uppercase tracking-[0.3em] text-tajan-gold mb-3">@T["And this is just the beginning"]</div>
+            <h2 class="font-display text-3xl sm:text-4xl text-tajan-red mb-4">@T["More Destinations. More Stories."]</h2>
+            <p class="text-sm text-tajan-red/70 leading-relaxed max-w-md mb-6">
+                @T["Tajan started with Egypt. Our journey doesn't end here. New countries and destinations are coming soon."]
+            </p>
+            <a asp-controller="About" asp-action="Index"
+               class="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-tajan-red hover:text-tajan-gold transition">
+                @T["Explore Tajan Journey →"]
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Pagination without a page reload: fetch the same URL as a partial and swap the grid.
+        (function () {
+            const results = document.getElementById('destinations-results');
+            const section = document.getElementById('destinations-grid');
+            if (!results || !section) return;
+
+            function clean(url) {
+                const u = new URL(url, window.location.href);
+                u.hash = '';
+                return u.toString();
+            }
+
+            function load(url, push) {
+                url = clean(url);
+                results.style.opacity = '0.45';
+                results.style.pointerEvents = 'none';
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+                    .then(function (html) {
+                        results.innerHTML = html;
+                        results.style.opacity = '1';
+                        results.style.pointerEvents = '';
+                        if (push) history.pushState({ destUrl: url }, '', url);
+                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    })
+                    .catch(function () { window.location.href = url; });
+            }
+
+            // event delegation: survives the innerHTML swap
+            results.addEventListener('click', function (e) {
+                const link = e.target.closest('[data-dest-pagination] a');
+                if (!link) return;
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; // allow open-in-new-tab
+                e.preventDefault();
+                load(link.href, true);
+            });
+
+            history.replaceState({ destUrl: clean(window.location.href) }, '', window.location.href);
+            window.addEventListener('popstate', function (e) {
+                load((e.state && e.state.destUrl) || window.location.href, false);
+            });
+        })();
+    </script>
+}

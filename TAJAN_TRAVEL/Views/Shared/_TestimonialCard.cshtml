@@ -1,0 +1,25 @@
+@model Testimonial
+
+<div class="bg-white border border-tajan-gold/20 p-6">
+    <div class="text-tajan-gold text-sm mb-3">
+        @for (var i = 0; i < Model.Rating; i++)
+        {
+            @:★
+        }
+    </div>
+    <p class="text-sm text-tajan-red/80 italic leading-relaxed mb-4">
+        &ldquo;@Lang.Pick(Model.QuoteEn, Model.QuoteFr)&rdquo;
+    </p>
+    <div class="flex items-center gap-3">
+        @if (!string.IsNullOrEmpty(Model.ClientPhotoUrl))
+        {
+            <img src="@Model.ClientPhotoUrl" alt="@Model.ClientName" class="w-9 h-9 rounded-full object-cover" />
+        }
+        <div>
+            <div class="text-sm font-medium text-tajan-red">@Model.ClientName</div>
+            <div class="text-[11px] uppercase tracking-widest text-tajan-red/50">
+                @T["Traveler"] @(!string.IsNullOrEmpty(Model.ClientCountry) ? $"· {Lang.Pick(Model.ClientCountry, Model.ClientCountryFr)}" : "")
+            </div>
+        </div>
+    </div>
+</div>

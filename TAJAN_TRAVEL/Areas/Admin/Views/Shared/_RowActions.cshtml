@@ -1,0 +1,13 @@
+@model RowActionsVm
+<div class="flex items-center justify-end gap-1">
+    <a asp-area="Admin" asp-controller="@Model.Controller" asp-action="Edit" asp-route-id="@Model.Id"
+       class="rounded-md p-1.5 text-slate-400 hover:bg-tajan-cream hover:text-tajan-red" title="Edit">
+        <i data-lucide="pencil" class="h-4 w-4"></i>
+    </a>
+    <form asp-area="Admin" asp-controller="@Model.Controller" asp-action="Delete" method="post" data-confirm="@Model.Confirm">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600" title="Delete">
+            <i data-lucide="trash-2" class="h-4 w-4"></i>
+        </button>
+    </form>
+</div>

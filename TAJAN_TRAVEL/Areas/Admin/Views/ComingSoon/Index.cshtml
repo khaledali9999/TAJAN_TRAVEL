@@ -1,0 +1,11 @@
+@{
+    var title = ViewData["Title"]?.ToString() ?? "Coming soon";
+}
+<div class="card mx-auto mt-10 max-w-lg p-10 text-center">
+    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F3E9DD] text-tajan-red">
+        <i data-lucide="hammer" class="h-5 w-5"></i>
+    </div>
+    <h2 class="mt-5 font-display text-xl font-semibold text-[#2A1215]">@title</h2>
+    <p class="mt-2 text-sm text-slate-500">This section isn't built yet.</p>
+    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="mt-6 inline-block rounded-lg bg-tajan-red px-5 py-2.5 text-sm font-medium text-white hover:bg-[#3a171b]">Back to dashboard</a>
+</div>

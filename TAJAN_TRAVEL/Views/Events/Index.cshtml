@@ -1,0 +1,222 @@
+﻿@model EventsViewModel
+@{
+    ViewData["Title"] = T["Events in Egypt"];
+    ViewData["Description"] = T["Discover the latest events, festivals, and experiences happening across Egypt."];
+}
+
+@section Styles {
+    <style>
+        .no-scrollbar {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+    </style>
+}
+
+@* ===================== Hero ===================== *@
+<section id="hero-section" class="relative h-[60vh] min-h-[420px] flex items-center justify-center overflow-hidden">
+    <img src="/ChatGPT Image Sep 9, 2026, 12_20_02 PM.png" alt="@T["Felucca sailing on the Nile at sunset"]"
+         class="absolute inset-0 w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/55"></div>
+
+    <div class="relative z-10 text-center text-white px-6 pt-16 max-w-3xl">
+        <div class="flex items-center justify-center gap-3 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.35em] text-tajan-gold mb-5">
+            <span class="w-6 sm:w-8 h-px bg-tajan-gold"></span>
+            <span>@T["Events in Egypt"]</span>
+            <span class="w-6 sm:w-8 h-px bg-tajan-gold"></span>
+        </div>
+        <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl leading-tight mb-5">@T["See what's happening across Egypt"]</h1>
+        <p class="text-sm sm:text-base text-white/85 max-w-xl mx-auto leading-relaxed">
+            @T["Discover the latest events, festivals, and experiences happening across Egypt."]
+        </p>
+        <span class="block w-12 h-px bg-tajan-gold mx-auto mt-7"></span>
+    </div>
+</section>
+
+@* ===================== Filters + Featured + Grid ===================== *@
+<section class="bg-tajan-cream">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-10">
+        <div id="events-results" class="scroll-mt-24 transition-opacity duration-200">
+            @await Html.PartialAsync("_EventsResults", Model)
+        </div>
+    </div>
+</section>
+
+@* ===================== Build Your Trip ===================== *@
+<section class="bg-tajan-cream pb-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="bg-white border border-tajan-red/10 rounded-2xl p-4 sm:p-6 grid grid-cols-1 md:grid-cols-[1fr_340px] gap-6 md:gap-10 items-center shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+
+            <div class="order-2 md:order-1 px-1 sm:px-2 pb-2 md:pb-0">
+                <span class="inline-block border border-tajan-red/20 rounded-full px-3 py-1 text-[9px] font-medium uppercase tracking-[0.2em] text-tajan-red mb-4">@T["Build Your Trip"]</span>
+                <h2 class="font-display text-2xl sm:text-3xl text-tajan-red mb-3">@T["Your Egypt, Your Way."]</h2>
+                <p class="text-[13px] text-tajan-red/70 leading-relaxed max-w-lg mb-5">
+                    @T["Don't see the Egypt trip you're looking for? Tell us what you have in mind, and our local travel experts will create a personalized itinerary around your interests, pace, and budget."]
+                </p>
+                <ul class="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-2 mb-6">
+                    @foreach (var item in new[] { T["100% Tailor Made"], T["Personalized Itineraries"], T["Local Experts"], T["24h Proposal"] })
+                    {
+                        <li class="border border-tajan-red/10 rounded-md px-3 py-2 text-[11px] text-tajan-red">@item</li>
+                    }
+                </ul>
+                <a asp-controller="Inquiry" asp-action="Create"
+                   class="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-tajan-red text-white rounded-md px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-tajan-red/90 transition">
+                    @T["Design Your Egypt Tour"] <span aria-hidden="true">&rarr;</span>
+                </a>
+            </div>
+
+            <div class="order-1 md:order-2 aspect-[16/10] md:aspect-[4/3] rounded-xl overflow-hidden bg-tajan-sand/30">
+                <img src="/ChatGPT Image Sep 9, 2026, 12_20_02 PM.png" alt="@T["Felucca on the Nile at sunset"]" class="w-full h-full object-cover" />
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ===================== Event details modal ===================== *@
+<div id="event-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="event-modal-title">
+    <div data-modal-close class="absolute inset-0 bg-black/60"></div>
+
+    <div class="relative bg-tajan-cream rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-5 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+            <span class="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-tajan-gold">
+                <span class="w-3 h-px bg-tajan-gold"></span>
+                <span id="event-modal-category"></span>
+            </span>
+            <button type="button" data-modal-close aria-label="@T["Close"]"
+                    class="w-7 h-7 rounded-full border border-tajan-red/15 text-tajan-red/70 flex items-center justify-center hover:border-tajan-gold hover:text-tajan-gold transition">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+        </div>
+
+        <h2 id="event-modal-title" class="font-display text-2xl sm:text-3xl text-tajan-red leading-tight mb-4"></h2>
+
+        <div id="event-modal-image-wrap" class="aspect-[16/9] rounded-lg overflow-hidden bg-tajan-sand/30 mb-4">
+            <img id="event-modal-image" src="" alt="" class="w-full h-full object-cover" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="flex items-start gap-2">
+                <i data-lucide="calendar" class="w-4 h-4 text-tajan-gold mt-0.5 shrink-0"></i>
+                <div>
+                    <div class="text-[9px] font-medium uppercase tracking-[0.2em] text-tajan-red/55">@T["Date"]</div>
+                    <div id="event-modal-date" class="text-[13px] text-tajan-red"></div>
+                </div>
+            </div>
+            <div id="event-modal-location-wrap" class="flex items-start gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-tajan-gold mt-0.5 shrink-0"></i>
+                <div>
+                    <div class="text-[9px] font-medium uppercase tracking-[0.2em] text-tajan-red/55">@T["Location"]</div>
+                    <div id="event-modal-location" class="text-[13px] text-tajan-red"></div>
+                </div>
+            </div>
+        </div>
+
+        <p id="event-modal-description" class="text-[13px] text-tajan-red/75 leading-relaxed mb-5"></p>
+
+        <a id="event-modal-contact" href="#"
+           class="block text-center bg-tajan-red text-white rounded-lg py-3.5 text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-tajan-red/90 transition">
+            @T["Contact Us For More Info"]
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var results = document.getElementById('events-results');
+            var modal = document.getElementById('event-modal');
+
+            function refreshIcons() { if (window.lucide) window.lucide.createIcons(); }
+
+            function fetchHtml(url) {
+                return fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); });
+            }
+
+            // ---------- Filters / pagination without a full reload ----------
+            function load(url, push) {
+                results.classList.add('opacity-40');
+                fetchHtml(url).then(function (html) {
+                    results.innerHTML = html;
+                    results.classList.remove('opacity-40');
+                    if (push) history.pushState({}, '', url);
+                    refreshIcons();
+                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }).catch(function () { window.location.href = url; });
+            }
+
+            window.addEventListener('popstate', function () { load(window.location.href, false); });
+
+            // ---------- Modal ----------
+            function setText(id, value) { document.getElementById(id).textContent = value || ''; }
+
+            function openModal(el) {
+                var d = el.dataset;
+                setText('event-modal-category', d.category);
+                setText('event-modal-title', d.title);
+                setText('event-modal-date', d.date);
+                setText('event-modal-location', d.location);
+                setText('event-modal-description', d.description);
+                document.getElementById('event-modal-location-wrap').style.display = d.location ? '' : 'none';
+
+                var img = document.getElementById('event-modal-image');
+                var wrap = document.getElementById('event-modal-image-wrap');
+                if (d.image) {
+                    img.onerror = function () { wrap.style.display = 'none'; };
+                    img.src = d.image; img.alt = d.title; wrap.style.display = '';
+                } else { wrap.style.display = 'none'; }
+
+                document.getElementById('event-modal-contact').href = d.contactUrl || '#';
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+                refreshIcons();
+            }
+
+            function closeModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
+
+            modal.addEventListener('click', function (e) {
+                if (e.target.closest('[data-modal-close]')) closeModal();
+            });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+            // ---------- Delegated clicks inside the results block ----------
+            results.addEventListener('click', function (e) {
+                var link = e.target.closest('a[data-events-link]');
+                if (link) { e.preventDefault(); load(link.href, true); return; }
+
+                var more = e.target.closest('[data-events-more]');
+                if (more) {
+                    more.disabled = true;
+                    more.textContent = tr('Loading...');
+                    fetchHtml(more.dataset.nextUrl).then(function (html) {
+                        var doc = new DOMParser().parseFromString(html, 'text/html');
+                        var grid = results.querySelector('[data-events-grid]');
+                        doc.querySelectorAll('[data-events-grid] > *').forEach(function (n) {
+                            grid.appendChild(document.importNode(n, true));
+                        });
+                        var oldPager = results.querySelector('[data-events-pager]');
+                        var newPager = doc.querySelector('[data-events-pager]');
+                        if (oldPager && newPager) oldPager.replaceWith(document.importNode(newPager, true));
+                    }).catch(function () {
+                        more.disabled = false;
+                        more.textContent = tr('See More');
+                    });
+                    return;
+                }
+
+                var card = e.target.closest('[data-event-open]');
+                if (card) openModal(card);
+            });
+        })();
+    </script>
+}

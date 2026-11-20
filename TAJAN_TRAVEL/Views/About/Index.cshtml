@@ -1,0 +1,278 @@
+﻿@{
+    ViewData["Title"] = T["About Us"];
+    ViewData["Description"] = T["The story behind Tajan Travel: who we are, what we believe, and why we create journeys through Egypt differently."];
+}
+
+<!-- Hero (id is used by the navbar to stay transparent over the image) -->
+<section id="hero-section" class="relative min-h-[520px] h-[75vh] max-h-[720px] flex items-center overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('/WhatsApp Image 2026-10-01 at 22.55.28 (1).jpeg');"></div>
+    @* <div class="absolute inset-0 bg-gradient-to-r from-tajan-red/80 via-tajan-red/40 to-tajan-red/20"></div> *@
+    <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full pt-16 text-white">
+        <div class="flex items-center gap-4 text-[11px] sm:text-xs uppercase tracking-[0.3em] text-tajan-sand mb-5">
+            <span>@T["About Tajan"]</span>
+            <span class="w-10 h-px bg-tajan-gold"></span>
+        </div>
+        <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.15] mb-6">
+            @T["The Story Behind"]<br />@T["Your Journey"]
+        </h1>
+        <p class="max-w-xl text-base sm:text-lg text-white/90 leading-relaxed">
+            @T["A deeper look at who we are, what we believe, and why we create journeys through Egypt differently."]
+        </p>
+    </div>
+</section>
+
+<!-- Our Story -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+        <div>
+            <div class="text-sm uppercase tracking-[0.25em] text-tajan-gold pb-3 mb-8 border-b border-tajan-red/10">@T["Our Story"]</div>
+            <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight text-tajan-red mb-8">
+                @T["Born in Egypt."]<br />@T["Made for the Way You Travel."]
+            </h2>
+            <div class="text-tajan-red/75 leading-relaxed space-y-4">
+                <p>
+                    @T["After working in Egypt's tourism industry for four years with one of the country's leading local travel companies, I had the opportunity to work directly with travelers and help create successful experiences for more than 500 family groups."]
+                </p>
+                <p>
+                    @T["Seeing travelers leave Egypt with beautiful memories and a desire to come back made me realize how much I enjoy creating meaningful journeys."]
+                </p>
+                <div id="story-more" class="hidden space-y-4">
+                    <p>
+                        @T["Together with my wife, who also worked as a travel consultant in Egypt, we decided to create Tajan Travel."]
+                    </p>
+                    <p>
+                        @T["We believed that travel should never be treated as just a commercial product. Every traveler is different, so why should everyone have the same travel experience?"]
+                    </p>
+                    <p>
+                        @T["That became the foundation of Tajan."]
+                    </p>
+                    <p>
+                        @T["We created Tajan with a simple idea: your journey should revolve around you."]
+                    </p>
+                    <p>
+                        @T["We design each trip around your interests and preferences while taking care of the details, so you can focus on enjoying Egypt and creating memories."]
+                    </p>
+                    <p>
+                        @T["We also believe Egypt is a destination that can be enjoyed all year round. Beyond its ancient history, pyramids, temples, and the Nile, Egypt offers beautiful beaches, deserts, adventure, culture, and vibrant summer experiences."]
+                    </p>
+                    <p>
+                        @T["With the North Coast, we want to put Egypt on the map for summer holidays and show travelers that Egypt is much more than a historical destination."]
+                    </p>
+                </div>
+                <button type="button" id="story-toggle"
+                        class="font-semibold text-tajan-red hover:text-tajan-gold transition"
+                        aria-expanded="false" aria-controls="story-more">
+                    @T["See More"]
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <img src="/WhatsApp Image 2026-10-15 at 23.53.39.jpeg" alt="@T["Camels crossing the desert at sunset near the Pyramids"]"
+                 class="col-span-2 w-full aspect-[16/10] object-cover rounded-lg" loading="lazy" />
+            <img src="/WhatsApp Image 2026-10-01 at 23.44.13.jpeg" alt="@T["Travelers walking among the columns of an ancient temple"]"
+                 class="w-full aspect-[4/3] sm:aspect-[1/1] object-cover rounded-lg" loading="lazy" />
+            <img src="/WhatsApp Image 2026-10-01 at 22.57.57.jpeg" alt="@T["Travelers talking with a local guide beside a Nile felucca"]"
+                 class="w-full aspect-[4/3] sm:aspect-[1/1] object-cover rounded-lg" loading="lazy" />
+        </div>
+    </div>
+</section>
+
+<!-- Why travel with TAJAN -->
+<section class="bg-white/60 py-16 sm:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-12 sm:mb-16">
+            @await Html.PartialAsync("_SectionLabel", T["Travel Different. Experience More"])
+            <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl text-tajan-red mb-4">
+                @T["Why travel with"] <span class="uppercase">@T["Tajan"]</span>
+            </h2>
+            <p class="max-w-md mx-auto text-tajan-red/70 leading-relaxed">
+                @T["Personalized Egypt tours, local knowledge, and effortless travel, all designed around you."]
+            </p>
+        </div>
+
+        @{
+            var reasons = new[]
+            {
+        ("01", "users",       T["Private Tours"],                T["Enjoy private, flexible tours designed just for you and your group."]),
+        ("02", "headset",     T["Dedicated Egypt Tour Operator"],T["From planning to your return, you'll have one dedicated person with you all the way."]),
+        ("03", "flag",        T["On-Ground Tour Leader"],        T["A professional tour leader is with you on the ground to ensure a smooth and worry-free journey."]),
+        ("04", "credit-card", T["Secure Payment"],               T["Your payments are protected with trusted and secure systems."]),
+        ("05", "percent",     T["Flexible Payment"],             T["Pay 50% online and the rest upon arrival. Travel with peace of mind."]),
+        ("06", "shield-check",T["Cancellation Policy"],          T["We offer clear and fair cancellation terms for your peace of mind."])
+        };
+        }
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-12">
+            @foreach (var r in reasons)
+            {
+                <div class="flex flex-col items-center text-center">
+                    <div class="flex items-center justify-center gap-4 mb-5">
+                        <span class="text-[11px] tracking-widest text-tajan-red/60">@r.Item1</span>
+                        <span class="w-16 h-16 rounded-full bg-tajan-cream flex items-center justify-center">
+                            <i data-lucide="@r.Item2" class="w-7 h-7 text-tajan-red" stroke-width="1.5"></i>
+                        </span>
+                    </div>
+                    <h3 class="font-display text-lg uppercase tracking-[0.12em] text-tajan-red mb-2">@r.Item3</h3>
+                    <p class="text-tajan-red/70 leading-relaxed max-w-xs">@r.Item4</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+<!-- Vision & Mission -->
+<section class="bg-tajan-red text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-0">
+        <div class="md:pr-14 md:border-r border-tajan-gold/25">
+            <div class="text-xs tracking-widest text-tajan-gold mb-2">01</div>
+            <h3 class="font-display text-xl uppercase tracking-[0.15em] text-tajan-gold mb-6">@T["Our Vision"]</h3>
+            <p class="text-2xl sm:text-3xl font-light leading-snug">
+                @T["To become a global multi-destination travel company that connects travelers with destinations around the world, while positioning Egypt as a year-round destination and a leading summer vacation destination."]
+            </p>
+        </div>
+        <div class="md:pl-14 flex flex-col">
+            <div class="text-xs tracking-widest text-tajan-gold mb-2">02</div>
+            <h3 class="font-display text-xl uppercase tracking-[0.15em] text-tajan-gold mb-6">@T["Our Mission"]</h3>
+            <p class="text-2xl sm:text-3xl font-light leading-snug">
+                @T["To make travel personal, seamless, and enjoyable by creating journeys that are designed around the traveler, not the destination."]
+            </p>
+           
+        </div>
+    </div>
+</section>
+
+<!-- What we believe -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+        <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <img src="~/WhatsApp Image 2026-10-01 at 23.50.23.jpeg" alt="@T["A traveler walking toward a stone desert lodge"]"
+                 class="col-span-2 w-full aspect-[16/10] object-cover rounded-lg" loading="lazy" />
+            <img src="/WhatsApp Image 2026-10-21 at 00.27.29.jpeg" alt="@T["A woman relaxing in a traditional Egyptian courtyard"]"
+                 class="w-full aspect-[4/5] object-cover rounded-lg" loading="lazy" />
+            <img src="/WhatsApp Image 2026-10-21 at 00.27.29 (1).jpeg" alt="@T["A lantern beside a cozy sofa"]"
+                 class="w-full aspect-[4/5] object-cover rounded-lg" loading="lazy" />
+        </div>
+        <div class="lg:pl-6">
+            <div class="text-xs uppercase tracking-[0.3em] text-tajan-gold pb-3 mb-6 border-b border-tajan-red/10">@T["- What We Believe -"]</div>
+            <h2 class="font-display text-3xl sm:text-4xl text-tajan-red mb-5">@T["Travel Should Feel Personal"]</h2>
+            <p class="text-tajan-red/75 leading-relaxed">
+                @T["We believe travel should be personal, meaningful, and enjoyable. Your journey should be built around you, your interests, and the way you want to experience a destination. For us, travel is more than visiting famous places. It is about discovering new experiences, connecting with local culture, and creating memories. We also believe Egypt has much more to offer beyond its famous landmarks, and we want to help travelers discover its different sides throughout the year."]
+            </p>
+        </div>
+    </div>
+</section>
+
+
+
+<!-- Meet the team -->
+<section class="bg-white/60 py-16 sm:py-24">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-12 sm:mb-16">
+            @await Html.PartialAsync("_SectionLabel", "Meet the Team")
+            <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl text-tajan-red">@T["Meet the People Behind Tajan"]</h2>
+        </div>
+
+        @{
+            var team = new[]
+            {
+        ("team-1.jpg", "Omar Farouk",  T["Founder & Director"]),
+        ("team-2.jpg", "Laila Youssef",T["Head of Experience"]),
+        ("team-3.jpg", "Tarek Hassan", T["Chief Egyptologist"])
+        };
+        }
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 max-w-sm sm:max-w-none mx-auto">
+            @foreach (var m in team)
+            {
+                <div class="text-center">
+                    <img src="/images/about/@m.Item1" alt="@m.Item2"
+                         class="w-full aspect-[3/4] object-cover mb-5" loading="lazy" />
+                    <h3 class="font-display text-xl text-tajan-red">@m.Item2</h3>
+                    <div class="text-sm uppercase tracking-wide text-tajan-gold mt-1">@m.Item3</div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- The Tajan Promise -->
+<section class="py-16 sm:py-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+        @await Html.PartialAsync("_SectionLabel", "Our Commitment")
+        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl text-tajan-red mb-3">@T["The Tajan Promise"]</h2>
+        <p class="text-tajan-red/70 mb-12 sm:mb-16">@T["Elevating every moment of your journey."]</p>
+
+        @{
+            var promises = new[]
+            {
+        ("award",     T["Quality"],              T["High standards in every service and experience."]),
+        ("eye",       T["Transparency"],         T["Clear communication and honest pricing."]),
+        ("handshake", T["Personal Support"],     T["Real support whenever you need us."]),
+        ("sparkles",  T["Attention to Detail"],  T["We take care of the little things that matter."]),
+        ("shield",    T["Peace of Mind"],        T["We handle the details so you can enjoy the journey."]),
+        ("heart",     T["Your Experience First"],T["Your comfort, interests, and satisfaction always come first."])
+        };
+        }
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-12">
+            @foreach (var p in promises)
+            {
+                <div class="flex flex-col items-center">
+                    <span class="w-14 h-14 rounded-full bg-tajan-sand/30 flex items-center justify-center mb-4">
+                        <i data-lucide="@p.Item1" class="w-6 h-6 text-tajan-gold" stroke-width="1.5"></i>
+                    </span>
+                    <h3 class="font-display text-xl text-tajan-red mb-2">@p.Item2</h3>
+                    <p class="text-tajan-red/70 leading-relaxed max-w-[16rem]">@p.Item3</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ BUILD YOUR TRIP ═══════════════ -->
+<section class="py-16 px-6">
+    <div class="max-w-6xl mx-auto bg-[#FAF6F0] rounded-3xl border border-tajan-gold/15
+                shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-6 sm:p-10
+                grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+        <div>
+            <span class="inline-block text-[11px] font-semibold uppercase tracking-widest text-tajan-red
+                         border border-tajan-red rounded-full px-4 py-1.5 mb-6">
+                @T["Build Your Trip"]
+            </span>
+            <h2 class="font-display text-3xl sm:text-4xl font-semibold text-tajan-red mb-5">@T["Your Egypt, Your Way."]</h2>
+            <p class="text-tajan-red/80 leading-relaxed mb-6">
+                @T["Don't see the Egypt trip you're looking for? Tell us what you have in mind, and our local travel experts will create a personalized itinerary around your interests, pace, and budget."]
+            </p>
+            <div class="flex flex-wrap gap-3 mb-8 text-sm font-medium text-tajan-red">
+                <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["100% Tailor-Made"]</span>
+                <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["Personalized Itineraries"]</span>
+                <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["Local Experts"]</span>
+                <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["24h Proposal"]</span>
+            </div>
+            <a asp-controller="Inquiry" asp-action="Create"
+               class="inline-flex items-center gap-3 bg-tajan-red text-tajan-sand font-semibold
+                      px-6 py-3.5 text-sm uppercase tracking-wide rounded-lg hover:bg-tajan-red/90 transition">
+                @T["Design Your Egypt Tour →"]
+            </a>
+        </div>
+        <div class="aspect-[4/3] overflow-hidden rounded-xl">
+            <img src="/ChatGPT Image Sep 9, 2026, 12_20_02 PM.png" alt="@T["Sailboat on the Nile"]"
+                 class="w-full h-full object-cover" />
+        </div>
+    </div>
+</section>
+
+
+@section Scripts {
+    <script>
+        (function () {
+            var btn = document.getElementById('story-toggle');
+            var more = document.getElementById('story-more');
+            if (!btn || !more) return;
+            btn.addEventListener('click', function () {
+                var open = more.classList.toggle('hidden') === false;
+                btn.textContent = open ? tr('See Less') : tr('See More');
+                btn.setAttribute('aria-expanded', open);
+            });
+        })();
+    </script>
+}

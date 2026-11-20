@@ -1,0 +1,38 @@
+@model ItineraryRowRender
+@{
+    var n = "Itinerary[" + Model.Idx + "]";
+    var r = Model.Row;
+    const string ctl = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold";
+}
+<div class="itin-row rounded-lg border border-slate-200 bg-slate-50/50 p-4">
+    <div class="flex items-start gap-3">
+        <div class="w-20 shrink-0">
+            <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-slate-500">Day</label>
+            <input type="number" min="1" max="60" name="@(n).DayNumber" value="@r.DayNumber" class="@ctl" />
+            @Html.ValidationMessage(n + ".DayNumber", null, new { @class = "mt-1 block text-xs text-red-600" })
+        </div>
+        <div class="grid min-w-0 flex-1 gap-3 sm:grid-cols-2">
+            <div>
+                <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-slate-500">Title (English)</label>
+                <input type="text" maxlength="150" name="@(n).TitleEn" value="@r.TitleEn" class="@ctl" />
+                @Html.ValidationMessage(n + ".TitleEn", null, new { @class = "mt-1 block text-xs text-red-600" })
+            </div>
+            <div>
+                <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-slate-500">Title (Français)</label>
+                <input type="text" maxlength="150" name="@(n).TitleFr" value="@r.TitleFr" class="@ctl" />
+                @Html.ValidationMessage(n + ".TitleFr", null, new { @class = "mt-1 block text-xs text-red-600" })
+            </div>
+            <div>
+                <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-slate-500">Details (English)</label>
+                <textarea rows="3" name="@(n).DescriptionEn" class="@ctl">@r.DescriptionEn</textarea>
+            </div>
+            <div>
+                <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-slate-500">Details (Français)</label>
+                <textarea rows="3" name="@(n).DescriptionFr" class="@ctl">@r.DescriptionFr</textarea>
+            </div>
+        </div>
+        <button type="button" data-remove-itin class="mt-5 shrink-0 rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600" title="Remove this day">
+            <i data-lucide="trash-2" class="h-4 w-4"></i>
+        </button>
+    </div>
+</div>

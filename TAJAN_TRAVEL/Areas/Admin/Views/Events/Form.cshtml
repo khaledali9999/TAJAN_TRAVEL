@@ -1,0 +1,60 @@
+@model EventFormVm
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "New event" : "Edit event";
+    var formAction = Url.Action(isNew ? "Create" : "Edit", new { area = "Admin", id = isNew ? (int?)null : Model.Id });
+}
+
+<a asp-action="Index" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-tajan-red">
+    <i data-lucide="arrow-left" class="h-4 w-4"></i> Back to events
+</a>
+
+<form action="@formAction" method="post" enctype="multipart/form-data" class="mt-4">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+
+    <div class="space-y-6">
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Basics</h2>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                @Html.AdminText(m => m.TitleEn, "Title (English)", required: true)
+                @Html.AdminText(m => m.TitleFr, "Title (Français)", required: true)
+                @Html.AdminText(m => m.Slug, "URL slug", hint: isNew ? "Leave empty to generate it from the English title." : null, placeholder: "solar-eclipse-2027")
+                @Html.AdminSelect(m => m.EventCategoryId, "Category", Model.CategoryOptions, "— No category —")
+                @Html.AdminText(m => m.Location, "Location", placeholder: "Luxor, Egypt")
+                @Html.AdminText(m => m.LocationFr, "Location (Français)", placeholder: "Louxor, Égypte")
+                @Html.AdminNumber(m => m.ReadTimeMinutes, "Read time (minutes)", min: "1", max: "120")
+                @Html.AdminDate(m => m.EventDate, "Event date", hint: "Used for sorting and the “This month” filter.")
+                @Html.AdminText(m => m.DateLabel, "Date label", hint: "Use instead of a date when it isn't fixed, e.g. “On request”.", placeholder: "On request")
+                @Html.AdminNumber(m => m.DisplayOrder, "Display order", hint: "Lower numbers appear first.")
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Text</h2>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                @Html.AdminTextArea(m => m.SummaryEn, "Card text (English)", rows: 3, required: true, hint: "Short text on the event card.")
+                @Html.AdminTextArea(m => m.SummaryFr, "Card text (Français)", rows: 3, required: true)
+                @Html.AdminTextArea(m => m.DescriptionEn, "Details (English)", rows: 8, required: true, hint: "Shown in the details pop-up.")
+                @Html.AdminTextArea(m => m.DescriptionFr, "Details (Français)", rows: 8, required: true)
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Cover image</h2>
+            <div class="mt-5">
+                @Html.AdminImage(m => m.CoverImageUrl, "CoverFile", "Cover image")
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Visibility</h2>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                @Html.AdminToggle(m => m.IsActive, "Active", "Visible on the website.")
+                @Html.AdminToggle(m => m.IsFeatured, "Featured event", "The big card on the Events page.")
+            </div>
+        </section>
+    </div>
+
+    <partial name="_FormActions" model='isNew ? "Create event" : "Save changes"' />
+</form>

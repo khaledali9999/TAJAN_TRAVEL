@@ -1,0 +1,261 @@
+﻿@{
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Dashboard";
+    int newRequests = ViewBag.NewRequests ?? 0;
+    int confirmedFiles = ViewBag.ConfirmedFiles ?? 0;
+    int newTourRequests = ViewBag.NewTourRequests ?? 0;
+    int newCustomRequests = ViewBag.NewCustomRequests ?? 0;
+    int unread = ViewBag.UnreadMessages ?? 0;
+    var adminName = User.Identity?.Name ?? "Admin User";
+    var adminEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+    var initials = string.Concat(adminName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => char.ToUpperInvariant(p[0])));
+    if (string.IsNullOrEmpty(initials)) { initials = "AD"; }
+
+    var groups = new List<(string Header, List<NavItem> Items)>
+    {
+        ("Overview", new List<NavItem>
+        {
+            new() { Icon = "layout-grid", Label = "Dashboard", Controller = "Dashboard" },
+            new() { Icon = "bell", Label = "Notifications", Controller = "Notifications", Badge = unread }
+        }),
+        ("Sales & Operations", new List<NavItem>
+        {
+            new() { Icon = "file-text", Label = "All Requests", Controller = "TourRequests", Badge = newRequests },
+            new() { Icon = "map", Label = "Tour Details Requests", Controller = "TourRequests", Type = "TourInquiry", Badge = newTourRequests },
+            new() { Icon = "sparkles", Label = "Design Your Tour", Controller = "TourRequests", Type = "CustomItinerary", Badge = newCustomRequests },
+            new() { Icon = "file-check", Label = "File confirmed", Controller = "TourRequests", Status = "Confirmed", Badge = confirmedFiles }
+        }),
+        ("Tour Management", new List<NavItem>
+        {
+            new() { Icon = "map", Label = "Tours", Controller = "Tours" },
+            new() { Icon = "map-pin", Label = "Destinations", Controller = "Destinations" },
+
+        }),
+        ("Website Management", new List<NavItem>
+        {
+            new() { Icon = "book-open", Label = "Stories & Journal", Controller = "Stories" },
+            new() { Icon = "calendar", Label = "Events", Controller = "Events" },
+            new() { Icon = "help-circle", Label = "FAQs", Controller = "Faqs" },
+            new() { Icon = "star", Label = "Reviews", Controller = "Reviews" },
+
+        }),
+        ("System", new List<NavItem>
+        {
+            new() { Icon = "settings", Label = "Settings", Controller = "Profile" }
+        }),
+        // ("Insights & System", new List<NavItem>
+        // {
+        //     new() { Icon = "bar-chart-3", Label = "Reports & Analytics", Controller = "ComingSoon", Title = "Reports & Analytics" },
+        //     new() { Icon = "settings", Label = "Settings", Controller = "Settings" }
+        // })
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>@pageTitle | TAJAN TRAVEL Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tajan: { red: '#4B1E23', sand: '#D8C3A5', gold: '#C8A44D', cream: '#F7F3EE' }
+                    },
+                    fontFamily: {
+                        display: ['"Playfair Display"', 'serif'],
+                        body: ['"Jost"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Jost', sans-serif;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: .75rem;
+            box-shadow: 0 1px 3px rgba(75,30,35,.06);
+        }
+
+        details > summary {
+            list-style: none;
+        }
+
+            details > summary::-webkit-details-marker {
+                display: none;
+            }
+        /* Sidebar scrollbar */
+        .sidebar-scroll {
+            scrollbar-width: thin; /* Firefox + Chrome 121+ */
+            scrollbar-color: rgba(216, 195, 165, .22) transparent; /* thumb | track */
+            transition: scrollbar-color .2s;
+        }
+
+            .sidebar-scroll:hover {
+                scrollbar-color: rgba(200, 164, 77, .65) transparent; /* gold عند الـ hover */
+            }
+
+        /* fallback للمتصفحات القديمة (Safari / Chrome القديم) */
+        @@supports not (scrollbar-width: thin) {
+            .sidebar-scroll::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .sidebar-scroll::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .sidebar-scroll::-webkit-scrollbar-thumb {
+                background: rgba(216, 195, 165, .22);
+                border-radius: 999px;
+            }
+
+            .sidebar-scroll:hover::-webkit-scrollbar-thumb {
+                background: rgba(200, 164, 77, .65);
+            }
+        }</style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="bg-tajan-cream text-slate-800 antialiased">
+    <div class="flex h-screen overflow-hidden">
+
+        <div id="sidebarBackdrop" class="fixed inset-0 z-30 hidden bg-black/40 lg:hidden"></div>
+
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-60 -translate-x-full flex-col border-r border-white/10 bg-tajan-red transition-transform lg:static lg:translate-x-0">
+            <div class="shrink-0 px-6 pb-5 pt-6">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="block">
+                    <div class="font-display text-[19px] font-semibold uppercase tracking-wide text-white">Tajan Travel</div>
+                    <div class="mt-0.5 text-[10px] uppercase tracking-[0.12em] text-tajan-gold">Admin Panel</div>
+                </a>
+            </div>
+
+            <nav class="sidebar-scroll flex-1 space-y-6 overflow-y-auto px-3 pb-6">
+                @foreach (var g in groups)
+                {
+                    <div>
+                        <div class="mb-2 px-3 text-[11px] font-medium uppercase tracking-[0.1em] text-white/45">@g.Header</div>
+                        <div class="space-y-0.5">
+                            @foreach (var item in g.Items)
+                            {
+                                <partial name="_NavItem" model="item" />
+                            }
+                        </div>
+                    </div>
+                }
+            </nav>
+
+            <div class="shrink-0 border-t border-white/10 p-4">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-tajan-sand text-sm font-semibold text-tajan-red">@initials</div>
+                    <div class="min-w-0">
+                        <div class="truncate text-sm font-medium text-white">@adminName</div>
+                        <div class="truncate text-xs text-white/60">@adminEmail</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex min-w-0 flex-1 flex-col">
+            <header class="flex h-16 shrink-0 items-center gap-4 border-b border-slate-100 bg-white px-4 lg:px-8">
+                <button id="sidebarToggle" type="button" class="rounded-lg p-2 text-slate-500 hover:bg-tajan-cream lg:hidden" aria-label="Menu">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
+                </button>
+
+                <h1 class="font-display text-[20px] font-semibold text-tajan-red">@pageTitle</h1>
+
+                <div class="ml-auto flex items-center gap-3 sm:gap-5">
+                    <form asp-area="Admin" asp-controller="TourRequests" asp-action="Index" method="get" class="relative hidden w-80 md:block">
+                        <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+                        <input name="q" type="search" placeholder="Search bookings, tours, users..."
+                               class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:border-tajan-gold focus:bg-white focus:outline-none focus:ring-1 focus:ring-tajan-gold" />
+                    </form>
+
+                    <a asp-area="Admin" asp-controller="Notifications" asp-action="Index" class="relative rounded-lg p-2 text-slate-500 hover:bg-tajan-cream" aria-label="Notifications">
+                        <i data-lucide="bell" class="h-5 w-5"></i>
+                        @if (unread > 0)
+                        {
+                            <span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-tajan-red ring-2 ring-white"></span>
+                        }
+                    </a>
+
+                    <details id="quickActions" class="relative">
+                        <summary class="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium text-tajan-red hover:bg-tajan-cream">
+                            Quick Actions <i data-lucide="chevron-down" class="h-4 w-4 text-slate-400"></i>
+                        </summary>
+                        <div class="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-slate-100 bg-white py-1 text-sm shadow-lg">
+                            <a asp-area="Admin" asp-controller="TourRequests" asp-action="Index" asp-route-status="New" class="flex items-center gap-2 px-4 py-2.5 text-slate-700 hover:bg-tajan-cream">
+                                <i data-lucide="inbox" class="h-4 w-4 text-slate-400"></i> Review new requests
+                            </a>
+                            <a asp-area="Admin" asp-controller="Tours" asp-action="Index" class="flex items-center gap-2 px-4 py-2.5 text-slate-700 hover:bg-tajan-cream">
+                                <i data-lucide="map" class="h-4 w-4 text-slate-400"></i> Manage tours
+                            </a>
+                            <a asp-area="" asp-controller="Home" asp-action="Index" target="_blank" class="flex items-center gap-2 px-4 py-2.5 text-slate-700 hover:bg-tajan-cream">
+                                <i data-lucide="external-link" class="h-4 w-4 text-slate-400"></i> View public site
+                            </a>
+                            <a asp-area="Admin" asp-controller="Profile" asp-action="Index" class="flex items-center gap-2 px-4 py-2.5 text-slate-700 hover:bg-tajan-cream">
+                                <i data-lucide="settings" class="h-4 w-4 text-slate-400"></i> Settings
+                            </a>
+                            <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post" class="border-t border-slate-100">
+                                <button type="submit" class="flex w-full items-center gap-2 px-4 py-2.5 text-left text-tajan-red hover:bg-tajan-cream">
+                                    <i data-lucide="log-out" class="h-4 w-4"></i> Sign out
+                                </button>
+                            </form>
+                        </div>
+                    </details>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-4 lg:p-8">
+                @if (TempData["FlashError"] is string flashError)
+                {
+                    <div class="mb-5 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                        <i data-lucide="alert-circle" class="h-4 w-4"></i>@flashError
+                    </div>
+                }
+                @if (TempData["Flash"] is string flash)
+                {
+                    <div class="mb-5 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                        <i data-lucide="check-circle-2" class="h-4 w-4"></i>@flash
+                    </div>
+                }
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const sb = document.getElementById('sidebar');
+        const bd = document.getElementById('sidebarBackdrop');
+        function toggleSidebar(open) {
+            sb.classList.toggle('-translate-x-full', !open);
+            bd.classList.toggle('hidden', !open);
+        }
+        document.getElementById('sidebarToggle')?.addEventListener('click', () => toggleSidebar(sb.classList.contains('-translate-x-full')));
+        bd.addEventListener('click', () => toggleSidebar(false));
+
+        // any <form data-confirm="..."> asks before submitting (used by all Delete buttons)
+        document.addEventListener('submit', e => {
+            const msg = e.target.dataset ? e.target.dataset.confirm : null;
+            if (msg && !confirm(msg)) e.preventDefault();
+        });
+
+        const qa = document.getElementById('quickActions');
+        document.addEventListener('click', e => { if (qa && !qa.contains(e.target)) qa.removeAttribute('open'); });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

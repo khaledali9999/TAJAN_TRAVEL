@@ -1,0 +1,58 @@
+@model List<SiteSetting>
+@{
+    ViewData["Title"] = "Settings";
+    const string ctl = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold";
+}
+
+<div class="card overflow-hidden">
+    <div class="px-6 py-5">
+        <h2 class="font-display text-[18px] font-semibold text-[#2A1215]">Site settings</h2>
+        <p class="mt-1 text-xs text-slate-400">Key / value settings stored in the database. Keys can't be renamed - delete and re-add if needed.</p>
+    </div>
+
+    @foreach (var s in Model)
+    {
+        <div class="flex flex-wrap items-end gap-3 border-t border-slate-100 px-6 py-3">
+            <form asp-area="Admin" asp-action="Save" method="post" class="flex flex-1 flex-wrap items-end gap-3">
+                <input type="hidden" name="Id" value="@s.Id" />
+                <input type="hidden" name="Key" value="@s.Key" />
+                <div class="w-56">
+                    <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Key</label>
+                    <div class="truncate rounded-lg bg-slate-50 px-3 py-2 text-sm font-medium text-[#2A1215]" title="@s.Key">@s.Key</div>
+                </div>
+                <div class="min-w-[220px] flex-1">
+                    <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Value</label>
+                    <input name="Value" value="@s.Value" required class="@ctl" />
+                </div>
+                <div class="min-w-[180px] flex-1">
+                    <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Description</label>
+                    <input name="Description" value="@s.Description" maxlength="200" class="@ctl" />
+                </div>
+                <button type="submit" class="rounded-lg bg-tajan-red px-4 py-2 text-sm font-medium text-white hover:bg-[#3a171b]">Save</button>
+            </form>
+            <form asp-area="Admin" asp-action="Delete" method="post" data-confirm="Delete the setting “@s.Key”?">
+                <input type="hidden" name="id" value="@s.Id" />
+                <button type="submit" class="rounded-md p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" title="Delete"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+            </form>
+        </div>
+    }
+
+    <div class="flex flex-wrap items-end gap-3 border-t border-slate-100 bg-tajan-cream/50 px-6 py-4">
+        <form asp-area="Admin" asp-action="Save" method="post" class="flex flex-1 flex-wrap items-end gap-3">
+            <input type="hidden" name="Id" value="0" />
+            <div class="w-56">
+                <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">New key</label>
+                <input name="Key" maxlength="100" required placeholder="ContactEmail" class="@ctl" />
+            </div>
+            <div class="min-w-[220px] flex-1">
+                <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Value</label>
+                <input name="Value" required class="@ctl" />
+            </div>
+            <div class="min-w-[180px] flex-1">
+                <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Description</label>
+                <input name="Description" maxlength="200" class="@ctl" />
+            </div>
+            <button type="submit" class="rounded-lg bg-tajan-gold px-4 py-2 text-sm font-medium text-tajan-red hover:brightness-105">Add setting</button>
+        </form>
+    </div>
+</div>

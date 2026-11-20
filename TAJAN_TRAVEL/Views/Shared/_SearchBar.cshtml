@@ -1,0 +1,154 @@
+@model HomeViewModel
+<!-- Explore / Search Tours -->
+<section class="max-w-5xl mx-auto px-6 py-24 text-center">
+
+    <!-- Section Label -->
+    <div class="flex items-center justify-center gap-3 sm:gap-4
+                text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] sm:tracking-[0.3em]
+                text-tajan-gold mb-5 sm:mb-6">
+        <span class="w-6 sm:w-10 h-px bg-tajan-gold/50"></span>
+        <span>@T["Explore Tajan"]</span>
+        <span class="w-6 sm:w-10 h-px bg-tajan-gold/50"></span>
+    </div>
+
+    <!-- Heading -->
+    <h2 class="font-display text-4xl sm:text-5xl lg:text-6xl leading-tight mb-6 text-tajan-red">
+        @T["Where would you like to go ?"]
+    </h2>
+
+    <p class="text-tajan-red/70 text-sm sm:text-base mb-8">
+        @T["Search Egypt tours, destinations, experiences and more"]
+    </p>
+
+    <!-- Search bar -->
+    <form asp-controller="Search" asp-action="Index" method="get"
+          class="flex items-stretch max-w-2xl mx-auto bg-white rounded-lg shadow-sm
+                 border border-tajan-red/10 mb-10 overflow-hidden">
+
+        <input type="text" name="q"
+               placeholder="@T["Search Egypt tours, destinations or experiences..."]"
+               class="flex-1 min-w-0 py-5 pl-7 pr-4 text-sm text-left text-tajan-red
+                      placeholder:text-tajan-red/40 focus:outline-none bg-transparent" />
+
+        <button type="submit"
+                class="bg-tajan-red text-white text-xs font-semibold uppercase tracking-widest
+                       px-6 sm:px-8 flex items-center gap-2 hover:bg-tajan-red/90 transition shrink-0">
+            @T["Search"] <span aria-hidden="true">→</span>
+        </button>
+    </form>
+
+    <!-- Find your tour (no card wrapper) -->
+    <h3 class="font-display text-2xl sm:text-3xl uppercase text-tajan-red mb-2">
+        @T["Find Your Tour"]
+    </h3>
+    <p class="text-tajan-red/60 text-sm sm:text-base mb-8">
+        @T["Explore tours by destination, duration and budget."]
+    </p>
+
+    <form asp-controller="Tours" asp-action="Index" method="get"
+          class="max-w-5xl mx-auto bg-white rounded-lg overflow-hidden
+                 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-tajan-red/5
+                 grid grid-cols-1 lg:grid-cols-[1.25fr_0.95fr_1.3fr_auto] items-stretch text-left">
+
+        <!-- Destination -->
+        <label class="relative flex items-center gap-4 px-6 lg:pl-9 py-4 sm:py-5
+                      border-b border-tajan-red/10 lg:border-b-0 lg:border-r cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                 class="w-5 h-5 text-tajan-gold shrink-0">
+                <path d="M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21z" />
+                <circle cx="12" cy="9.5" r="2.3" />
+            </svg>
+            <div class="flex-1 min-w-0">
+                <div class="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wide text-tajan-red/70 mb-0.5">
+                    @T["Destination"]
+                </div>
+                <select name="DestinationId"
+                        class="w-full appearance-none bg-transparent text-sm sm:text-base font-medium
+                               text-tajan-red focus:outline-none pr-7 cursor-pointer">
+                    <option value="">@T["Choose a destination"]</option>
+                    @foreach (var d in Model.SearchDestinations)
+                    {
+                        <option value="@d.Id">@Lang.Pick(d.NameEn, d.NameFr)</option>
+                    }
+                </select>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="w-3.5 h-3.5 text-tajan-red/40 absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <path d="M6 9l6 6 6-6" />
+            </svg>
+        </label>
+
+        <!-- Duration -->
+        <label class="relative flex items-center gap-4 px-6 py-4 sm:py-5
+                      border-b border-tajan-red/10 lg:border-b-0 lg:border-r cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                 class="w-5 h-5 text-tajan-gold shrink-0">
+                <rect x="3" y="5" width="18" height="16" rx="2" />
+                <path d="M3 10h18" />
+                <path d="M8 3v4" />
+                <path d="M16 3v4" />
+            </svg>
+            <div class="flex-1 min-w-0">
+                <div class="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wide text-tajan-red/70 mb-0.5">
+                    @T["Duration"]
+                </div>
+                <select name="Duration"
+                        class="w-full appearance-none bg-transparent text-sm sm:text-base font-medium
+                               text-tajan-red focus:outline-none pr-7 cursor-pointer">
+                    <option value="">@T["Any duration"]</option>
+                    <option value="1-3">@T["1–3 Days"]</option>
+                    <option value="4-7">@T["4–7 Days"]</option>
+                    <option value="8-14">@T["8–14 Days"]</option>
+                    <option value="15+">@T["15+ Days"]</option>
+                </select>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="w-3.5 h-3.5 text-tajan-red/40 absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <path d="M6 9l6 6 6-6" />
+            </svg>
+        </label>
+
+        <!-- Price -->
+        <label class="relative flex items-center gap-4 px-6 py-4 sm:py-5
+                      border-b border-tajan-red/10 lg:border-b-0 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                 class="w-5 h-5 text-tajan-gold shrink-0">
+                <path d="M12 3v18" />
+                <path d="M16.5 7.5C15.7 6.4 14.1 5.8 12 5.8c-2.5 0-4 1.1-4 2.8 0 4.2 8 2 8 6.3 0 1.7-1.7 2.9-4 2.9-2.1 0-3.7-.7-4.6-1.9" />
+            </svg>
+            <div class="flex-1 min-w-0">
+                <div class="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wide text-tajan-red/70 mb-0.5">
+                    @T["Price"]
+                </div>
+                <select name="Price"
+                        class="w-full appearance-none bg-transparent text-sm sm:text-base font-medium
+                               text-tajan-red focus:outline-none pr-7 cursor-pointer">
+                    <option value="">@T["Any price"]</option>
+                    <option value="0-500">@T["Under $500"]</option>
+                    <option value="500-1000">$500–$1,000</option>
+                    <option value="1000-2000">$1,000–$2,000</option>
+                    <option value="2000+">$2,000+</option>
+                </select>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="w-3.5 h-3.5 text-tajan-red/40 absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <path d="M6 9l6 6 6-6" />
+            </svg>
+        </label>
+
+        <!-- Submit (flush with the bar) -->
+        <button type="submit"
+                class="bg-tajan-gold text-tajan-red font-semibold text-xs uppercase tracking-widest
+                       h-14 lg:h-auto px-8 flex items-center justify-center gap-2
+                       hover:brightness-95 transition">
+            @T["Search"]
+            <span aria-hidden="true">→</span>
+        </button>
+    </form>
+</section>

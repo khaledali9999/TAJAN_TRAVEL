@@ -1,0 +1,387 @@
+﻿@model StoriesViewModel
+@{
+    ViewData["Title"] = T["Stories That Stay With You"];
+    ViewData["Description"] = T["Discover the latest journeys, experiences, and stories shared by travelers."];
+
+    var heroImage = "/ChatGPT Image Sep 9, 2026, 12_20_02 PM.png";
+}
+
+@section Styles {
+    <style>
+        .no-scrollbar {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+
+        .story-body p + p {
+            margin-top: 1rem;
+        }
+    </style>
+}
+
+@* ===================== Hero ===================== *@
+<section id="hero-section" class="relative h-[60vh] min-h-[420px] flex items-center justify-center overflow-hidden">
+    <img src="@heroImage" alt="@T["Felucca sailing on the Nile at sunset"]" class="absolute inset-0 w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/60"></div>
+    <div class="relative z-10 text-center text-white px-6 pt-16 max-w-3xl">
+        <div class="text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.35em] text-tajan-gold mb-5">@T["Tajan Stories"]</div>
+        <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl leading-tight mb-5">@T["Stories That Stay With You"]</h1>
+        <p class="text-sm sm:text-base text-white/85 max-w-xl mx-auto leading-relaxed">
+            @T["Discover the latest journeys, experiences, and stories shared by travelers."]
+        </p>
+        <span class="block w-12 h-px bg-tajan-gold mx-auto mt-7"></span>
+    </div>
+</section>
+
+@* ===================== Traveler reviews ===================== *@
+@if (Model.Testimonials.Any())
+{
+    <section class="bg-[#F0E8D8] py-16 sm:py-20 overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-xl mx-auto mb-10">
+                <div class="flex items-center justify-center gap-3 text-[10px] font-medium uppercase tracking-[0.3em] text-tajan-gold mb-4">
+                    <span class="w-6 h-px bg-tajan-gold"></span><span>@T["Traveler Stories"]</span><span class="w-6 h-px bg-tajan-gold"></span>
+                </div>
+                <h2 class="font-display text-3xl sm:text-4xl text-tajan-red mb-3">@T["Egypt, Through Their Eyes"]</h2>
+                <p class="text-sm text-tajan-red/65">@T["Real stories and unforgettable experiences from travelers who explored Egypt with Tajan."]</p>
+            </div>
+
+            <div id="reviews-track" class="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
+                @foreach (var t in Model.Testimonials)
+                {
+                    <figure class="snap-start shrink-0 w-[85%] sm:w-[calc((100%-2rem)/3)] bg-white rounded-xl border border-tajan-red/5 shadow-[0_2px_10px_rgba(0,0,0,0.05)] p-6 flex flex-col">
+                        <div class="text-tajan-gold text-sm tracking-[0.2em] mb-4" aria-label="@t.Rating out of 5 stars">
+                            @(new string('★', t.Rating))@(new string('☆', 5 - t.Rating))
+                        </div>
+                        <blockquote class="font-display text-[15px] text-tajan-red leading-relaxed mb-6 flex-1">&ldquo;@Lang.Pick(t.QuoteEn, t.QuoteFr)&rdquo;</blockquote>
+                        <figcaption class="flex items-center gap-3">
+                            @if (!string.IsNullOrEmpty(t.ClientPhotoUrl))
+                            {
+                                <img src="@t.ClientPhotoUrl" alt="@t.ClientName" class="w-9 h-9 rounded-full object-cover" />
+                            }
+                            else
+                            {
+                                <span class="w-9 h-9 rounded-full bg-tajan-gold/20 text-tajan-red text-xs font-semibold flex items-center justify-center">
+                                    @t.ClientName.Substring(0, 1).ToUpperInvariant()
+                                </span>
+                            }
+                            <span>
+                                <span class="block text-[13px] font-medium text-tajan-red">@t.ClientName</span>
+                                <span class="block text-[9px] uppercase tracking-[0.2em] text-tajan-red/50">@T["Traveler"]@(!string.IsNullOrEmpty(t.ClientCountry) ? " · " + Lang.Pick(t.ClientCountry, t.ClientCountryFr) : "")</span>
+                            </span>
+                        </figcaption>
+                    </figure>
+                }
+            </div>
+
+            <div class="flex items-center justify-center gap-5 mt-8">
+                <button type="button" id="reviews-prev" aria-label="@T["Previous reviews"]"
+                        class="w-8 h-8 rounded-full border border-tajan-red/20 text-tajan-red flex items-center justify-center hover:border-tajan-gold hover:text-tajan-gold transition">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+                <div id="reviews-dots" class="flex items-center gap-2">
+                    @for (var i = 0; i < Model.Testimonials.Count; i++)
+                    {
+                        <button type="button" data-dot="@i" aria-label="Review @(i + 1)" class="w-2 h-2 rounded-full bg-tajan-red/20 transition"></button>
+                    }
+                </div>
+                <button type="button" id="reviews-next" aria-label="@T["Next reviews"]"
+                        class="w-8 h-8 rounded-full border border-tajan-red/20 text-tajan-red flex items-center justify-center hover:border-tajan-gold hover:text-tajan-gold transition">
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+}
+
+@* ===================== Chips + Featured + Grid ===================== *@
+<section class="bg-tajan-cream">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-20">
+        <div id="stories-results" class="scroll-mt-24 transition-opacity duration-200">
+            @await Html.PartialAsync("_StoriesResults", Model)
+        </div>
+    </div>
+</section>
+
+@* ===================== Traveler moments ===================== *@
+@if (Model.Moments.Any())
+{
+    <section class="bg-[#F0E8D8] py-16 sm:py-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.25em] text-tajan-gold mb-4">
+                <span class="w-6 h-px bg-tajan-gold"></span><span>@T["Traveler Moments"]</span>
+            </div>
+            <h2 class="font-display text-3xl sm:text-4xl text-tajan-red mb-8">@T["Egypt, Through Their Eyes"]</h2>
+
+            @* Auto-scrolling marquee: the set of cards is rendered twice for a seamless loop *@
+            <div class="moments-marquee overflow-hidden">
+                <div class="moments-track flex w-max gap-3 pb-2">
+                    @for (var pass = 0; pass < 2; pass++)
+                    {
+                        foreach (var m in Model.Moments)
+                        {
+                            <button type="button" data-story="@m.Slug" @(pass == 1 ? "aria-hidden=true tabindex=-1" : "")
+                                    class="group relative shrink-0 w-40 sm:w-52 aspect-[3/4] rounded-md overflow-hidden bg-tajan-sand/50 text-left">
+                                <img src="@m.CoverImageUrl" alt="@(pass == 0 ? Lang.Pick(m.TitleEn, m.TitleFr) : "")" loading="lazy" onerror="this.style.display='none'"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                                <span class="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/70 to-transparent text-white font-display italic text-[11px] leading-tight">
+                                    @(Lang.PickN(m.CoverImageCaption, m.CoverImageCaptionFr) ?? Lang.Pick(m.TitleEn, m.TitleFr))
+                                </span>
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+            <style>
+                .moments-track {
+                    animation: moments-scroll 40s linear infinite;
+                }
+
+                .moments-marquee:hover .moments-track,
+                .moments-marquee:focus-within .moments-track {
+                    animation-play-state: paused;
+                }
+                /* track holds 2 identical sets; shift by exactly one set (half the width, incl. the gap) */
+                @@keyframes moments-scroll {
+                    from {
+                        transform: translateX(0);
+                    }
+
+                    to {
+                        transform: translateX(calc(-50% - 0.375rem));
+                    }
+                }
+
+                @@media (prefers-reduced-motion: reduce) {
+                    .moments-track {
+                        animation: none;
+                    }
+
+                    .moments-marquee {
+                        overflow-x: auto;
+                    }
+                }
+            </style>
+        </div>
+    </section>
+}
+
+@* ===================== CTA ===================== *@
+<section class="relative overflow-hidden">
+    <img src="@heroImage" alt="" class="absolute inset-0 w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-tajan-red/75"></div>
+    <div class="relative z-10 max-w-2xl mx-auto px-6 py-20 sm:py-24 text-center text-white">
+        <div class="flex items-center justify-center gap-3 text-[10px] font-medium uppercase tracking-[0.3em] text-tajan-gold mb-5">
+            <span class="w-6 h-px bg-tajan-gold"></span><span>@T["Plan Your Journey"]</span><span class="w-6 h-px bg-tajan-gold"></span>
+        </div>
+        <h2 class="font-display text-4xl sm:text-5xl mb-5">@T["Your Story Starts Here"]</h2>
+        <p class="text-sm sm:text-base text-white/85 leading-relaxed mb-8">
+            @T["Inspired by what you've seen? Tell us what you want to experience, and we'll help design your Egypt journey around you."]
+        </p>
+        <a asp-controller="Inquiry" asp-action="Create"
+           class="inline-block bg-[#C8A44D] text-black px-8 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] hover:bg-[#B8943D] transition">
+            @T["Design Your Egypt Tour"]
+        </a>
+        <p class="mt-8 text-[10px] uppercase tracking-[0.3em] text-white/60">@T["Your Journey. Your Pace. Your Egypt."]</p>
+    </div>
+</section>
+
+@* Extra story data (traveler moments + deep link) for the popup *@
+<script type="application/json" data-stories-json>@Html.Raw(StoryJson.Serialize(Model.Moments.Append(Model.DeepLinkStory)))</script>
+@if (Model.DeepLinkStory != null)
+{
+    <span id="story-deeplink" data-slug="@Model.DeepLinkStory.Slug" class="hidden"></span>
+}
+
+@* ===================== Story popup ===================== *@
+<div id="story-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="story-title">
+    <div data-modal-close class="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+
+    <div class="relative bg-tajan-cream rounded-2xl shadow-2xl w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between px-5 sm:px-6 pt-5 pb-3">
+            <span class="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.25em] text-tajan-gold">
+                <span class="w-4 h-px bg-tajan-gold"></span>@T["Tajan Stories"]
+            </span>
+            <button type="button" data-modal-close aria-label="@T["Close"]"
+                    class="w-7 h-7 rounded-full border border-tajan-red/15 text-tajan-red/70 flex items-center justify-center hover:border-tajan-gold hover:text-tajan-gold transition">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+        </div>
+
+        <div class="overflow-y-auto px-5 sm:px-6 pb-5">
+            <div id="story-meta" class="text-[10px] font-medium uppercase tracking-[0.2em] text-tajan-gold mb-2"></div>
+            <h2 id="story-title" class="font-display text-3xl text-tajan-red leading-tight mb-2"></h2>
+            <div id="story-byline" class="text-[11px] text-tajan-red/55 mb-4"></div>
+
+            <figure id="story-figure" class="mb-5">
+                <div class="aspect-[16/10] rounded-lg overflow-hidden bg-tajan-sand/40">
+                    <img id="story-image" src="" alt="" class="w-full h-full object-cover" />
+                </div>
+                <figcaption id="story-caption" class="text-[10px] italic text-tajan-red/55 mt-2"></figcaption>
+            </figure>
+
+            <div id="story-body" class="story-body text-[13px] text-tajan-red/80 leading-relaxed"></div>
+            <p class="mt-6 text-[9px] uppercase tracking-[0.3em] text-tajan-gold text-center">@T["Your Journey. Your Pace. Your Egypt."]</p>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 border-t border-tajan-red/10 px-5 sm:px-6 py-3 bg-white/60">
+            <div class="flex items-center gap-4 text-[11px] text-tajan-red/70">
+                <button type="button" id="story-share" class="inline-flex items-center gap-1.5 hover:text-tajan-gold transition">
+                    <i data-lucide="share-2" class="w-3.5 h-3.5"></i><span id="story-share-label">@T["Share"]</span>
+                </button>
+
+            </div>
+            <a asp-controller="Tours" asp-action="Index"
+               class="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.15em] text-tajan-red hover:text-tajan-gold transition">
+                @T["Explore Related Tours"] <span aria-hidden="true">&rsaquo;</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var results = document.getElementById('stories-results');
+            var modal = document.getElementById('story-modal');
+            var stories = {};
+            var current = null;
+
+            function refreshIcons() { if (window.lucide) window.lucide.createIcons(); }
+
+            // ---------- Story data ----------
+            function collect(root) {
+                root.querySelectorAll('script[data-stories-json]').forEach(function (s) {
+                    try { JSON.parse(s.textContent).forEach(function (p) { stories[p.slug] = p; }); } catch (e) { }
+                });
+            }
+            collect(document);
+
+            function fetchHtml(url) {
+                return fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); });
+            }
+
+            // ---------- Filters / pagination without a full reload ----------
+            function load(url, push) {
+                results.classList.add('opacity-40');
+                fetchHtml(url).then(function (html) {
+                    results.innerHTML = html;
+                    results.classList.remove('opacity-40');
+                    collect(results);
+                    if (push) history.pushState({}, '', url);
+                    refreshIcons();
+                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }).catch(function () { window.location.href = url; });
+            }
+            window.addEventListener('popstate', function () { load(window.location.href, false); });
+
+            // ---------- Popup ----------
+            function setText(id, v) { document.getElementById(id).textContent = v || ''; }
+
+            function openStory(slug) {
+                var s = stories[slug];
+                if (!s) return;
+                current = s;
+
+                setText('story-meta', [s.category, s.readTime ? s.readTime + ' ' + tr('MIN READ') : ''].filter(Boolean).join(' \u2022 '));
+                setText('story-title', s.title);
+                setText('story-byline', [s.author ? 'By ' + s.author : '', s.published ? 'Published ' + s.published : ''].filter(Boolean).join(' \u2022 '));
+
+                var fig = document.getElementById('story-figure');
+                var img = document.getElementById('story-image');
+                if (s.image) {
+                    img.onerror = function () { fig.style.display = 'none'; };
+                    img.src = s.image; img.alt = s.title; fig.style.display = '';
+                    setText('story-caption', s.caption);
+                } else { fig.style.display = 'none'; }
+
+                var body = document.getElementById('story-body');
+                body.innerHTML = '';
+                (s.content || '').split(/\n\s*\n/).forEach(function (para) {
+                    if (!para.trim()) return;
+                    var p = document.createElement('p');
+                    p.textContent = para.trim();
+                    body.appendChild(p);
+                });
+
+                setText('story-share-label', 'Share');
+                modal.classList.remove('hidden'); modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+                modal.querySelector('.overflow-y-auto').scrollTop = 0;
+                refreshIcons();
+            }
+
+            function closeModal() {
+                modal.classList.add('hidden'); modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
+
+            modal.addEventListener('click', function (e) { if (e.target.closest('[data-modal-close]')) closeModal(); });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+            document.getElementById('story-share').addEventListener('click', function () {
+                if (!current) return;
+                var url = window.location.origin + '/blog/' + current.slug;
+                if (navigator.share) {
+                    navigator.share({ title: current.title, url: url }).catch(function () { });
+                } else if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(function () { setText('story-share-label', tr('Link copied')); });
+                }
+            });
+
+            // ---------- Clicks (stories anywhere on the page) ----------
+            document.addEventListener('click', function (e) {
+                var card = e.target.closest('[data-story]');
+                if (card && !e.target.closest('a[data-stories-link]')) { openStory(card.dataset.story); }
+            });
+
+            results.addEventListener('click', function (e) {
+                var link = e.target.closest('a[data-stories-link]');
+                if (link) { e.preventDefault(); load(link.href, true); return; }
+
+                var more = e.target.closest('[data-stories-more]');
+                if (more) {
+                    more.disabled = true; more.textContent = 'Loading...';
+                    fetchHtml(more.dataset.nextUrl).then(function (html) {
+                        var doc = new DOMParser().parseFromString(html, 'text/html');
+                        collect(doc);
+                        var grid = results.querySelector('[data-stories-grid]');
+                        doc.querySelectorAll('[data-stories-grid] > *').forEach(function (n) { grid.appendChild(document.importNode(n, true)); });
+                        var oldPager = results.querySelector('[data-stories-pager]');
+                        var newPager = doc.querySelector('[data-stories-pager]');
+                        if (oldPager && newPager) oldPager.replaceWith(document.importNode(newPager, true));
+                    }).catch(function () { more.disabled = false; more.textContent = tr('See More Stories'); });
+                }
+            });
+
+            // Open a story straight from /blog/{slug}
+            var deep = document.getElementById('story-deeplink');
+            if (deep) openStory(deep.dataset.slug);
+
+            // ---------- Reviews carousel ----------
+            var track = document.getElementById('reviews-track');
+            if (track) {
+                var dots = document.querySelectorAll('#reviews-dots [data-dot]');
+                function step() { var c = track.children[0]; return c ? c.getBoundingClientRect().width + 16 : 0; }
+                function updateDots() {
+                    var idx = Math.round(track.scrollLeft / (step() || 1));
+                    dots.forEach(function (d, i) {
+                        d.classList.toggle('bg-tajan-gold', i === idx);
+                        d.classList.toggle('bg-tajan-red/20', i !== idx);
+                        d.style.width = i === idx ? '18px' : '';
+                    });
+                }
+                document.getElementById('reviews-prev').addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+                document.getElementById('reviews-next').addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
+                dots.forEach(function (d) { d.addEventListener('click', function () { track.scrollTo({ left: step() * (+d.dataset.dot), behavior: 'smooth' }); }); });
+                track.addEventListener('scroll', function () { window.requestAnimationFrame(updateDots); }, { passive: true });
+                updateDots();
+            }
+        })();
+    </script>
+}

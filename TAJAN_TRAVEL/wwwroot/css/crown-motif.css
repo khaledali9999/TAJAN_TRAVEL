@@ -1,0 +1,24 @@
+/* Tajan - faint outline crown motif for section backgrounds.
+   Decorative only: sits behind content, never receives clicks. */
+:root{--crown-opacity:.15}
+
+.has-crown{position:relative;overflow:hidden}
+.has-crown>*:not(.crown-motif){position:relative;z-index:1}
+
+.crown-motif{
+  position:absolute;z-index:0;pointer-events:none;
+  aspect-ratio:2147/2631;               /* matches the PNG */
+  background:url("../Maroon Geometric Ornamental Emblem.png") center/contain no-repeat;
+  opacity:var(--crown-opacity);
+}
+/* sizes */
+.crown-motif--lg{width:clamp(160px,19vw,260px)}
+.crown-motif--md{width:clamp(130px,15vw,210px)}
+.crown-motif--sm{width:clamp(110px,12vw,170px)}
+/* sides: right side is mirrored so the crown always faces the content */
+.crown-motif--left{left:-1%}
+.crown-motif--right{right:-1%;transform:scaleX(-1)}
+
+/* small screens: content fills the width, so hide the motif */
+@media (max-width:991px){.crown-motif{display:none}}
+@media print{.crown-motif{display:none}}

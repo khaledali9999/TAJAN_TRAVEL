@@ -1,0 +1,6 @@
+@* Sticky Save / Cancel bar used by every create/edit form.  Model = label of the primary button *@
+@model string
+<div class="sticky bottom-0 z-10 -mx-4 mt-6 flex items-center justify-end gap-3 border-t border-slate-200 bg-tajan-cream/95 px-4 py-4 backdrop-blur lg:-mx-8 lg:px-8">
+    <a asp-action="Index" class="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm text-slate-700 hover:bg-tajan-cream">Cancel</a>
+    <button type="submit" class="rounded-lg bg-tajan-red px-6 py-2.5 text-sm font-medium text-white hover:bg-[#3a171b]">@Model</button>
+</div>

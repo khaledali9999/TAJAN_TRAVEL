@@ -1,0 +1,190 @@
+@model TourFormVm
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "New tour" : "Edit tour";
+    var formAction = Url.Action(isNew ? "Create" : "Edit", new { area = "Admin", id = isNew ? (int?)null : Model.Id });
+}
+
+<a asp-action="Index" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-tajan-red">
+    <i data-lucide="arrow-left" class="h-4 w-4"></i> Back to tours
+</a>
+
+<form action="@formAction" method="post" enctype="multipart/form-data" class="mt-4">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+
+    <div class="space-y-6">
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Basics</h2>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                @Html.AdminText(m => m.TitleEn, "Title (English)", required: true)
+                @Html.AdminText(m => m.TitleFr, "Title (Français)", required: true)
+                @Html.AdminText(m => m.Slug, "URL slug", hint: isNew ? "Leave empty to generate it from the English title." : "Changing it breaks existing links to this tour.", placeholder: "classic-egypt-8-days")
+                @Html.AdminSelect(m => m.Type, "Tour type", Model.TypeOptions, required: true)
+                @Html.AdminSelect(m => m.DestinationId, "Destination", Model.DestinationOptions, "— Select a destination —", required: true)
+                @Html.AdminSelect(m => m.ActivityTypeId, "Activity type", Model.ActivityTypeOptions, "— None —")
+                @Html.AdminNumber(m => m.DurationDays, "Duration (days)", required: true, min: "1", max: "60", hint: "1 = a day tour.")
+                @Html.AdminNumber(m => m.DurationHours, "Duration (hours)", min: "1", max: "24", hint: "Only for day tours (1 day), e.g. 8. Leave empty to show “1 Day”.")
+                <div class="grid grid-cols-3 gap-3">
+                    @Html.AdminNumber(m => m.PriceFrom, "Price from", required: true, min: "0", step: "0.01", cls: "col-span-2")
+                    @Html.AdminText(m => m.Currency, "Currency", required: true)
+                </div>
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Prices by group size</h2>
+            <p class="mt-1 text-xs text-slate-400">Price per person, shown on the tour page. Leave a row empty to hide it. When any price is filled in, “Price from” is set to the cheapest one automatically.</p>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @for (var i = 0; i < Model.Prices.Count; i++)
+                {
+                    var pr = Model.Prices[i];
+                    <div>
+                        <input type="hidden" name="Prices[@i].Persons" value="@pr.Persons" />
+                        <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-slate-500">@(pr.Persons == 1 ? "Single (1 person)" : pr.Persons + " persons") — per person (@Model.Currency)</label>
+                        <input type="number" min="0" step="0.01" name="Prices[@i].PricePerPerson" value="@(pr.PricePerPerson?.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))"
+                               class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold" />
+                        @Html.ValidationMessage("Prices[" + i + "].PricePerPerson", null, new { @class = "mt-1 block text-xs text-red-600" })
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Text</h2>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                @Html.AdminTextArea(m => m.SummaryEn, "Short summary (English)", rows: 3, required: true, hint: "Shown on tour cards.")
+                @Html.AdminTextArea(m => m.SummaryFr, "Short summary (Français)", rows: 3, required: true)
+                @Html.AdminTextArea(m => m.DescriptionEn, "Full description (English)", rows: 8)
+                @Html.AdminTextArea(m => m.DescriptionFr, "Full description (Français)", rows: 8)
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Tour page content</h2>
+            <p class="mt-1 text-xs text-slate-400">Everything here is optional: a section (or tab) is hidden on the website when it is left empty. For the list fields, write one item per line.</p>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                @Html.AdminTextArea(m => m.QuoteEn, "Intro quote (English)", rows: 3, hint: "Shown in large type at the top of the Description tab.")
+                @Html.AdminTextArea(m => m.QuoteFr, "Intro quote (Français)", rows: 3)
+                @Html.AdminTextArea(m => m.HighlightsEn, "Experience highlights (English)", rows: 5, hint: "One highlight per line.")
+                @Html.AdminTextArea(m => m.HighlightsFr, "Experience highlights (Français)", rows: 5)
+                @Html.AdminTextArea(m => m.IncludedEn, "Included (English)", rows: 5, hint: "One item per line.")
+                @Html.AdminTextArea(m => m.IncludedFr, "Included (Français)", rows: 5)
+                @Html.AdminTextArea(m => m.ExcludedEn, "Not included (English)", rows: 5, hint: "One item per line.")
+                @Html.AdminTextArea(m => m.ExcludedFr, "Not included (Français)", rows: 5)
+                @Html.AdminTextArea(m => m.ImportantInfoEn, "Important information (English)", rows: 5, hint: "One item per line.")
+                @Html.AdminTextArea(m => m.ImportantInfoFr, "Important information (Français)", rows: 5)
+                @Html.AdminText(m => m.AvailabilityEn, "Availability (English)", placeholder: "Every Day", hint: "Shown in the quick facts. Empty = hidden.")
+                @Html.AdminText(m => m.AvailabilityFr, "Availability (Français)", placeholder: "Tous les jours")
+                @Html.AdminText(m => m.PaymentNoteEn, "Payment note (English)", placeholder: "Pay 50% online and the rest upon arrival.", hint: "Shown under the prices. Empty = hidden.")
+                @Html.AdminText(m => m.PaymentNoteFr, "Payment note (Français)")
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Images</h2>
+            <div class="mt-5 space-y-6">
+                @Html.AdminImage(m => m.CoverImageUrl, "CoverFile", "Cover image", "Shown on cards and at the top of the tour page.")
+
+                <div>
+                    <div class="mb-1.5 text-[13px] font-medium text-slate-700">Gallery</div>
+
+                    @if (Model.Gallery.Count > 0)
+                    {
+                        <div class="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            @for (var i = 0; i < Model.Gallery.Count; i++)
+                            {
+                                var g = Model.Gallery[i];
+                                <div class="rounded-lg border border-slate-200 p-3">
+                                    <input type="hidden" name="Gallery[@i].Id" value="@g.Id" />
+                                    <input type="hidden" name="Gallery[@i].ImageUrl" value="@g.ImageUrl" />
+                                    <img src="@g.ImageUrl" alt="" class="h-28 w-full rounded object-cover" loading="lazy" />
+                                    <input type="text" name="Gallery[@i].AltTextEn" value="@g.AltTextEn" placeholder="Alt text (English)"
+                                           class="mt-2 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs focus:border-tajan-gold focus:outline-none" />
+                                    <input type="text" name="Gallery[@i].AltTextFr" value="@g.AltTextFr" placeholder="Alt text (Français)"
+                                           class="mt-2 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs focus:border-tajan-gold focus:outline-none" />
+                                    <label class="mt-2 flex items-center gap-2 text-xs text-red-600">
+                                        <input type="checkbox" name="Gallery[@i].Remove" value="true" class="h-3.5 w-3.5 rounded border-slate-300" /> Remove this image
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <input type="file" name="NewGalleryFiles" multiple accept="image/jpeg,image/png,image/webp,image/gif"
+                           class="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-tajan-sand/40 file:px-4 file:py-2.5 file:text-sm file:font-medium file:text-tajan-red hover:file:bg-tajan-sand/60" />
+                    <p class="mt-1 text-xs text-slate-400">Add more photos (you can pick several). JPG/PNG/WEBP/GIF, max 5 MB each.</p>
+                    @Html.ValidationMessage("NewGalleryFiles", null, new { @class = "mt-1 block text-xs text-red-600" })
+                </div>
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Day-by-day itinerary</h2>
+                    <p class="mt-1 text-xs text-slate-400">Empty days are ignored.</p>
+                </div>
+                <button type="button" id="addItin" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3.5 py-2 text-sm text-slate-700 hover:bg-tajan-cream">
+                    <i data-lucide="plus" class="h-4 w-4"></i> Add day
+                </button>
+            </div>
+            <div id="itinList" class="mt-5 space-y-3">
+                @for (var i = 0; i < Model.Itinerary.Count; i++)
+                {
+                    <partial name="_ItineraryRow" model="new ItineraryRowRender(i.ToString(), Model.Itinerary[i])" />
+                }
+            </div>
+            <template id="itinTpl">
+                <partial name="_ItineraryRow" model='new ItineraryRowRender("__i__", new ItineraryRowVm())' />
+            </template>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Visibility</h2>
+            <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                @Html.AdminToggle(m => m.IsActive, "Active", "Visible on the website.")
+                @Html.AdminToggle(m => m.IsFeatured, "Featured", "Shown on the home page.")
+                @Html.AdminToggle(m => m.IsPrivate, "Private tour", "Private (not a shared group departure).")
+            </div>
+        </section>
+    </div>
+
+    <partial name="_FormActions" model='isNew ? "Create tour" : "Save changes"' />
+</form>
+
+@section Scripts {
+    <script>
+        (function () {
+            const list = document.getElementById('itinList');
+            const tpl = document.getElementById('itinTpl');
+
+            function reindex() {
+                list.querySelectorAll('.itin-row').forEach((row, i) => {
+                    row.querySelectorAll('[name]').forEach(el => {
+                        el.name = el.name.replace(/^Itinerary\[[^\]]*\]/, 'Itinerary[' + i + ']');
+                    });
+                });
+            }
+
+            document.getElementById('addItin').addEventListener('click', () => {
+                const count = list.querySelectorAll('.itin-row').length;
+                list.insertAdjacentHTML('beforeend', tpl.innerHTML.replace(/__i__/g, count));
+                const added = list.lastElementChild;
+                const day = added.querySelector('input[type=number]');
+                if (day) day.value = count + 1;
+                reindex();
+                lucide.createIcons();
+            });
+
+            list.addEventListener('click', e => {
+                const btn = e.target.closest('[data-remove-itin]');
+                if (!btn) return;
+                btn.closest('.itin-row').remove();
+                reindex();
+            });
+
+            document.querySelector('form[enctype]').addEventListener('submit', reindex);
+        })();
+    </script>
+}

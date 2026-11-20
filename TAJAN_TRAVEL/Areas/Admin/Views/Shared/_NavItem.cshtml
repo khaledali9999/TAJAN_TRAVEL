@@ -1,0 +1,30 @@
+@model NavItem
+@{
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var statusQ = Context.Request.Query["status"].ToString();
+    var titleQ = Context.Request.Query["title"].ToString();
+    var typeQ = Context.Request.Query["type"].ToString();
+
+    var active = string.Equals(ctrl, Model.Controller, StringComparison.OrdinalIgnoreCase);
+    if (active)
+    {
+        if (Model.Status != null)
+            active = string.Equals(statusQ, Model.Status, StringComparison.OrdinalIgnoreCase);
+        else if (Model.Controller == "TourRequests")
+            active = !string.Equals(statusQ, "Confirmed", StringComparison.OrdinalIgnoreCase)
+                     && string.Equals(typeQ, Model.Type ?? "", StringComparison.OrdinalIgnoreCase);
+        else if (Model.Controller == "ComingSoon")
+            active = string.Equals(titleQ, Model.Title, StringComparison.OrdinalIgnoreCase);
+    }
+
+    var href = Url.Action(Model.Action, Model.Controller, new { area = "Admin", status = Model.Status, type = Model.Type, title = Model.Title });
+}
+<a href="@href"
+   class="group flex items-center gap-3 rounded-lg px-3 py-2 text-[14px] transition-colors @(active ? "bg-white/15 text-white shadow-sm" : "text-white/75 hover:bg-white/10 hover:text-white")">
+    <i data-lucide="@Model.Icon" class="h-[18px] w-[18px] shrink-0 @(active ? "text-tajan-gold" : "text-white/50 group-hover:text-white")"></i>
+    <span class="flex-1 truncate">@Model.Label</span>
+    @if (Model.Badge > 0)
+    {
+        <span class="rounded-full bg-[#F1E6D6] px-2 py-0.5 text-[11px] font-medium text-tajan-red">@Model.Badge</span>
+    }
+</a>

@@ -1,0 +1,146 @@
+@model TourRequestsIndexViewModel
+@{
+    ViewData["Title"] = Model.Status == "Confirmed" ? "File confirmed"
+        : Model.Type == "TourInquiry" ? "Tour Details Requests"
+        : Model.Type == "CustomItinerary" ? "Design Your Tour Requests"
+        : "All Requests";
+    int TypeCount(InquiryType t) => Model.TypeCounts.TryGetValue(t, out var n0) ? n0 : 0;
+    var sources = new (string Label, string? Value, int Count, string Hint)[]
+    {
+        ("All requests", null, Model.TypeCounts.Values.Sum(), ""),
+        ("Tour Details", "TourInquiry", TypeCount(InquiryType.TourInquiry), "sent from a tour page"),
+        ("Design Your Tour", "CustomItinerary", TypeCount(InquiryType.CustomItinerary), "sent from “Design your Egypt tour”")
+    };
+    var allCount = Model.Counts.Values.Sum();
+    var statuses = Enum.GetValues<InquiryStatus>();
+}
+
+@* ---- request source tabs ---- *@
+<div class="mb-5 grid gap-3 sm:grid-cols-3">
+    @foreach (var src in sources)
+    {
+        var on = string.Equals(Model.Type ?? "", src.Value ?? "", StringComparison.OrdinalIgnoreCase);
+        <a asp-action="Index" asp-route-type="@src.Value" asp-route-status="@Model.Status" asp-route-q="@Model.Q"
+           class="card flex items-center justify-between px-5 py-4 transition @(on ? "ring-2 ring-tajan-gold" : "hover:bg-tajan-cream/60")">
+            <span>
+                <span class="block text-sm font-medium @(on ? "text-tajan-red" : "text-[#2A1215]")">@src.Label</span>
+                @if (src.Hint != "")
+                {
+                    <span class="block text-xs text-slate-400">@src.Hint</span>
+                }
+            </span>
+            <span class="font-display text-2xl font-semibold text-tajan-red">@src.Count</span>
+        </a>
+    }
+</div>
+
+<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-wrap gap-2">
+        <a asp-action="Index" asp-route-q="@Model.Q" asp-route-type="@Model.Type"
+           class="rounded-full px-3.5 py-1.5 text-sm @(Model.Status == null ? "bg-tajan-red text-white" : "bg-white text-slate-600 hover:bg-tajan-sand/30")">
+            All <span class="ml-1 text-xs opacity-70">@allCount</span>
+        </a>
+        @foreach (var s in statuses)
+        {
+            var c = Model.Counts.TryGetValue(s, out var n) ? n : 0;
+            var on = string.Equals(Model.Status, s.ToString(), StringComparison.OrdinalIgnoreCase);
+            <a asp-action="Index" asp-route-status="@s" asp-route-q="@Model.Q" asp-route-type="@Model.Type"
+               class="rounded-full px-3.5 py-1.5 text-sm @(on ? "bg-tajan-red text-white" : "bg-white text-slate-600 hover:bg-tajan-sand/30")">
+                @AdminFormat.Pretty(s.ToString()) <span class="ml-1 text-xs opacity-70">@c</span>
+            </a>
+        }
+    </div>
+
+    <form asp-action="Index" method="get" class="relative w-full lg:w-72">
+        <input type="hidden" name="status" value="@Model.Status" />
+        <input type="hidden" name="type" value="@Model.Type" />
+        <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+        <input name="q" value="@Model.Q" type="search" placeholder="Name, email or tour..."
+               class="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold" />
+    </form>
+</div>
+
+<div class="card mt-5 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full min-w-[900px] text-sm">
+            <thead>
+                <tr class="bg-slate-50/70 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3">Request</th>
+                    <th class="px-3 py-3">Customer</th>
+                    <th class="px-3 py-3">Tour / Interest</th>
+                    <th class="px-3 py-3">Trip dates</th>
+                    <th class="px-3 py-3">Guests</th>
+                    <th class="px-3 py-3">Type</th>
+                    <th class="px-3 py-3">Status</th>
+                    <th class="px-6 py-3 text-right">Received</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var i in Model.Items)
+                {
+                    <tr class="border-t border-slate-100 hover:bg-tajan-cream/60">
+                        <td class="px-6 py-4 font-medium">
+                            <a asp-action="Details" asp-route-id="@i.Id" class="text-tajan-red hover:underline">@AdminFormat.Rq(i.Id)</a>
+                        </td>
+                        <td class="px-3 py-4">
+                            <div class="font-medium text-[#2A1215]">@i.FullName</div>
+                            <div class="text-xs text-slate-500">@i.Email</div>
+                        </td>
+                        <td class="px-3 py-4 text-slate-600">@(i.Tour?.TitleEn ?? i.PreferredCategory ?? "Custom Journey")</td>
+                        <td class="px-3 py-4 text-slate-600">
+                            @if (i.PreferredDate.HasValue)
+                            {
+                                <span>@AdminFormat.Day(i.PreferredDate.Value)@(i.PreferredEndDate.HasValue ? " – " + AdminFormat.Day(i.PreferredEndDate.Value) : "")</span>
+                            }
+                            else
+                            {
+                                <span class="text-slate-400">Not set</span>
+                            }
+                        </td>
+                        <td class="px-3 py-4 text-slate-600">
+                            @i.Adults<span class="text-slate-400">A</span>
+                            @if (i.Children > 0)
+                            {
+                                <span> @i.Children<span class="text-slate-400">C</span></span>
+                            }
+                            @if (i.Infants > 0)
+                            {
+                                <span> @i.Infants<span class="text-slate-400">I</span></span>
+                            }
+                        </td>
+                        <td class="px-3 py-4">
+                            <span class="rounded bg-[#F3E9DD] px-2 py-0.5 text-[11px] text-[#6B4A3A]">@AdminFormat.TypeLabel(i.Type)</span>
+                        </td>
+                        <td class="px-3 py-4">
+                            <span class="rounded-full px-2.5 py-1 text-xs font-medium @AdminFormat.StatusPill(i.Status)">@AdminFormat.Pretty(i.Status.ToString())</span>
+                        </td>
+                        <td class="px-6 py-4 text-right text-slate-500">@AdminFormat.When(i.CreatedAt)</td>
+                    </tr>
+                }
+                @if (!Model.Items.Any())
+                {
+                    <tr><td colspan="8" class="px-6 py-12 text-center text-slate-400">No requests match this filter.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="flex items-center justify-between border-t border-slate-100 px-6 py-3 text-sm text-slate-500">
+            <span>@Model.Total results · Page @Model.Page of @Model.TotalPages</span>
+            <div class="flex gap-2">
+                @if (Model.Page > 1)
+                {
+                    <a asp-action="Index" asp-route-page="@(Model.Page - 1)" asp-route-status="@Model.Status" asp-route-type="@Model.Type" asp-route-q="@Model.Q"
+                       class="rounded-md border border-slate-200 px-3 py-1.5 hover:bg-tajan-cream">Previous</a>
+                }
+                @if (Model.Page < Model.TotalPages)
+                {
+                    <a asp-action="Index" asp-route-page="@(Model.Page + 1)" asp-route-status="@Model.Status" asp-route-type="@Model.Type" asp-route-q="@Model.Q"
+                       class="rounded-md border border-slate-200 px-3 py-1.5 hover:bg-tajan-cream">Next</a>
+                }
+            </div>
+        </div>
+    }
+</div>

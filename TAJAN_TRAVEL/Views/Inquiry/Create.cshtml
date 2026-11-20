@@ -1,0 +1,377 @@
+@model InquiryViewModel
+@{
+    ViewData["Title"] = T["Request Your Tour"];
+
+    string labelCls = "block text-[10px] font-medium uppercase tracking-[0.12em] text-tajan-red/70 mb-2";
+    string inputCls = "w-full bg-white border border-tajan-red/10 rounded-lg px-4 py-3 text-[13px] text-tajan-red placeholder:text-tajan-red/45 focus:outline-none focus:border-tajan-gold transition";
+    string sectionCls = "text-[11px] font-semibold uppercase tracking-[0.2em] text-tajan-gold pb-3 mb-5 border-b border-tajan-red/10";
+    string chipCls = "inline-block whitespace-nowrap rounded-full px-5 py-2.5 text-xs border border-tajan-red/15 bg-white text-tajan-red " +
+                     "peer-checked:bg-tajan-red peer-checked:text-white peer-checked:border-tajan-red peer-focus-visible:ring-2 peer-focus-visible:ring-tajan-gold transition";
+}
+
+@section Styles {
+    <style>
+        .no-scrollbar {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+
+        /* Keep the native date picker working but hide its default icon (we show our own) */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        /* Contact-method radio cards */
+        .radio-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 1px solid rgba(75,30,35,.35);
+            display: inline-block;
+            position: relative;
+            flex-shrink: 0;
+            background: #fff;
+        }
+
+        input:checked + .radio-card .radio-dot {
+            border-color: #4B1E23;
+            background: #4B1E23;
+            box-shadow: inset 0 0 0 3px #fff;
+        }
+
+        input:checked + .radio-card {
+            border-color: rgba(75,30,35,.7);
+        }
+    </style>
+}
+
+<section class="bg-tajan-cream pt-28 sm:pt-32 pb-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+        @* ---------- Intro ---------- *@
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <div class="flex items-center justify-center gap-3 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.3em] text-tajan-gold mb-4">
+                <span class="w-6 sm:w-8 h-px bg-tajan-gold"></span>
+                <span>@T["Request Your Tour"]</span>
+                <span class="w-6 sm:w-8 h-px bg-tajan-gold"></span>
+            </div>
+            <h1 class="font-display text-3xl sm:text-5xl text-tajan-red leading-tight mb-4">@T["Let's Design Your Egypt Journey"]</h1>
+            <p class="text-sm sm:text-[15px] text-tajan-red/70 leading-relaxed max-w-lg mx-auto">
+                @T["Tell us a little about your plans and preferences, and our travel experts will create a journey around you."]
+            </p>
+            @if (!string.IsNullOrEmpty(Model.TourTitle))
+            {
+                <p class="mt-4 inline-block bg-white border border-tajan-gold/30 rounded-full px-4 py-1.5 text-xs text-tajan-red">
+                    @T["Regarding:"] <strong>@Model.TourTitle</strong>
+                </p>
+            }
+            <span class="block w-20 h-px bg-tajan-gold mx-auto mt-8"></span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-10 lg:gap-14 items-start">
+
+            @* ---------- Form ---------- *@
+            <form asp-controller="Inquiry" asp-action="Create" method="post" id="inquiryForm" class="space-y-9" novalidate>
+
+                <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm"></div>
+                <input type="hidden" asp-for="TourId" />
+                <input type="hidden" asp-for="TourTitle" />
+
+                @* Your Details *@
+                <div>
+                    <h3 class="@sectionCls">@T["Your Details"]</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label asp-for="FullName" class="@labelCls"></label>
+                            <input asp-for="FullName" placeholder="@T["Enter your full name"]" autocomplete="name" class="@inputCls" />
+                            <span asp-validation-for="FullName" class="text-xs text-red-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Email" class="@labelCls"></label>
+                            <input asp-for="Email" type="email" placeholder="@T["Enter your email address"]" autocomplete="email" class="@inputCls" />
+                            <span asp-validation-for="Email" class="text-xs text-red-600"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label asp-for="PhoneNumber" class="@labelCls"></label>
+                        <div class="flex items-stretch bg-white border border-tajan-red/10 rounded-lg focus-within:border-tajan-gold transition">
+                            @* Country code (native <select> stretched invisibly over the visible "+20 v" label) *@
+                            <div class="relative shrink-0 border-r border-tajan-red/10">
+                                <span class="flex items-center gap-1.5 h-full pl-4 pr-3 text-[13px] font-medium text-tajan-red whitespace-nowrap pointer-events-none">
+                                    <span id="dialCodeText">@Model.CountryCode</span>
+                                    <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-tajan-red/50"></i>
+                                </span>
+                                <select asp-for="CountryCode" aria-label="@T["Country code"]"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-[13px]">
+                                    @foreach (var c in CountryDialCodes.All)
+                                    {
+                                        <option value="@c.Dial">@c.Name (@c.Dial)</option>
+                                    }
+                                </select>
+                            </div>
+                            <input asp-for="PhoneNumber" type="tel" inputmode="tel" placeholder="@T["Enter your mobile number"]" autocomplete="tel-national"
+                                   class="flex-1 min-w-0 bg-transparent rounded-r-lg px-4 py-3 text-[13px] text-tajan-red placeholder:text-tajan-red/45 focus:outline-none" />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="text-xs text-red-600"></span>
+                    </div>
+
+                    @* Country + language *@
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label for="Country" class="@labelCls">@T["Country"]</label>
+                            <select id="Country" name="Country" autocomplete="country-name" class="@inputCls">
+                                <option value="">@T["Select your country"]</option>
+                                @foreach (var c in InquiryOptions.Countries)
+                                {
+                                    <option value="@c" selected="@(string.Equals(Model.Country, c, StringComparison.OrdinalIgnoreCase))">@c</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Country" class="text-xs text-red-600"></span>
+                        </div>
+                        <div>
+                            <label for="Language" class="@labelCls">@T["Language"]</label>
+                            <select id="Language" name="Language" class="@inputCls">
+                                @foreach (var l in InquiryOptions.Languages)
+                                {
+                                    <option value="@l" selected="@(string.Equals(Model.Language ?? "English", l, StringComparison.OrdinalIgnoreCase))">@l</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Language" class="text-xs text-red-600"></span>
+                        </div>
+                    </div>
+                </div>
+
+                @* Your Journey *@
+                <div>
+                    <h3 class="@sectionCls">@T["Your Journey"]</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label asp-for="FromDate" class="@labelCls"></label>
+                            <div class="relative">
+                                <i data-lucide="calendar" class="w-4 h-4 text-tajan-red/55 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10"></i>
+                                <input asp-for="FromDate" type="text" id="FromDate" placeholder="@T["Select start date"]"
+                                       value="@Model.FromDate?.ToString("yyyy-MM-dd")" data-date class="@inputCls pl-11" />
+                            </div>
+                            <span asp-validation-for="FromDate" class="text-xs text-red-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="ToDate" class="@labelCls"></label>
+                            <div class="relative">
+                                <i data-lucide="calendar" class="w-4 h-4 text-tajan-red/55 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10"></i>
+                                <input asp-for="ToDate" type="text" id="ToDate" placeholder="@T["Select end date"]"
+                                       value="@Model.ToDate?.ToString("yyyy-MM-dd")" data-date class="@inputCls pl-11" />
+                            </div>
+                            <span asp-validation-for="ToDate" class="text-xs text-red-600"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <div class="@labelCls">@T["Flexibility"]</div>
+                        <div class="flex flex-wrap gap-2">
+                            @{
+                                var flexOptions = new (DateFlexibility Value, string Label)[]
+                                {
+                            (DateFlexibility.Exact, T["Exact dates"]),
+                            (DateFlexibility.Flexible, T["Flexible dates"]),
+                            (DateFlexibility.NotDecided, T["Not decided yet"])
+                                };
+                            }
+                            @foreach (var opt in flexOptions)
+                            {
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="Flexibility" value="@opt.Value" class="sr-only peer"
+                                           checked="@(Model.Flexibility == opt.Value)" />
+                                    <span class="@chipCls">@opt.Label</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @* Travelers (same controls as the tour details page) *@
+                <div>
+                    <h3 class="@sectionCls">@T["Travelers"]</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="Adults" class="@labelCls">@T["Adults (12+ Yrs)"]</label>
+                            <select id="Adults" name="Adults" class="@inputCls">
+                                @for (var n = 1; n <= 10; n++)
+                                {
+                                    <option value="@n" selected="@(n == Model.Adults)">@n @(n == 1 ? T["Adult"] : T["Adults"])</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label for="inquiryChildren" class="@labelCls">@T["Children (2-12 Yrs)"]</label>
+                            <input id="inquiryChildren" name="Children" type="number" min="0" step="1" inputmode="numeric"
+                                   value="@Model.Children" class="@inputCls" />
+                        </div>
+                    </div>
+
+                    @* ages of the children (filled by child-ages.js) *@
+                    <div id="childAges" data-ages="@string.Join(",", Model.ChildrenAges)" class="hidden mt-3 flex flex-wrap gap-2"></div>
+                    <span asp-validation-for="Adults" class="text-xs text-red-600"></span>
+                    <span asp-validation-for="Children" class="text-xs text-red-600"></span>
+                    <span asp-validation-for="ChildrenAges" class="text-xs text-red-600"></span>
+                </div>
+
+                @* Your Preference *@
+                <div>
+                    <h3 class="@sectionCls">@T["Your Preference"]</h3>
+                    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <label class="cursor-pointer shrink-0">
+                                <input type="checkbox" name="PreferredCategories" value="@cat" class="sr-only peer"
+                                       checked="@(Model.PreferredCategories.Contains(cat))" />
+                                <span class="@chipCls">@cat</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                @* Tell Us More *@
+                <div>
+                    <h3 class="@sectionCls">@T["Tell Us More"]</h3>
+                    <textarea asp-for="AdditionalNotes" rows="5" placeholder="@T["Tell us about your ideal Egypt journey..."]" class="@inputCls resize-none"></textarea>
+                    <p class="text-[11px] text-tajan-red/55 mt-2">@T["Share anything that would help us personalize your experience."]</p>
+                </div>
+
+                @* Contact preference *@
+                <div>
+                    <h3 class="@sectionCls">@T["How Should We Contact You?"]</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <label class="cursor-pointer block">
+                            <input type="checkbox" name="PreferredContacts" value="Email" class="sr-only"
+                                   checked="@(Model.PreferredContacts.Contains("Email"))" />
+                            <span class="radio-card flex items-center gap-3 bg-white border border-tajan-red/10 rounded-lg px-4 py-4 text-xs text-tajan-red transition">
+                                <span class="radio-dot"></span> @T["Email"]
+                            </span>
+                        </label>
+                        <label class="cursor-pointer block">
+                            <input type="checkbox" name="PreferredContacts" value="WhatsApp" class="sr-only"
+                                   checked="@(Model.PreferredContacts.Contains("WhatsApp"))" />
+                            <span class="radio-card flex items-center gap-3 bg-white border border-tajan-red/10 rounded-lg px-4 py-4 text-xs text-tajan-red transition">
+                                <span class="radio-dot"></span> @T["WhatsApp"]
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                @* Submit *@
+                <div class="pt-6 border-t border-tajan-red/10">
+                    <h4 class="text-sm font-semibold uppercase tracking-wide text-tajan-gold mb-1.5">@T["Ready to start planning?"]</h4>
+                    <p class="text-xs text-tajan-red/65 mb-5">@T["Our team will review your request and get back to you with a personalized proposal."]</p>
+                    <button type="submit"
+                            class="inline-flex items-center justify-center gap-1 w-full sm:w-auto bg-tajan-red text-white rounded-lg px-10 py-3.5 text-xs font-medium uppercase tracking-wider hover:bg-tajan-red/90 transition">
+                        @T["Request My Tour →"]
+                    </button>
+                </div>
+            </form>
+
+            @* ---------- Side image ---------- *@
+            <aside class="lg:sticky lg:top-28 order-first lg:order-none">
+                <div class="aspect-[3/4] rounded-xl overflow-hidden bg-tajan-sand/30">
+                    <img src="/ChatGPT Image Sep 9, 2026, 12_20_02 PM.png" alt="@T["Felucca sailing on the Nile at sunset"]" class="w-full h-full object-cover" />
+                </div>
+                <div class="mt-6 px-1">
+                    <span class="block text-[10px] font-medium uppercase tracking-[0.2em] text-tajan-gold mb-3">@T["Plan Your Egypt Journey"]</span>
+                    <h3 class="font-display text-2xl text-tajan-red mb-3">@T["Egypt, Tailored to You"]</h3>
+                    <p class="text-[13px] text-tajan-red/70 leading-relaxed">
+                        @T["From iconic landmarks to hidden places, we'll help you create an experience that feels uniquely yours."]
+                    </p>
+                    <span class="block w-10 h-px bg-tajan-gold mt-5"></span>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/child-ages.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            // ---- Children: ask for each child's age (max 6) ----
+            var childSel = document.getElementById('inquiryChildren');
+            var childApi = null;
+            if (childSel && window.TajanChildAges) {
+                // Enter inside the number box asks for the ages instead of submitting the form
+                childSel.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') { e.preventDefault(); childSel.blur(); }
+                });
+                childApi = TajanChildAges.attach({
+                    input: childSel,
+                    container: document.getElementById('childAges'),
+                    setCount: function (n) { childSel.value = n; },
+                    max: 999, minAge: 2, maxAge: 12,
+                    labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, string>
+                   {
+                       ["title"] = T["Child {n}"].ToString(),
+                       ["question"] = T["How old is this child?"].ToString(),
+                       ["unit"] = T["years old"].ToString(),
+                       ["confirm"] = T["Confirm"].ToString(),
+                       ["cancel"] = T["Cancel"].ToString(),
+                       ["error"] = T["Please enter an age between 2 and 12."].ToString(),
+                       ["chip"] = T["Child {n}: {age} yrs"].ToString(),
+                       ["edit"] = T["Edit"].ToString()
+                   }))
+                });
+            }
+
+            // every child needs an age: if one is missing the age popup opens and the form waits
+            document.getElementById('inquiryForm').addEventListener('submit', function (e) {
+                if (!childApi) return;
+                var n = Math.max(0, parseInt(childSel.value, 10) || 0);
+                if (childApi.ages().length < n) { e.preventDefault(); childApi.sync(); }
+            });
+
+            // ---- Phone: country code label + digits-only-ish input ----
+            var dialSelect = document.getElementById('CountryCode');
+            var dialText = document.getElementById('dialCodeText');
+            if (dialSelect && dialText) {
+                dialSelect.addEventListener('change', function () { dialText.textContent = dialSelect.value; });
+            }
+            var phoneInput = document.getElementById('PhoneNumber');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function () {
+                    phoneInput.value = phoneInput.value.replace(/[^\d+\s\-()]/g, '');
+                });
+            }
+
+            // ---- Date inputs: show placeholder text, become a real date picker on focus ----
+            var from = document.getElementById('FromDate');
+            var to = document.getElementById('ToDate');
+            var today = new Date().toISOString().slice(0, 10);
+
+            function activate(el) {
+                el.type = 'date';
+                el.min = (el === to && from.value) ? from.value : today;
+                if (el.showPicker) { try { el.showPicker(); } catch (e) { } }
+            }
+            document.querySelectorAll('input[data-date]').forEach(function (el) {
+                if (el.value) { el.type = 'date'; el.min = today; }
+                el.addEventListener('focus', function () { activate(el); });
+                el.addEventListener('click', function () { activate(el); });
+                el.addEventListener('blur', function () { if (!el.value) el.type = 'text'; });
+            });
+
+            // Keep "to" date on/after "from" date
+            from.addEventListener('change', function () {
+                if (to.type === 'date') to.min = from.value || today;
+                if (to.value && from.value && to.value < from.value) to.value = from.value;
+            });
+        })();
+    </script>
+}

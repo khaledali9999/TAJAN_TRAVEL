@@ -1,0 +1,100 @@
+@model DestinationListViewModel
+
+@if (!Model.Destinations.Any())
+{
+    <p class="text-center text-tajan-red/60 py-24">@T["No destinations yet — check back soon."]</p>
+}
+else
+{
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        @foreach (var destination in Model.Destinations)
+        {
+            <a asp-controller="Destinations"
+               asp-action="Details"
+               asp-route-slug="@destination.Slug"
+               class="group block relative aspect-[4/5] overflow-hidden bg-tajan-sand/40">
+
+                <!-- image -->
+                @if (!string.IsNullOrEmpty(destination.CoverImageUrl))
+                {
+                    <img src="@destination.CoverImageUrl"
+                         alt="@Lang.Pick(destination.NameEn, destination.NameFr)"
+                         class="w-full h-full object-cover group-hover:scale-105 transition duration-700 ease-out" />
+                }
+                else
+                {
+                    <div class="w-full h-full bg-tajan-sand/60"></div>
+                }
+
+                <!-- gradient -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent
+                            group-hover:from-black/85 transition duration-500"></div>
+
+                <!-- bottom content -->
+                <div class="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-white">
+                    <div class="text-[10px] uppercase tracking-widest text-tajan-gold mb-1">
+                        @Lang.T(Lang.Pick(destination.Category, destination.CategoryFr))
+                    </div>
+                    <h3 class="font-display text-xl sm:text-2xl leading-tight mb-2">@Lang.Pick(destination.NameEn, destination.NameFr)</h3>
+                    <p class="text-white/70 text-xs leading-relaxed line-clamp-2 mb-4 max-w-[85%]">
+                        @Lang.Pick(destination.DescriptionEn, destination.DescriptionFr)
+                    </p>
+                    <span class="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest
+                                 text-tajan-gold group-hover:gap-3 transition-all duration-300">
+                        @T["Explore Destination"]
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="w-3.5 h-3.5">
+                            <path d="M5 12h14" />
+                            <path d="M13 6l6 6-6 6" />
+                        </svg>
+                    </span>
+                </div>
+            </a>
+        }
+    </div>
+
+    @* ---------- Pagination ---------- *@
+    @if (Model.TotalPages > 1)
+    {
+        var prevDisabled = Model.CurrentPage <= 1;
+        var nextDisabled = Model.CurrentPage >= Model.TotalPages;
+
+        <nav class="flex justify-center items-center gap-2 mt-14" aria-label="@T["Destinations pagination"]" data-dest-pagination>
+            @if (prevDisabled)
+            {
+                <span class="w-8 h-8 flex items-center justify-center text-tajan-red/25" aria-hidden="true">&lsaquo;</span>
+            }
+            else
+            {
+                <a asp-controller="Destinations" asp-action="Index"
+                   asp-route-page="@(Model.CurrentPage - 1)" asp-fragment="destinations-grid"
+                   aria-label="@T["Previous page"]"
+                   class="w-8 h-8 flex items-center justify-center text-tajan-red/60 hover:text-tajan-red">&lsaquo;</a>
+            }
+
+            @for (var p = 1; p <= Model.TotalPages; p++)
+            {
+                <a asp-controller="Destinations" asp-action="Index"
+                   asp-route-page="@p" asp-fragment="destinations-grid"
+                   aria-current="@(p == Model.CurrentPage ? "page" : null)"
+                   class="w-8 h-8 flex items-center justify-center rounded-full text-sm transition
+                          @(p == Model.CurrentPage ? "bg-tajan-red text-white" : "text-tajan-red/70 hover:bg-tajan-sand/40")">
+                    @p
+                </a>
+            }
+
+            @if (nextDisabled)
+            {
+                <span class="w-8 h-8 flex items-center justify-center text-tajan-red/25" aria-hidden="true">&rsaquo;</span>
+            }
+            else
+            {
+                <a asp-controller="Destinations" asp-action="Index"
+                   asp-route-page="@(Model.CurrentPage + 1)" asp-fragment="destinations-grid"
+                   aria-label="@T["Next page"]"
+                   class="w-8 h-8 flex items-center justify-center text-tajan-red/60 hover:text-tajan-red">&rsaquo;</a>
+            }
+        </nav>
+    }
+}

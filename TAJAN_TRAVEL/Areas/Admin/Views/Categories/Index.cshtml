@@ -1,0 +1,27 @@
+@model CategoriesIndexVm
+@{
+    ViewData["Title"] = "Categories & Types";
+    var groups = new List<(string Title, string Hint, string Kind, List<LookupRowVm> Rows)>
+    {
+        ("Story categories", "Used by Stories & Journal. “Filter chip” shows the category as a filter on the Stories page.", "blog", Model.Blog),
+        ("Event categories", "Used by Events.", "event", Model.Events),
+        ("Tour activity types", "Used by Tours (e.g. Culture & History, Adventure).", "activity", Model.Activities)
+    };
+}
+
+<div class="space-y-6">
+    @foreach (var g in groups)
+    {
+        <section class="card overflow-hidden">
+            <div class="px-6 py-5">
+                <h2 class="font-display text-[18px] font-semibold text-[#2A1215]">@g.Title</h2>
+                <p class="mt-1 text-xs text-slate-400">@g.Hint</p>
+            </div>
+            @foreach (var row in g.Rows)
+            {
+                <partial name="_LookupRow" model="new LookupRender(g.Kind, row)" />
+            }
+            <partial name="_LookupRow" model="new LookupRender(g.Kind, new LookupRowVm { ShowInFilter = true })" />
+        </section>
+    }
+</div>

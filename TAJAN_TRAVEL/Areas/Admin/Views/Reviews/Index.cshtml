@@ -1,0 +1,57 @@
+@model List<Testimonial>
+@{
+    ViewData["Title"] = "Reviews";
+    var pending = Model.Count(t => !t.IsApproved);
+}
+
+<div class="flex items-center justify-between">
+    <p class="text-sm text-slate-500">@Model.Count @(Model.Count == 1 ? "review" : "reviews")@(pending > 0 ? " · " + pending + " awaiting approval" : "")</p>
+    <a asp-action="Create" class="inline-flex items-center gap-2 rounded-lg bg-tajan-red px-4 py-2 text-sm font-medium text-white hover:bg-[#3a171b]">
+        <i data-lucide="plus" class="h-4 w-4"></i> Add review
+    </a>
+</div>
+
+<div class="card mt-5 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full min-w-[900px] text-sm">
+            <thead>
+                <tr class="bg-slate-50/70 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3">Guest</th>
+                    <th class="px-3 py-3">Review</th>
+                    <th class="px-3 py-3">Rating</th>
+                    <th class="px-3 py-3 text-center">Featured</th>
+                    <th class="px-3 py-3 text-center">Approved</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr class="border-t border-slate-100 align-top hover:bg-tajan-cream/60">
+                        <td class="px-6 py-4">
+                            <a asp-action="Edit" asp-route-id="@t.Id" class="font-medium text-[#2A1215] hover:text-tajan-red hover:underline">@t.ClientName</a>
+                            <div class="text-xs text-slate-500">@t.ClientCountry</div>
+                            @if (t.Tour != null)
+                            {
+                                <div class="mt-1 text-xs text-slate-400">@t.Tour.TitleEn</div>
+                            }
+                        </td>
+                        <td class="max-w-md px-3 py-4 text-slate-600">
+                            <p class="line-clamp-3">@t.QuoteEn</p>
+                        </td>
+                        <td class="px-3 py-4 whitespace-nowrap text-tajan-gold">
+                            @(new string('★', Math.Clamp(t.Rating, 0, 5)))<span class="text-slate-300">@(new string('★', 5 - Math.Clamp(t.Rating, 0, 5)))</span>
+                        </td>
+                        <td class="px-3 py-4 text-center"><partial name="_Toggle" model='new ToggleVm("Reviews", t.Id, "featured", t.IsFeatured)' /></td>
+                        <td class="px-3 py-4 text-center"><partial name="_Toggle" model='new ToggleVm("Reviews", t.Id, "approved", t.IsApproved)' /></td>
+                        <td class="px-6 py-4"><partial name="_RowActions" model='new RowActionsVm("Reviews", t.Id, "Delete this review?")' /></td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">No reviews yet.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

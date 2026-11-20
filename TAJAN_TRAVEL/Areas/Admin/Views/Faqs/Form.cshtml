@@ -1,0 +1,41 @@
+@model FaqFormVm
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "New FAQ" : "Edit FAQ";
+    var formAction = Url.Action(isNew ? "Create" : "Edit", new { area = "Admin", id = isNew ? (int?)null : Model.Id });
+}
+
+<a asp-action="Index" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-tajan-red">
+    <i data-lucide="arrow-left" class="h-4 w-4"></i> Back to FAQs
+</a>
+
+<form action="@formAction" method="post" class="mt-4">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+
+    <datalist id="faqCats">
+        @foreach (var c in Model.CategorySuggestions)
+        {
+            <option value="@c"></option>
+        }
+    </datalist>
+
+    <div class="space-y-6">
+        <section class="card p-6">
+            <div class="grid gap-5 sm:grid-cols-2">
+                @Html.AdminText(m => m.QuestionEn, "Question (English)", required: true)
+                @Html.AdminText(m => m.QuestionFr, "Question (Français)", required: true)
+                @Html.AdminTextArea(m => m.AnswerEn, "Answer (English)", rows: 6, required: true)
+                @Html.AdminTextArea(m => m.AnswerFr, "Answer (Français)", rows: 6, required: true)
+                @Html.AdminText(m => m.Category, "Category", hint: "Optional group, e.g. Booking, Payments, Travel tips.", list: "faqCats")
+                @Html.AdminText(m => m.CategoryFr, "Category (Français)", hint: "Nom du groupe en français, ex. Réservation, Paiements.")
+                @Html.AdminNumber(m => m.DisplayOrder, "Display order", hint: "Lower numbers appear first.")
+            </div>
+            <div class="mt-5">
+                @Html.AdminToggle(m => m.IsActive, "Active", "Visible on the FAQ page.")
+            </div>
+        </section>
+    </div>
+
+    <partial name="_FormActions" model='isNew ? "Create FAQ" : "Save changes"' />
+</form>

@@ -1,0 +1,513 @@
+﻿@model TourListViewModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+}
+
+<div class="bg-[#F7F2E7] min-h-screen">
+
+    @* ===================== Hero Slider ===================== *@
+    <section class="relative w-full h-screen min-h-[560px] overflow-hidden" id="hero-section">
+
+        <img src="/ChatGPT Image Sep 17, 2026, 01_03_35 AM.png" alt="Egypt 1"
+             class="hero-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-100" />
+        <img src="/ChatGPT Image Sep 9, 2026, 12_04_29 PM.png" alt="Egypt 2"
+             class="hero-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0" />
+        <img src="/ChatGPT Image Sep 17, 2026, 01_03_35 AM.png" alt="Egypt 3"
+             class="hero-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0" />
+
+        <div class="absolute inset-0 bg-black/30"></div>
+
+        <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-6 pt-16">
+            <div class="text-sm sm:text-base font-semibold uppercase tracking-[0.3em] text-tajan-red mb-8">
+                @T["Explore Our Tours"]
+            </div>
+            <h1 class="font-display text-white text-5xl sm:text-7xl lg:text-8xl leading-[1.05] mb-8 drop-shadow-lg">
+                @T["Discover Egypt,"]<br />
+                <span class="italic">@T["Your Way"]</span>
+            </h1>
+            <p class="text-white/90 max-w-2xl text-base sm:text-xl leading-relaxed">
+                @T["Private journeys across Egypt, from the sea to the desert, the Nile, and its timeless cities."]
+            </p>
+        </div>
+
+        <div class="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex gap-3">
+            <button type="button" aria-label="Slide 1" class="hero-dot w-5 h-5 rounded-full bg-tajan-gold transition"></button>
+            <button type="button" aria-label="Slide 2" class="hero-dot w-5 h-5 rounded-full bg-white/80 transition"></button>
+            <button type="button" aria-label="Slide 3" class="hero-dot w-5 h-5 rounded-full bg-white/80 transition"></button>
+        </div>
+
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-[11px] uppercase tracking-[0.3em] text-white/70">
+            @T["Scroll to explore"]
+        </div>
+    </section>
+
+    <script>
+        (function () {
+            const slides = document.querySelectorAll('#hero-section .hero-slide');
+            const dots   = document.querySelectorAll('#hero-section .hero-dot');
+            let current  = 0;
+            function show(i) {
+                slides[current].classList.replace('opacity-100', 'opacity-0');
+                dots[current].classList.replace('bg-tajan-gold', 'bg-white/80');
+                current = i;
+                slides[current].classList.replace('opacity-0', 'opacity-100');
+                dots[current].classList.replace('bg-white/80', 'bg-tajan-gold');
+            }
+            let timer = setInterval(() => show((current + 1) % slides.length), 2000);
+            dots.forEach((d, i) => d.addEventListener('click', () => {
+                clearInterval(timer);
+                show(i);
+                timer = setInterval(() => show((current + 1) % slides.length), 2000);
+            }));
+        })();
+    </script>
+
+    @* ===================== Intro ===================== *@
+    <section class="max-w-4xl mx-auto px-6 pt-16 pb-10 text-center">
+        <h2 class="font-display text-4xl sm:text-5xl text-tajan-red mb-4">@T["Explore Egypt, Your Way"]</h2>
+        <p class="text-tajan-red/70 max-w-xl mx-auto">
+            @T["From the Nile to the desert and the sea, find your perfect Egypt experience."]
+        </p>
+    </section>
+
+    @* ===================== Category Pills ===================== *@
+    <section class="max-w-5xl mx-auto px-6 pb-10">
+        <div class="flex flex-wrap justify-center gap-3">
+            <button type="button" data-filter-pill data-activity=""
+                    class="pill-btn px-5 py-2 rounded-full text-sm uppercase tracking-wide transition
+                           @(Model.Filter.ActivityTypeId == null ? "bg-tajan-red text-white" : "bg-white text-tajan-red border border-tajan-gold/30 hover:bg-tajan-sand/30")">
+                @T["All Tours"]
+            </button>
+            @foreach (var a in Model.Filter.ActivityTypes)
+            {
+                <button type="button" data-filter-pill data-activity="@a.Id"
+                        class="pill-btn px-5 py-2 rounded-full text-sm uppercase tracking-wide transition
+                               @(Model.Filter.ActivityTypeId == a.Id ? "bg-tajan-red text-white" : "bg-white text-tajan-red border border-tajan-gold/30 hover:bg-tajan-sand/30")">
+                    @Lang.Pick(a.NameEn, a.NameFr)
+                </button>
+            }
+        </div>
+    </section>
+
+    @* ===================== Body: Sidebar + Grid ===================== *@
+    <section class="max-w-7xl mx-auto px-6 pb-20 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-10">
+
+        @* ---------- Sidebar ---------- *@
+        <aside id="filter-modal" class="hidden lg:block">
+            @* Mobile backdrop *@
+            <div id="filter-backdrop" class="lg:hidden fixed inset-0 z-40 bg-black/40"></div>
+
+            @* Panel: popup above the floating button on mobile, normal sidebar on desktop *@
+            <div id="filter-panel"
+                 class="fixed bottom-24 right-4 z-50 w-[min(92vw,360px)] max-h-[70vh] overflow-y-auto rounded-2xl shadow-2xl
+                        lg:static lg:z-auto lg:w-auto lg:max-h-none lg:overflow-visible lg:rounded-none lg:shadow-none
+                        bg-white border border-tajan-gold/20 p-6 space-y-8">
+
+                <div class="flex items-center justify-between">
+                    <h2 class="font-display text-lg text-tajan-red">@T["Filter By"]</h2>
+                    <button type="button" id="filter-close" aria-label="@T["Close filters"]"
+                            class="lg:hidden text-2xl leading-none text-tajan-red/60 hover:text-tajan-red">
+                        &times;
+                    </button>
+                </div>
+
+                @* Price Range *@
+                <div>
+                    <div class="text-xs uppercase tracking-widest text-tajan-red/60 mb-3">@T["Price Range"]</div>
+                    <style>
+                        .dual-range input[type=range] {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 100%;
+                            height: 24px;
+                            margin: 0;
+                            background: transparent;
+                            -webkit-appearance: none;
+                            appearance: none;
+                            pointer-events: none;
+                        }
+
+                            .dual-range input[type=range]::-webkit-slider-runnable-track {
+                                height: 24px;
+                                background: transparent;
+                            }
+
+                            .dual-range input[type=range]::-moz-range-track {
+                                height: 24px;
+                                background: transparent;
+                            }
+
+                            .dual-range input[type=range]::-webkit-slider-thumb {
+                                -webkit-appearance: none;
+                                appearance: none;
+                                pointer-events: auto;
+                                width: 18px;
+                                height: 18px;
+                                margin-top: 3px;
+                                border-radius: 9999px;
+                                background: #4B1E23;
+                                border: 2px solid #fff;
+                                box-shadow: 0 1px 4px rgba(0,0,0,.35);
+                                cursor: grab;
+                            }
+
+                            .dual-range input[type=range]::-moz-range-thumb {
+                                pointer-events: auto;
+                                width: 14px;
+                                height: 14px;
+                                border-radius: 9999px;
+                                background: #4B1E23;
+                                border: 2px solid #fff;
+                                box-shadow: 0 1px 4px rgba(0,0,0,.35);
+                                cursor: grab;
+                            }
+
+                            .dual-range input[type=range]:active::-webkit-slider-thumb {
+                                cursor: grabbing;
+                            }
+                    </style>
+                    @{
+                        var priceMinVal = (int)Math.Clamp(Model.Filter.MinPrice ?? 0, 0, 5000);
+                        var priceMaxVal = (int)Math.Clamp(Model.Filter.MaxPrice ?? 5000, 0, 5000);
+                    }
+                    <div class="dual-range relative h-6" id="sb-range">
+                        <div class="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 rounded-full bg-tajan-red/15"></div>
+                        <div id="sb-range-fill" class="absolute top-1/2 -translate-y-1/2 h-1 rounded-full bg-tajan-red"></div>
+                        <input type="range" id="sb-price-min" min="0" max="5000" step="100" value="@priceMinVal"
+                               aria-label="@T["Minimum price"]" />
+                        <input type="range" id="sb-price" min="0" max="5000" step="100" value="@priceMaxVal"
+                               aria-label="@T["Maximum price"]" />
+                    </div>
+                    <div class="flex justify-between text-xs text-tajan-red/60 mt-1">
+                        <span id="sb-price-min-label">@SiteCurrency.Format(priceMinVal, "USD")</span>
+                        <span id="sb-price-label">@SiteCurrency.Format(priceMaxVal, "USD")@(priceMaxVal >= 5000 ? "+" : "")</span>
+                    </div>
+                </div>
+
+                @* Duration *@
+                <div>
+                    <div class="text-xs uppercase tracking-widest text-tajan-red/60 mb-3">@T["Duration (Days)"]</div>
+                    <div class="space-y-2 text-sm text-tajan-red/80">
+                        @foreach (var d in new (string Label, string Val)[]
+                        {
+                        (T["1 Day"], "1"),
+                        (T["1–3 Days"],  "1-3"),
+                        (T["4–7 Days"],  "4-7"),
+                        (T["8–14 Days"], "8-14"),
+                        (T["15+ Days"],  "15-plus"),
+                        })
+                        {
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="sb-duration accent-tajan-red" value="@d.Val"
+                                @(Model.Filter.DurationRanges.Contains(d.Val) ? "checked" : "") />
+                                @d.Label
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                @* Destination *@
+                <div>
+                    <div class="text-xs uppercase tracking-widest text-tajan-red/60 mb-3">@T["Destination"]</div>
+                    <div class="space-y-2 text-sm text-tajan-red/80">
+                        @foreach (var dst in Model.Filter.Destinations)
+                        {
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="sb-dest" class="sb-dest accent-tajan-red"
+                                       value="@dst.Id"
+                                @(Model.Filter.DestinationId == dst.Id ? "checked" : "") />
+                                @Lang.Pick(dst.NameEn, dst.NameFr)
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                @* Travel Style *@
+                <div>
+                    <div class="text-xs uppercase tracking-widest text-tajan-red/60 mb-3">@T["Travel Style"]</div>
+                    <div class="space-y-2 text-sm text-tajan-red/80">
+                        @foreach (var a in Model.Filter.ActivityTypes)
+                        {
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="sb-activity" class="sb-activity accent-tajan-red"
+                                       value="@a.Id"
+                                @(Model.Filter.ActivityTypeId == a.Id ? "checked" : "") />
+                                @Lang.Pick(a.NameEn, a.NameFr)
+                            </label>
+                        }
+                    </div>
+                </div>
+
+
+
+                <button type="button" id="btn-apply"
+                        class="w-full bg-tajan-red text-white px-4 py-3 text-xs uppercase tracking-widest rounded-2xl hover:bg-tajan-red/90 transition">
+                    @T["Apply Filters"]
+                </button>
+                <button type="button" id="btn-reset"
+                        class="block w-full text-center text-xs uppercase tracking-widest text-tajan-red/60 hover:text-tajan-red">
+                    @T["Reset All"]
+                </button>
+            </div>
+        </aside>
+
+        @* ---------- Tour Cards ---------- *@
+        <div id="tours-results">
+            @await Html.PartialAsync("_ToursResults", Model)
+        </div>
+    </section>
+
+    @* ===================== Floating Filters button (mobile only) ===================== *@
+    <button type="button" id="filter-fab" aria-expanded="false" aria-controls="filter-panel"
+            class="lg:hidden fixed bottom-6 right-4 z-50 inline-flex items-center gap-3 bg-tajan-red text-white
+                   rounded-full px-5 py-3.5 shadow-xl">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" />
+            <circle cx="16" cy="6" r="2" />
+            <circle cx="10" cy="12" r="2" />
+            <circle cx="18" cy="18" r="2" />
+        </svg>
+        <span class="font-medium">Filters</span>
+        <span id="filter-count" class="hidden min-w-[1.6rem] h-7 px-2 items-center justify-center rounded-full bg-tajan-gold text-tajan-red text-sm font-semibold"></span>
+    </button>
+
+    @* ===================== Build Your Trip CTA ===================== *@
+    <section class="py-16 px-6">
+        <div class="max-w-6xl mx-auto bg-[#FAF6F0] rounded-3xl border border-tajan-gold/15
+                    shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-6 sm:p-10
+                    grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div>
+                <span class="inline-block text-[11px] font-semibold uppercase tracking-widest text-tajan-red
+                             border border-tajan-red rounded-full px-4 py-1.5 mb-6">
+                    @T["Build Your Trip"]
+                </span>
+                <h2 class="font-display text-3xl sm:text-4xl font-semibold text-tajan-red mb-5">@T["Your Egypt, Your Way."]</h2>
+                <p class="text-tajan-red/80 leading-relaxed mb-6">
+                    @T["Don't see the Egypt trip you're looking for? Tell us what you have in mind, and our local travel experts will create a personalized itinerary around your interests, pace, and budget."]
+                </p>
+                <div class="flex flex-wrap gap-3 mb-8 text-sm font-medium text-tajan-red">
+                    <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["100% Tailor-Made"]</span>
+                    <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["Personalized Itineraries"]</span>
+                    <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["Local Experts"]</span>
+                    <span class="border border-tajan-gold/25 rounded-full px-4 py-1.5">@T["24h Proposal"]</span>
+                </div>
+                <a asp-controller="Inquiry" asp-action="Create"
+                   class="inline-flex items-center gap-3 bg-tajan-red text-tajan-sand font-semibold
+                          px-6 py-3.5 text-sm uppercase tracking-wide rounded-lg hover:bg-tajan-red/90 transition">
+                    @T["Design Your Egypt Tour →"]
+                </a>
+            </div>
+            <div class="aspect-[4/3] overflow-hidden rounded-xl">
+                <img src="/ChatGPT Image Sep 9, 2026, 12_20_02 PM.png" alt="@T["Sailboat on the Nile"]"
+                     class="w-full h-full object-cover" />
+            </div>
+        </div>
+    </section>
+
+</div>
+
+@* ══════════════════════════════════════════════════════
+   AJAX Filter Engine — no full page reload on any filter
+   ══════════════════════════════════════════════════════ *@
+<script>
+    (function () {
+        const results    = document.getElementById('tours-results');
+        const priceSlider = document.getElementById('sb-price');          // max handle
+        const priceMin    = document.getElementById('sb-price-min');      // min handle
+        const priceLabel  = document.getElementById('sb-price-label');
+        const priceMinLabel = document.getElementById('sb-price-min-label');
+        const priceFill   = document.getElementById('sb-range-fill');
+        const PRICE_LO = 0, PRICE_HI = 5000;
+        const cur = @Html.Raw(SiteCurrency.ClientJson());   // slider values are in USD, labels show the chosen currency
+        const money = usd => cur.symbol + Math.round(usd * cur.perUsd).toLocaleString();
+        const btnApply   = document.getElementById('btn-apply');
+        const btnReset   = document.getElementById('btn-reset');
+
+        // ── helpers ──────────────────────────────────────────
+        function getParams(page) {
+            const p = new URLSearchParams();
+
+            // activity from pills (takes priority) or sidebar radio
+            const activePill = document.querySelector('[data-filter-pill].active-pill');
+            const activityId = activePill
+                ? activePill.dataset.activity
+                : (document.querySelector('.sb-activity:checked')?.value ?? '');
+            if (activityId) p.set('ActivityTypeId', activityId);
+
+            // destination
+            const destId = document.querySelector('.sb-dest:checked')?.value;
+            if (destId) p.set('DestinationId', destId);
+
+            // price
+            if (parseInt(priceMin.value) > PRICE_LO) p.set('MinPrice', priceMin.value);
+            if (parseInt(priceSlider.value) < PRICE_HI) p.set('MaxPrice', priceSlider.value);
+
+            // duration checkboxes
+            document.querySelectorAll('.sb-duration:checked').forEach(cb => {
+                p.append('DurationRanges', cb.value);
+            });
+
+            // time of day
+            document.querySelectorAll('.sb-time:checked').forEach(cb => {
+                p.append('TimeOfDay', cb.value);
+            });
+
+            if (page && page > 1) p.set('page', page);
+
+            return p;
+        }
+
+        function buildUrl(page) {
+            const p = getParams(page);
+            return '/Tours?' + p.toString();
+        }
+
+        function loadUrl(url, pushState) {
+            results.style.opacity = '0.45';
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.ok ? r.text() : Promise.reject(r.status))
+                .then(html => {
+                    results.innerHTML = html;
+                    results.style.opacity = '1';
+                    if (pushState !== false) history.pushState({ toursUrl: url }, '', url);
+                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                })
+                .catch(() => { window.location.href = url; });
+        }
+
+        // ── price slider label ────────────────────────────────
+        function updateRange(changed) {
+            let lo = parseInt(priceMin.value), hi = parseInt(priceSlider.value);
+            if (lo > hi) {                       // handles can't cross each other
+                if (changed === priceMin) { lo = hi; priceMin.value = lo; }
+                else { hi = lo; priceSlider.value = hi; }
+            }
+            priceMinLabel.textContent = money(lo);
+            priceLabel.textContent = money(hi) + (hi >= PRICE_HI ? '+' : '');
+
+            const span = PRICE_HI - PRICE_LO;
+            const a = (lo - PRICE_LO) / span, b = (hi - PRICE_LO) / span;
+            priceFill.style.left  = 'calc(9px + (100% - 18px) * ' + a + ')';
+            priceFill.style.right = 'calc(9px + (100% - 18px) * ' + (1 - b) + ')';
+
+            // when both handles sit together, keep the one that can still move on top
+            priceMin.style.zIndex = lo >= (PRICE_LO + PRICE_HI) / 2 ? 5 : 3;
+            priceSlider.style.zIndex = 4;
+        }
+        priceMin.addEventListener('input', () => updateRange(priceMin));
+        priceSlider.addEventListener('input', () => updateRange(priceSlider));
+        updateRange();
+
+        // ── Mobile filter popup ───────────────────────────────
+        const modal    = document.getElementById('filter-modal');
+        const fab      = document.getElementById('filter-fab');
+        const countEl  = document.getElementById('filter-count');
+        function setModal(open) {
+            modal.classList.toggle('hidden', !open);
+            fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        function isMobile() { return !window.matchMedia('(min-width: 1024px)').matches; }
+        function updateCount() {
+            let n = 0;
+            if (parseInt(priceSlider.value) < PRICE_HI || parseInt(priceMin.value) > PRICE_LO) n++;
+            n += document.querySelectorAll('.sb-duration:checked, .sb-time:checked').length;
+            if (document.querySelector('.sb-dest:checked')) n++;
+            const pill = document.querySelector('[data-filter-pill].active-pill');
+            if ((pill && pill.dataset.activity) || document.querySelector('.sb-activity:checked')) n++;
+            countEl.textContent = '(' + n + ')';
+            countEl.classList.toggle('hidden', n === 0);
+            countEl.classList.toggle('inline-flex', n > 0);
+        }
+        fab.addEventListener('click', () => setModal(modal.classList.contains('hidden')));
+        document.getElementById('filter-close').addEventListener('click', () => setModal(false));
+        document.getElementById('filter-backdrop').addEventListener('click', () => setModal(false));
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') setModal(false); });
+        document.querySelectorAll('.sb-duration, .sb-time, .sb-activity, .sb-dest, #sb-price, #sb-price-min')
+            .forEach(el => el.addEventListener('change', updateCount));
+        document.querySelectorAll('[data-filter-pill]').forEach(b => b.addEventListener('click', () => setTimeout(updateCount, 0)));
+        updateCount();
+
+        // ── Apply button ──────────────────────────────────────
+        btnApply.addEventListener('click', () => {
+            if (isMobile()) setModal(false);
+            updateCount();
+            loadUrl(buildUrl(1), true);
+        });
+
+        // ── Reset button ──────────────────────────────────────
+        btnReset.addEventListener('click', () => {
+            // clear sidebar
+            priceMin.value = PRICE_LO;
+            priceSlider.value = PRICE_HI;
+            updateRange();
+            document.querySelectorAll('.sb-duration, .sb-time').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.sb-activity, .sb-dest').forEach(r => r.checked = false);
+            // clear pills
+            document.querySelectorAll('[data-filter-pill]').forEach(b => {
+                b.classList.remove('active-pill', 'bg-tajan-red', 'text-white');
+                b.classList.add('bg-white', 'text-tajan-red', 'border', 'border-tajan-gold/30');
+            });
+            // activate "All Tours" pill
+            const allPill = document.querySelector('[data-filter-pill][data-activity=""]');
+            if (allPill) activatePill(allPill);
+            if (isMobile()) setModal(false);
+            updateCount();
+            loadUrl('/Tours', true);
+        });
+
+        // ── Pills ─────────────────────────────────────────────
+        function activatePill(btn) {
+            document.querySelectorAll('[data-filter-pill]').forEach(b => {
+                b.classList.remove('active-pill', 'bg-tajan-red', 'text-white');
+                b.classList.add('bg-white', 'text-tajan-red', 'border', 'border-tajan-gold/30');
+            });
+            btn.classList.add('active-pill', 'bg-tajan-red', 'text-white');
+            btn.classList.remove('bg-white', 'text-tajan-red', 'border', 'border-tajan-gold/30');
+
+            // sync sidebar radio
+            const id = btn.dataset.activity;
+            document.querySelectorAll('.sb-activity').forEach(r => {
+                r.checked = (r.value === id);
+            });
+        }
+
+        // mark initial active pill on load
+        const initialPill = document.querySelector('[data-filter-pill].bg-tajan-red');
+        if (initialPill) initialPill.classList.add('active-pill');
+
+        document.querySelectorAll('[data-filter-pill]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activatePill(btn);
+                loadUrl(buildUrl(1), true);
+            });
+        });
+
+        // ── Pagination (event delegation — survives innerHTML swap) ──
+        results.addEventListener('click', e => {
+            const link = e.target.closest('[data-tours-pagination] a');
+            if (!link) return;
+            e.preventDefault();
+            // keep the filters that are in the current URL (e.g. coming from the home page) and only change the page
+            const page = new URL(link.href).searchParams.get('page');
+            const p = new URLSearchParams(window.location.search);
+            if (page && page !== '1') p.set('page', page); else p.delete('page');
+            loadUrl('/Tours?' + p.toString(), true);
+        });
+
+        // ── Arrived with filters (e.g. from the home page): jump past the hero to the results ──
+        (function () {
+            const q = new URLSearchParams(window.location.search);
+            const keys = ['DestinationId', 'ActivityTypeId', 'MinPrice', 'MaxPrice', 'DurationRanges', 'Duration', 'Price'];
+            if (keys.some(k => q.has(k))) {
+                window.addEventListener('load', () => setTimeout(() => results.scrollIntoView({ block: 'start' }), 150));
+            }
+        })();
+
+        // ── Browser Back / Forward ────────────────────────────
+        window.addEventListener('popstate', e => {
+            const url = (e.state && e.state.toursUrl) || window.location.href;
+            loadUrl(url, false);
+        });
+    })();
+</script>

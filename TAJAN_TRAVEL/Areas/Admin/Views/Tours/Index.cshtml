@@ -1,0 +1,90 @@
+@model ToursIndexVm
+@{
+    ViewData["Title"] = "Tours";
+    var q = Model.Q ?? "";
+}
+
+<div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <p class="text-sm text-slate-500">@Model.Items.Count @(Model.Items.Count == 1 ? "tour" : "tours")</p>
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <form asp-action="Index" method="get" class="flex flex-col gap-3 sm:flex-row">
+            <div class="relative w-full sm:w-64">
+                <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+                <input name="q" value="@q" type="search" placeholder="Search tours..."
+                       class="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold" />
+            </div>
+            <select name="destinationId" onchange="this.form.submit()" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-tajan-gold focus:outline-none">
+                <option value="">All destinations</option>
+                @foreach (var d in Model.Destinations)
+                {
+                    <option value="@d.Value" selected="@(Model.DestinationId?.ToString() == d.Value)">@d.Text</option>
+                }
+            </select>
+            <select name="status" onchange="this.form.submit()" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-tajan-gold focus:outline-none">
+                <option value="">Any status</option>
+                <option value="active" selected="@(Model.Status == "active")">Active</option>
+                <option value="inactive" selected="@(Model.Status == "inactive")">Inactive</option>
+                <option value="featured" selected="@(Model.Status == "featured")">Featured</option>
+            </select>
+        </form>
+        <a asp-action="Create" class="inline-flex items-center justify-center gap-2 rounded-lg bg-tajan-red px-4 py-2 text-sm font-medium text-white hover:bg-[#3a171b]">
+            <i data-lucide="plus" class="h-4 w-4"></i> New tour
+        </a>
+    </div>
+</div>
+
+<div class="card mt-5 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full min-w-[900px] text-sm">
+            <thead>
+                <tr class="bg-slate-50/70 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3">Tour</th>
+                    <th class="px-3 py-3">Destination</th>
+                    <th class="px-3 py-3">Type</th>
+                    <th class="px-3 py-3">Duration</th>
+                    <th class="px-3 py-3">From</th>
+                    <th class="px-3 py-3 text-center">Featured</th>
+                    <th class="px-3 py-3 text-center">Active</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model.Items)
+                {
+                    <tr class="border-t border-slate-100 hover:bg-tajan-cream/60">
+                        <td class="px-6 py-3">
+                            <div class="flex items-center gap-3">
+                                @if (!string.IsNullOrWhiteSpace(t.CoverImageUrl))
+                                {
+                                    <img src="@Url.Content(t.CoverImageUrl)" alt="" class="h-10 w-14 rounded object-cover" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="h-10 w-14 rounded bg-tajan-sand/40"></div>
+                                }
+                                <div class="min-w-0">
+                                    <a asp-action="Edit" asp-route-id="@t.Id" class="block truncate font-medium text-[#2A1215] hover:text-tajan-red hover:underline">@t.TitleEn</a>
+                                    <div class="truncate text-xs text-slate-400">@t.TitleFr</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-3 py-3 text-slate-600">@(t.Destination?.NameEn ?? "—")</td>
+                        <td class="px-3 py-3 text-slate-600">@AdminFormat.Pretty(t.Type.ToString())</td>
+                        <td class="px-3 py-3 text-slate-600">@t.DurationDays @(t.DurationDays == 1 ? "day" : "days")</td>
+                        <td class="px-3 py-3 font-medium text-[#2A1215]">@t.Currency @AdminFormat.Num(t.PriceFrom)</td>
+                        <td class="px-3 py-3 text-center"><partial name="_Toggle" model='new ToggleVm("Tours", t.Id, "featured", t.IsFeatured, q)' /></td>
+                        <td class="px-3 py-3 text-center"><partial name="_Toggle" model='new ToggleVm("Tours", t.Id, "active", t.IsActive, q)' /></td>
+                        <td class="px-6 py-3"><partial name="_RowActions" model='new RowActionsVm("Tours", t.Id, "Delete the tour “" + t.TitleEn + "”? Its images and itinerary are deleted too. Existing requests keep their data.")' /></td>
+                    </tr>
+                }
+                @if (!Model.Items.Any())
+                {
+                    <tr><td colspan="8" class="px-6 py-12 text-center text-slate-400">No tours found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@await Component.InvokeAsync("LookupSection", new { kind = "activity", returnTo = "Tours" })

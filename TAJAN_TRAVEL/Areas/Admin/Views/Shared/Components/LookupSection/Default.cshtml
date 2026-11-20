@@ -1,0 +1,14 @@
+@using TAJAN_TRAVEL.Areas.Admin.Components
+@model LookupSectionVm
+
+<section class="card mt-6 overflow-hidden">
+    <div class="px-6 py-5">
+        <h2 class="font-display text-[18px] font-semibold text-[#2A1215]">@Model.Title</h2>
+        <p class="mt-1 text-xs text-slate-400">@Model.Hint</p>
+    </div>
+    @foreach (var row in Model.Rows)
+    {
+        <partial name="_LookupRow" model="new LookupRender(Model.Kind, row)" />
+    }
+    <partial name="_LookupRow" model="new LookupRender(Model.Kind, new LookupRowVm { ShowInFilter = true })" />
+</section>

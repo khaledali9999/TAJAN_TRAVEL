@@ -1,0 +1,99 @@
+@model StoriesIndexVm
+@{
+    ViewData["Title"] = "Stories & Journal";
+    var q = Model.Q ?? "";
+    var all = Model.PublishedCount + Model.DraftCount;
+}
+
+<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-wrap gap-2">
+        <a asp-action="Index" asp-route-q="@Model.Q"
+           class="rounded-full px-3.5 py-1.5 text-sm @(Model.Status == null ? "bg-tajan-red text-white" : "bg-white text-slate-600 hover:bg-tajan-sand/30")">All <span class="ml-1 text-xs opacity-70">@all</span></a>
+        <a asp-action="Index" asp-route-status="published" asp-route-q="@Model.Q"
+           class="rounded-full px-3.5 py-1.5 text-sm @(Model.Status == "published" ? "bg-tajan-red text-white" : "bg-white text-slate-600 hover:bg-tajan-sand/30")">Published <span class="ml-1 text-xs opacity-70">@Model.PublishedCount</span></a>
+        <a asp-action="Index" asp-route-status="draft" asp-route-q="@Model.Q"
+           class="rounded-full px-3.5 py-1.5 text-sm @(Model.Status == "draft" ? "bg-tajan-red text-white" : "bg-white text-slate-600 hover:bg-tajan-sand/30")">Drafts <span class="ml-1 text-xs opacity-70">@Model.DraftCount</span></a>
+    </div>
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <form asp-action="Index" method="get" class="relative w-full sm:w-64">
+            <input type="hidden" name="status" value="@Model.Status" />
+            <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+            <input name="q" value="@q" type="search" placeholder="Title or author..."
+                   class="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold" />
+        </form>
+        <a asp-action="Create" class="inline-flex items-center justify-center gap-2 rounded-lg bg-tajan-red px-4 py-2 text-sm font-medium text-white hover:bg-[#3a171b]">
+            <i data-lucide="plus" class="h-4 w-4"></i> New story
+        </a>
+    </div>
+</div>
+
+<div class="card mt-5 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full min-w-[900px] text-sm">
+            <thead>
+                <tr class="bg-slate-50/70 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3">Story</th>
+                    <th class="px-3 py-3">Category</th>
+                    <th class="px-3 py-3">Author</th>
+                    <th class="px-3 py-3">Date</th>
+                    <th class="px-3 py-3 text-center">Featured</th>
+                    <th class="px-3 py-3 text-center">Published</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in Model.Items)
+                {
+                    <tr class="border-t border-slate-100 hover:bg-tajan-cream/60">
+                        <td class="px-6 py-3">
+                            <div class="flex items-center gap-3">
+                                @if (!string.IsNullOrWhiteSpace(b.CoverImageUrl))
+                                {
+                                    <img src="@Url.Content(b.CoverImageUrl)" alt="" class="h-10 w-14 rounded object-cover" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="h-10 w-14 rounded bg-tajan-sand/40"></div>
+                                }
+                                <div class="min-w-0">
+                                    <a asp-action="Edit" asp-route-id="@b.Id" class="block truncate font-medium text-[#2A1215] hover:text-tajan-red hover:underline">@b.TitleEn</a>
+                                    <div class="truncate text-xs text-slate-400">@b.TitleFr</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-3 py-3 text-slate-600">@(b.Category?.NameEn ?? "—")</td>
+                        <td class="px-3 py-3 text-slate-600">@(b.Author ?? "—")</td>
+                        <td class="px-3 py-3 text-slate-500">@AdminFormat.FullDay(b.PublishedAt ?? b.CreatedAt)</td>
+                        <td class="px-3 py-3 text-center"><partial name="_Toggle" model='new ToggleVm("Stories", b.Id, "featured", b.IsFeatured, q)' /></td>
+                        <td class="px-3 py-3 text-center"><partial name="_Toggle" model='new ToggleVm("Stories", b.Id, "published", b.IsPublished, q)' /></td>
+                        <td class="px-6 py-3"><partial name="_RowActions" model='new RowActionsVm("Stories", b.Id, "Delete the story “" + b.TitleEn + "”?")' /></td>
+                    </tr>
+                }
+                @if (!Model.Items.Any())
+                {
+                    <tr><td colspan="7" class="px-6 py-12 text-center text-slate-400">No stories found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="flex items-center justify-between border-t border-slate-100 px-6 py-3 text-sm text-slate-500">
+            <span>@Model.Total results · Page @Model.Page of @Model.TotalPages</span>
+            <div class="flex gap-2">
+                @if (Model.Page > 1)
+                {
+                    <a asp-action="Index" asp-route-page="@(Model.Page - 1)" asp-route-status="@Model.Status" asp-route-q="@Model.Q" class="rounded-md border border-slate-200 px-3 py-1.5 hover:bg-tajan-cream">Previous</a>
+                }
+                @if (Model.Page < Model.TotalPages)
+                {
+                    <a asp-action="Index" asp-route-page="@(Model.Page + 1)" asp-route-status="@Model.Status" asp-route-q="@Model.Q" class="rounded-md border border-slate-200 px-3 py-1.5 hover:bg-tajan-cream">Next</a>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@await Component.InvokeAsync("LookupSection", new { kind = "blog", returnTo = "Stories" })

@@ -1,0 +1,13 @@
+@model ToggleVm
+<form asp-area="Admin" asp-controller="@Model.Controller" asp-action="Toggle" method="post" class="inline-block">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <input type="hidden" name="field" value="@Model.Field" />
+    @if (Model.Q != null)
+    {
+        <input type="hidden" name="q" value="@Model.Q" />
+    }
+    <button type="submit" role="switch" aria-checked="@(Model.On ? "true" : "false")" title="@Model.Field"
+            class="relative h-5 w-9 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-tajan-gold @(Model.On ? "bg-tajan-red" : "bg-slate-300")">
+        <span class="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all @(Model.On ? "left-[18px]" : "left-0.5")"></span>
+    </button>
+</form>

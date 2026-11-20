@@ -1,0 +1,31 @@
+<!-- Explore by destination -->
+<section class="max-w-7xl mx-auto px-6 py-24">
+    <div class="text-center mb-14">
+        @await Html.PartialAsync("_SectionLabel", "Explore by Destination")
+
+        <h2 class="font-display text-3xl sm:text-4xl">@T["Discover Egypt, Your Way"]</h2>
+        <p class="text-tajan-red/70 mt-3">@T["Choose your preferred experience and let us create a personalized Egypt journey for you."]</p>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        @foreach (var d in Model.FeaturedDestinations)
+        {
+            var dName = Lang.Pick(d.NameEn, d.NameFr);
+            <a asp-controller="Tours" asp-action="Index" asp-route-DestinationId="@d.Id"
+               class="relative aspect-[3/4] overflow-hidden group block">
+                <div class="absolute inset-0 bg-tajan-sand/40"></div>
+                @if (!string.IsNullOrEmpty(d.CoverImageUrl))
+                {
+                    <img src="@d.CoverImageUrl" alt="@dName" onerror="this.style.display='none'"
+                         class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700" />
+                }
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div class="absolute bottom-0 p-5 text-white">
+                    <h3 class="font-display text-lg mb-1">@dName</h3>
+                    <p class="text-xs text-white/80 mb-3">@Lang.Pick(d.DescriptionEn, d.DescriptionFr)</p>
+                    <span class="text-xs uppercase tracking-widest border-b border-tajan-gold text-tajan-gold">@T["Explore Tours"]</span>
+                </div>
+            </a>
+        }
+    </div>
+</section>

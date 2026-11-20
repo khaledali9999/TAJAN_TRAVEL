@@ -1,0 +1,38 @@
+@model TourListViewModel
+
+@if (!Model.Tours.Any())
+{
+    <p class="text-center text-tajan-red/60 py-24">@T["No tours match these filters yet — try widening your search."]</p>
+}
+else
+{
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        @foreach (var tour in Model.Tours)
+        {
+            @await Html.PartialAsync("_TourCard", tour)
+        }
+    </div>
+
+    @* ---------- Pagination ---------- *@
+    @if (Model.TotalPages > 1)
+    {
+        <div class="flex justify-center items-center gap-2 mt-12" data-tours-pagination>
+            <a asp-controller="Tours" asp-action="Index"
+               asp-route-page="@(Math.Max(Model.CurrentPage - 1, 1))"
+               class="w-8 h-8 flex items-center justify-center text-tajan-red/60 hover:text-tajan-red">&lsaquo;</a>
+
+            @for (var p = 1; p <= Model.TotalPages; p++)
+            {
+                <a asp-controller="Tours" asp-action="Index" asp-route-page="@p"
+                   class="w-8 h-8 flex items-center justify-center rounded-full text-sm transition
+                          @(p == Model.CurrentPage ? "bg-tajan-red text-white" : "text-tajan-red/70 hover:bg-tajan-sand/40")">
+                    @p
+                </a>
+            }
+
+            <a asp-controller="Tours" asp-action="Index"
+               asp-route-page="@(Math.Min(Model.CurrentPage + 1, Model.TotalPages))"
+               class="w-8 h-8 flex items-center justify-center text-tajan-red/60 hover:text-tajan-red">&rsaquo;</a>
+        </div>
+    }
+}

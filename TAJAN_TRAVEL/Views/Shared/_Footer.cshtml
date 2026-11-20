@@ -1,0 +1,63 @@
+<footer class="bg-[#4B1E23] text-tajan-sand mt-24">
+    <div class="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div>
+            <div class="font-display text-lg text-white mb-3">TAJAN TRAVEL</div>
+            <p class="text-sm text-tajan-sand/80 leading-relaxed">
+                @T["From timeless Nile journeys to unforgettable escapes, Tajan creates personalized Egypt tours tailored to your interests."]
+            </p>
+            <a asp-controller="Inquiry" asp-action="Create"
+               class="inline-block mt-4 border border-tajan-gold text-tajan-gold px-4 py-2 text-xs uppercase tracking-widest hover:bg-tajan-gold hover:text-[#4B1E23] transition">
+                @T["Design Your Egypt Tour"]
+            </a>
+        </div>
+
+        <div>
+            <div class="text-xs uppercase tracking-widest text-tajan-gold mb-4">@T["Explore"]</div>
+            <ul class="space-y-2 text-sm">
+                <li><a asp-controller="Home" asp-action="Index" class="hover:text-white transition">@T["Home"]</a></li>
+                <li><a asp-controller="Tours" asp-action="Index" class="hover:text-white transition">@T["Tours"]</a></li>
+                <li><a asp-controller="Destinations" asp-action="Index" class="hover:text-white transition">@T["Destinations"]</a></li>
+                <li><a asp-controller="Events" asp-action="Index" class="hover:text-white transition">@T["Latest Events in Egypt"]</a></li>
+           
+            </ul>
+        </div>
+
+        <div>
+            <div class="text-xs uppercase tracking-widest text-tajan-gold mb-4">@T["About Tajan"]</div>
+            <ul class="space-y-2 text-sm">
+
+                <li><a asp-controller="About" asp-action="Index" class="hover:text-white transition">@T["Our Story"]</a></li>
+                <li><a asp-controller="Blog" asp-action="Index" class="hover:text-white transition">@T["Stories"]</a></li>
+
+                <li><a asp-controller="FAQ" asp-action="Index" class="hover:text-white transition">@T["FAQ"]</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <div class="text-xs uppercase tracking-widest text-tajan-gold mb-4">@T["Connect With Us"]</div>
+            <ul class="space-y-2 text-sm">
+                <li><a href="mailto:info@tajantravel.com" class="hover:text-white transition">info@tajantravel.com</a></li>
+                <li><a href="tel:+201044338344" class="hover:text-white transition">+20 1044338344</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="border-t border-tajan-sand/20">
+        <div class="max-w-7xl mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-tajan-sand/70">
+            <span>&copy; @DateTime.Now.Year Tajan Travel. @T["All Rights Reserved."]</span>
+            <div class="flex gap-6">
+                <a asp-controller="Legal" asp-action="Terms" class="hover:text-white transition">@T["Terms of Service"]</a>
+                <a asp-controller="Legal" asp-action="Privacy" class="hover:text-white transition">@T["Privacy Policy"]</a>
+            </div>
+        </div>
+
+        @* <!-- Developed by --> *@
+        @* <div class="max-w-7xl mx-auto px-6 pb-6 text-center text-xs text-tajan-sand/70"> *@
+        @*     @T["Website developed by"] *@
+        @*     <a href="https://uxcode2026.vercel.app" *@
+        @*        target="_blank" *@
+        @*        rel="noopener" *@
+        @*        class="font-bold text-tajan-gold hover:text-white transition">UXCode</a> *@
+        @* </div> *@
+    </div>
+</footer>

@@ -1,0 +1,67 @@
+@model LookupRender
+@{
+    var r = Model.Row;
+    var kind = Model.Kind;
+    var isNew = r.Id == 0;
+    var returnTo = ViewData["ReturnTo"]?.ToString() ?? "";
+    const string ctl = "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold";
+}
+<div class="flex flex-wrap items-end gap-3 border-t border-slate-100 px-6 py-3 @(isNew ? "bg-tajan-cream/50" : "")">
+    <form asp-area="Admin" asp-controller="Categories" asp-action="Save" method="post" class="flex flex-1 flex-wrap items-end gap-3">
+        <input type="hidden" name="kind" value="@kind" />
+        <input type="hidden" name="returnTo" value="@returnTo" />
+        <input type="hidden" name="Id" value="@r.Id" />
+        <div class="w-44">
+            <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Name (EN)</label>
+            <input name="NameEn" value="@r.NameEn" maxlength="100" required class="@ctl w-full" />
+        </div>
+        <div class="w-44">
+            <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Name (FR)</label>
+            <input name="NameFr" value="@r.NameFr" maxlength="100" required class="@ctl w-full" />
+        </div>
+        @if (kind != "activity")
+        {
+            <div class="w-40">
+                <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Slug</label>
+                <input name="Slug" value="@r.Slug" maxlength="150" placeholder="auto" class="@ctl w-full" />
+            </div>
+            <div class="w-20">
+                <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Order</label>
+                <input type="number" name="DisplayOrder" value="@r.DisplayOrder" class="@ctl w-full" />
+            </div>
+        }
+        @if (kind == "blog")
+        {
+            <label class="flex items-center gap-2 pb-2 text-sm text-slate-600">
+                <input type="checkbox" name="ShowInFilter" value="true" checked="@r.ShowInFilter" class="h-4 w-4 rounded border-slate-300" />
+                <input type="hidden" name="ShowInFilter" value="false" />
+                Filter chip
+            </label>
+        }
+        @if (kind == "activity")
+        {
+            <div class="w-40">
+                <label class="mb-1 block text-[11px] uppercase tracking-wide text-slate-500">Icon (lucide)</label>
+                <input name="IconClass" value="@r.IconClass" maxlength="50" placeholder="landmark" class="@ctl w-full" />
+            </div>
+        }
+        <button type="submit" class="rounded-lg bg-tajan-red px-4 py-2 text-sm font-medium text-white hover:bg-[#3a171b]">@(isNew ? "Add" : "Save")</button>
+        @if (!isNew)
+        {
+            <span class="pb-2 text-xs text-slate-400">@r.UsageCount in use</span>
+        }
+    </form>
+
+    @if (!isNew)
+    {
+        <form asp-area="Admin" asp-controller="Categories" asp-action="Delete" method="post"
+              data-confirm="Delete “@r.NameEn”? Items using it keep existing but become uncategorised.">
+            <input type="hidden" name="kind" value="@kind" />
+            <input type="hidden" name="returnTo" value="@returnTo" />
+            <input type="hidden" name="id" value="@r.Id" />
+            <button type="submit" class="rounded-md p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" title="Delete">
+                <i data-lucide="trash-2" class="h-4 w-4"></i>
+            </button>
+        </form>
+    }
+</div>

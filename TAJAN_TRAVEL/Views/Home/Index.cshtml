@@ -1,0 +1,740 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = T["Home"];
+}
+
+<!-- Hero -->
+<section id="hero-section" class="relative h-screen min-h-[650px] flex items-end overflow-hidden">
+
+    <!-- Background Image -->
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+         style="background-image: url('/ChatGPT Image Sep 9, 2026, 12_04_29 PM.png');">
+    </div>
+
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-6 pb-16 w-full text-white -translate-y-10">
+
+        <div class="text-xs uppercase tracking-[0.3em] text-tajan-gold mb-4">
+            @T["Private Egypt Tours · Tailored to your needs."]
+        </div>
+
+        <h1 class="font-display text-5xl sm:text-6xl leading-tight mb-8">
+            @T["Discover Egypt"]<br />
+            <span class="italic">@T["Your Way"]</span>
+        </h1>
+
+        <div class="flex flex-col sm:flex-row sm:flex-wrap gap-4 mb-10">
+            <a asp-controller="Inquiry"
+               asp-action="Create"
+               class="flex items-center justify-center w-full sm:w-auto min-h-[48px] text-center bg-tajan-red px-6 py-3 text-xs uppercase tracking-widest hover:bg-tajan-red/90 transition">
+                @T["Design Your Egypt Tour"]
+            </a>
+
+            <a asp-controller="Tours"
+               asp-action="Index"
+               class="flex items-center justify-center w-full sm:w-auto min-h-[48px] text-center bg-[#C8A44D] text-black px-6 py-3 text-xs uppercase tracking-widest hover:bg-[#C5A93F] transition">
+                @T["Discover Our Egypt Tours"]
+            </a>
+        </div>
+
+    </div>
+</section>
+@* Faint crown motif in the side margins (wrapper is full width, so the crowns sit at the page edges) *@
+<div class="has-crown">
+    <crown-motif side="Left" size="Lg" top="6%" />
+    <crown-motif side="Right" size="Sm" top="4%" />
+    @await Html.PartialAsync("_SearchBar")
+</div>
+
+<!-- Why travel with tajan -->
+<div class="has-crown">
+    <crown-motif side="Right" size="Md" top="2%" />
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-8 lg:pt-10 pb-12 sm:pb-20 lg:pb-24 text-center">
+
+        <!-- Section Label -->
+        <div class="flex items-center justify-center gap-3 sm:gap-4
+                text-[10px] sm:text-[11px] uppercase tracking-[0.15em] sm:tracking-[0.3em]
+                text-tajan-gold mb-4 sm:mb-6">
+            <span class="w-6 sm:w-10 h-px bg-tajan-gold/60"></span>
+            <span>@T["Travel Different. Experience More"]</span>
+            <span class="w-6 sm:w-10 h-px bg-tajan-gold/60"></span>
+        </div>
+
+        <!-- Heading -->
+        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight mb-3 sm:mb-5 text-tajan-red">
+            @T["Why travel with"] <span class="uppercase">tajan</span>
+        </h2>
+
+        <!-- Description -->
+        <p class="text-tajan-red/60 text-sm sm:text-base
+              max-w-xs sm:max-w-xl mx-auto mb-8 sm:mb-14 lg:mb-16
+              leading-relaxed">
+            @T["Personalized Egypt tours, local knowledge, and effortless travel, all designed around you."]
+        </p>
+        @{
+            var whyTajan = new (string Number, string Title, string Text, string ShortTitle, string ShortText, string Icon)[]
+            {
+        ("01", T["Private Tours"],
+        "Enjoy private, flexible tours designed just for you and your group.",
+        T["Private Tours"], "Enjoy private, flexible tours designed just for you.",
+        "<circle cx='24' cy='15' r='4.5'/><circle cx='13' cy='18' r='3.5'/><circle cx='35' cy='18' r='3.5'/>" +
+        "<path d='M15 33c.5-4.5 4-7.5 9-7.5 3 0 5.5 1 7 3'/><path d='M5 32c.3-3.5 2.8-6 6.5-6'/><path d='M43 32c-.3-3.5-2.8-6-6.5-6'/>" +
+        "<g stroke='#C8A44D'><rect x='29' y='31' width='11' height='9' rx='2' fill='#FBF8F3'/><path d='M31.5 31v-2.5a3 3 0 0 1 6 0V31'/><circle cx='34.5' cy='35.5' r='.8'/></g>"),
+
+        ("02", T["Dedicated Egypt Tour Operator"],
+        T["From planning to your return, you'll have one dedicated person with you all the way."],
+        T["Local Guides"], T["A dedicated person with you from start to return."],
+        "<circle cx='24' cy='22' r='8'/><path d='M14 22a10 10 0 0 1 20 0'/><rect x='11' y='21' width='4' height='8' rx='2'/><rect x='33' y='21' width='4' height='8' rx='2'/>" +
+        "<path d='M35 29c0 4-3 6-8 6'/><circle cx='26' cy='35' r='1.2'/><path d='M12 45c1-6 6-8 12-8s11 2 12 8'/>"),
+
+        ("03", T["On-Ground Tour Leader"],
+        T["A professional tour leader is with you on the ground to ensure a smooth and worry-free journey."],
+        "On-Ground", T["Professional tour leaders ensure a smooth journey."],
+        "<circle cx='22' cy='17' r='5'/><path d='M16 13c1-4 9-5 12 0'/><path d='M12 42v-6c0-5 4-8 10-8s10 3 10 8v6z'/><path d='M32 34l4-8'/>" +
+        "<g stroke='#C8A44D'><path d='M36 8v18'/><path d='M36 8l8 3-8 3z'/></g>"),
+
+        ("04", T["Secure Payment"],
+        T["Your payments are protected with trusted and secure systems."],
+        T["Secure"], T["Payments protected with trusted secure systems."],
+        "<rect x='7' y='13' width='30' height='21' rx='3'/><path d='M7 21h30'/><path d='M12 27h11'/><path d='M12 31h7'/>" +
+        "<g stroke='#C8A44D'><path d='M34 27l6.5 2.2v5c0 4-3 6.3-6.5 7.5-3.5-1.2-6.5-3.5-6.5-7.5v-5z' fill='#FBF8F3'/><path d='M31 34l2.2 2.2 3.8-4.2'/></g>"),
+
+        ("05", T["Flexible Payment"],
+        T["Pay 50% online and the rest upon arrival. Travel with peace of mind."],
+        T["Flexible Pay"], T["Pay 50% online and the rest upon arrival."],
+        "BADGE"),
+
+        ("06", T["Cancellation Policy"],
+        T["We offer clear and fair cancellation terms for your peace of mind."],
+        T["Fair Cancel"], T["Clear cancellation terms for peace of mind."],
+        "<path d='M24 8l12 4.5v10c0 8-5 13-12 16-7-3-12-8-12-16v-10z'/><path d='M18.5 23l4 4 7-8' stroke='#C8A44D'/>"),
+            };
+        }
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-x-8 sm:gap-y-12 items-start text-left">
+            @foreach (var item in whyTajan)
+            {
+                <div class="bg-white rounded-2xl border border-tajan-red/5
+                    shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-4
+                    sm:bg-transparent sm:border-0 sm:shadow-none sm:rounded-none sm:p-0">
+
+                    <!-- Number + Icon -->
+                    <div class="flex items-center justify-between sm:justify-start sm:gap-4 mb-4 sm:mb-5">
+                        <span class="text-sm font-semibold tracking-wide text-tajan-gold
+                             sm:text-[11px] sm:text-tajan-red sm:w-5">
+                            @item.Number
+                        </span>
+
+                        @if (item.Icon == "BADGE")
+                        {
+                            <span class="relative w-8 h-8 sm:w-16 sm:h-16 rounded-full overflow-hidden shrink-0
+                                 border border-tajan-red/10 bg-white flex flex-col">
+                                <span class="flex-1 bg-tajan-gold text-white text-[7px] sm:text-[13px] font-bold leading-none
+                                     flex items-end justify-center pb-px sm:pb-0.5">50%</span>
+                                <span class="flex-1 bg-white text-tajan-red text-[7px] sm:text-[13px] font-bold leading-none
+                                     flex items-start justify-center pt-px sm:pt-0.5">50%</span>
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="w-8 h-8 sm:w-20 sm:h-20 sm:rounded-full sm:bg-white/70 shrink-0
+                                 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none"
+                                     stroke="currentColor" stroke-width="1.4"
+                                     stroke-linecap="round" stroke-linejoin="round"
+                                     class="w-7 h-7 sm:w-11 sm:h-11 text-tajan-red">
+                                    @Html.Raw(item.Icon)
+                                </svg>
+                            </span>
+                        }
+                    </div>
+
+                    <!-- Title -->
+                    <h3 class="font-display font-semibold uppercase text-tajan-red
+                       text-lg tracking-wide mb-2
+                       sm:text-xl sm:tracking-wider">
+                        <span class="sm:hidden">@item.ShortTitle</span>
+                        <span class="hidden sm:inline">@item.Title</span>
+                    </h3>
+
+                    <!-- Description -->
+                    <p class="text-xs leading-relaxed text-tajan-red/70
+                      sm:text-base sm:max-w-xs">
+                        <span class="sm:hidden">@item.ShortText</span>
+                        <span class="hidden sm:inline">@item.Text</span>
+                    </p>
+                </div>
+            }
+        </div>
+    </section>
+</div>
+
+<!-- Design your tour -->
+<section class="relative py-32 overflow-hidden">
+
+    <!-- خلفية الموبايل -->
+    <div class="absolute inset-0 bg-cover bg-center md:hidden"
+         style="background-image: url('/Golden Felucca at Sunset.png');"></div>
+
+    <!-- خلفية الديسكتوب (نفس الصورة الحالية) -->
+    <div class="absolute inset-0 bg-cover bg-center bg-fixed hidden md:block"
+         style="background-image: url('/ChatGPT Image Sep 9, 2026, 12_04_29 PM.png');"></div>
+
+    <div class="absolute inset-0 bg-tajan-red/20"></div>
+
+    <div class="relative max-w-4xl mx-auto px-6 text-center text-white">
+        @await Html.PartialAsync("_SectionLabel", "  Design Your Tour")
+
+        <h2 class="font-display text-3xl sm:text-4xl mb-4">
+            @T["Egypt, Made Your Way"]
+        </h2>
+
+        <p class="text-white/80 mb-10">
+            @T["Choose the places, experiences and moments that make your perfect Egypt itinerary."]
+        </p>
+
+        <p class="font-display italic text-xl mb-6 uppercase tracking-widest">
+            @T["You dream it. We create it."]
+        </p>
+
+        <a asp-controller="Inquiry"
+           asp-action="Create"
+           class="inline-block bg-tajan-gold text-tajan-red px-8 py-3 text-xs uppercase tracking-widest hover:bg-white transition">
+            @T["Design Your Egypt Tour"]
+        </a>
+    </div>
+
+</section>
+<!-- Featured day tours -->
+<div class="has-crown">
+    <crown-motif side="Left" size="Md" top="0px" />
+    <section class="max-w-7xl mx-auto px-6 py-24">
+        <div class="text-center mb-14">
+            @await Html.PartialAsync("_SectionLabel", "Featured Egypt Day Tours")
+
+            <h2 class="font-display text-3xl sm:text-4xl">@T["Egypt in a Day"]</h2>
+            <p class="text-tajan-red/70 mt-3">@T["Private day tours in Egypt, designed to make every moment count."]</p>
+        </div>
+
+        <div class="relative" id="dayToursSlider">
+
+            <!-- Prev -->
+            <button type="button" aria-label="@T["Previous"]" data-dir="-1"
+                    class="slider-btn absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10
+                       w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-tajan-red/10
+                       shadow-[0_4px_20px_rgba(0,0,0,0.1)] flex items-center justify-center
+                       text-tajan-red hover:bg-tajan-red hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                    <path d="M15 6l-6 6 6 6" />
+                </svg>
+            </button>
+
+            <!-- Track -->
+            <div id="dayToursTrack"
+                 class="flex items-start gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4
+                    [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                @foreach (var tour in Model.FeaturedTours)
+                {
+                    <div class="relative snap-start shrink-0
+                            w-[85%] sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]">
+                        @await Html.PartialAsync("_TourCard", tour)
+                    </div>
+                }
+
+                <!-- See more card (Facebook style): دايرة فيها سهم + النص تحتها -->
+                <div class="snap-start shrink-0
+                        w-[85%] sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4.5rem)/4)]">
+                    <a asp-controller="Tours" asp-action="Index"
+                       class="group aspect-[3/4] w-full flex flex-col items-center justify-center gap-3 text-center">
+                        <span class="w-14 h-14 rounded-full bg-tajan-red flex items-center justify-center
+                                 text-white group-hover:bg-tajan-red/85 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="w-6 h-6">
+                                <path d="M5 12h14" />
+                                <path d="M13 6l6 6-6 6" />
+                            </svg>
+                        </span>
+                        <span class="text-sm font-medium text-tajan-red">@T["See more"]</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Next -->
+            <button type="button" aria-label="@T["Next"]" data-dir="1"
+                    class="slider-btn absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10
+                       w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-tajan-red/10
+                       shadow-[0_4px_20px_rgba(0,0,0,0.1)] flex items-center justify-center
+                       text-tajan-red hover:bg-tajan-red hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                    <path d="M9 6l6 6-6 6" />
+                </svg>
+            </button>
+        </div>
+
+        <script>
+            (function () {
+                const root  = document.getElementById('dayToursSlider');
+                const track = document.getElementById('dayToursTrack');
+                const prev  = root.querySelector('[data-dir="-1"]');
+                const next  = root.querySelector('[data-dir="1"]');
+                const GAP = 24; // gap-6
+                let timer;
+
+                const atEnd   = () => track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
+                const atStart = () => track.scrollLeft <= 5;
+
+                function step() {
+                    const card = track.firstElementChild;
+                    return card ? card.getBoundingClientRect().width + GAP : 0;
+                }
+
+                function updateBtns() {
+                    prev.classList.toggle('opacity-40', atStart());
+                    prev.classList.toggle('pointer-events-none', atStart());
+                    next.classList.toggle('opacity-40', atEnd());
+                    next.classList.toggle('pointer-events-none', atEnd());
+                }
+
+                function move(dir) {
+                    if ((dir > 0 && atEnd()) || (dir < 0 && atStart())) return; // يقف عند الطرف
+                    track.scrollBy({ left: step() * dir, behavior: 'smooth' });
+                }
+
+                function start() {
+                    stop();
+                    if (atEnd()) return;
+                    timer = setInterval(() => {
+                        if (atEnd()) { stop(); return; } // وصل لكارت View All → يقف
+                        move(1);
+                    }, 3000);
+                }
+                function stop() { clearInterval(timer); }
+
+                [prev, next].forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        move(Number(btn.dataset.dir));
+                        start();
+                    });
+                });
+
+                track.addEventListener('scroll', updateBtns, { passive: true });
+                root.addEventListener('mouseenter', stop);
+                root.addEventListener('mouseleave', start);
+                root.addEventListener('touchstart', stop, { passive: true });
+                root.addEventListener('touchend', start, { passive: true });
+
+                document.addEventListener('visibilitychange', () => {
+                    document.hidden ? stop() : start();
+                });
+
+                updateBtns();
+                start();
+            })();
+        </script>
+    </section>
+</div>
+
+<!-- Explore by destination -->
+<section class="max-w-7xl mx-auto px-6 py-24">
+    <div class="text-center mb-14">
+        @await Html.PartialAsync("_SectionLabel", "Explore by Destination")
+
+        <h2 class="font-display text-3xl sm:text-4xl">@T["Discover Egypt, Your Way"]</h2>
+        <p class="text-tajan-red/70 mt-3">@T["Choose your preferred experience and let us create a personalized Egypt journey for you."]</p>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        @foreach (var d in Model.FeaturedDestinations)
+        {
+            var dName = Lang.Pick(d.NameEn, d.NameFr);
+            <a asp-controller="Tours" asp-action="Index" asp-route-DestinationId="@d.Id"
+               class="relative aspect-[3/4] overflow-hidden group block">
+                <div class="absolute inset-0 bg-tajan-sand/40"></div>
+                @if (!string.IsNullOrEmpty(d.CoverImageUrl))
+                {
+                    <img src="@d.CoverImageUrl" alt="@dName" onerror="this.style.display='none'"
+                         class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700" />
+                }
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div class="absolute bottom-0 p-5 text-white">
+                    <h3 class="font-display text-lg mb-1">@dName</h3>
+                    <p class="text-xs text-white/80 mb-3">@Lang.Pick(d.DescriptionEn, d.DescriptionFr)</p>
+                    <span class="text-xs uppercase tracking-widest border-b border-tajan-gold text-tajan-gold">@T["Explore Tours"]</span>
+                </div>
+            </a>
+        }
+    </div>
+</section>
+
+<!-- Latest events in Egypt -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-24 text-center">
+    <div class="flex items-center justify-center gap-3 sm:gap-4
+                text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em]
+                text-tajan-gold mb-5 sm:mb-6">
+        <span class="w-6 sm:w-10 h-px bg-tajan-gold/50"></span>
+        <span>@T["Latest Events in Egypt"]</span>
+        <span class="w-6 sm:w-10 h-px bg-tajan-gold/50"></span>
+    </div>
+
+    <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight mb-4 sm:mb-5 text-tajan-red">
+        @T["What's happening in Egypt"]
+    </h2>
+
+    <p class="text-tajan-red/60 text-sm sm:text-base max-w-md sm:max-w-xl mx-auto mb-12 sm:mb-16 leading-relaxed px-2">
+        @T["Discover the latest events, festivals, and experiences happening across Egypt."]
+    </p>
+
+    @if (Model.LatestEvents.Any())
+    {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 text-left">
+            @foreach (var ev in Model.LatestEvents)
+            {
+                <a asp-controller="Events" asp-action="Index" class="group block">
+                    <div class="relative aspect-[4/3] overflow-hidden mb-5 bg-tajan-sand/30">
+                        @if (!string.IsNullOrEmpty(ev.CoverImageUrl))
+                        {
+                            <img src="@ev.CoverImageUrl" alt="@ev.Title" onerror="this.style.display='none'"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                        }
+                        <span class="absolute top-3 left-3 bg-tajan-gold text-white text-[10px] uppercase tracking-widest px-3 py-1">
+                            @(ev.Category != null ? Lang.Pick(ev.Category.NameEn, ev.Category.NameFr) : T["Events"])
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-3 text-[10px] sm:text-xs uppercase tracking-widest text-tajan-gold mb-2">
+                        <span>@ev.ShortDate</span>
+                        <span>@ev.ReadTimeMinutes @T["min read"]</span>
+                    </div>
+
+                    <h3 class="font-display text-lg sm:text-xl text-tajan-red mb-3 leading-snug">@ev.Title</h3>
+
+                    <p class="text-xs sm:text-sm text-tajan-red/60 leading-relaxed mb-4">@ev.Summary</p>
+
+                    <span class="inline-flex items-center gap-2 text-[10px] sm:text-xs uppercase tracking-widest text-tajan-gold group-hover:gap-3 transition-all">
+                        @T["Discover Event"]
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+                            <path d="M5 12h14" />
+                            <path d="M13 6l6 6-6 6" />
+                        </svg>
+                    </span>
+                </a>
+            }
+        </div>
+    }
+</section>
+
+<!-- Travel Journal / Stories -->
+@if (Model.LatestBlogPosts != null && Model.LatestBlogPosts.Any())
+{
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-24 text-center">
+
+        <div class="flex items-center justify-center gap-3 sm:gap-4
+                    text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em]
+                    text-tajan-gold mb-5 sm:mb-6">
+            <span class="w-6 sm:w-10 h-px bg-tajan-gold/50"></span>
+            <span>@T["Travel Journal"]</span>
+            <span class="w-6 sm:w-10 h-px bg-tajan-gold/50"></span>
+        </div>
+
+        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight mb-4 sm:mb-5 text-tajan-red">
+            @T["Stories From Egypt"]
+        </h2>
+
+        <p class="text-tajan-red/60 text-sm sm:text-base
+                  max-w-md sm:max-w-xl mx-auto mb-12 sm:mb-16
+                  leading-relaxed px-2">
+            @T["Travel inspiration, local insights, and stories to help you experience Egypt differently."]
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 text-left">
+
+            @foreach (var post in Model.LatestBlogPosts)
+            {
+                <a href="/blog/@post.Slug" class="group block">
+
+                    <div class="aspect-[4/3] overflow-hidden mb-5 bg-tajan-sand/30">
+                        <img src="@(string.IsNullOrEmpty(post.CoverImageUrl) ? "/images/journal/default.jpg" : post.CoverImageUrl)"
+                             alt="@Lang.Pick(post.TitleEn, post.TitleFr)"
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    </div>
+
+                    @if (post.Category != null)
+                    {
+                        <div class="text-[10px] sm:text-xs uppercase tracking-widest text-tajan-gold mb-2">
+                            @Lang.Pick(post.Category.NameEn, post.Category.NameFr)
+                        </div>
+                    }
+
+                    <h3 class="font-display text-lg sm:text-xl text-tajan-red mb-3 leading-snug">
+                        @Lang.Pick(post.TitleEn, post.TitleFr)
+                    </h3>
+
+                    <p class="text-xs sm:text-sm text-tajan-red/60 leading-relaxed mb-4">
+                        @Lang.Pick(post.SummaryEn, post.SummaryFr)
+                    </p>
+
+                    <span class="inline-flex items-center gap-2 text-[10px] sm:text-xs uppercase tracking-widest text-tajan-gold group-hover:gap-3 transition-all">
+                        @T["View Story"]
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5">
+                            <path d="M5 12h14" />
+                            <path d="M13 6l6 6-6 6" />
+                        </svg>
+                    </span>
+
+                </a>
+            }
+
+        </div>
+
+    </section>
+}
+
+<!-- Traveler stories -->
+<section class="bg-white py-24">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-14">
+            <div class="flex items-center justify-center gap-3 text-[10px] font-medium uppercase tracking-[0.3em] text-tajan-gold mb-4">
+                <span class="w-6 h-px bg-tajan-gold"></span><span>@T["Traveler Stories"]</span><span class="w-6 h-px bg-tajan-gold"></span>
+            </div>
+            <h2 class="font-display text-3xl sm:text-4xl">@T["Egypt, Through Their Eyes"]</h2>
+            <p class="text-tajan-red/70 mt-3">@T["Real stories and unforgettable experiences from travelers who explored Egypt with Tajan."]</p>
+        </div>
+
+        <div class="relative" id="storiesSlider">
+
+            <button type="button" aria-label="@T["Previous"]" data-dir="-1"
+                    class="slider-btn absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10
+                           w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-tajan-red/10
+                           shadow-[0_4px_20px_rgba(0,0,0,0.1)] flex items-center justify-center
+                           text-tajan-red hover:bg-tajan-red hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                    <path d="M15 6l-6 6 6 6" />
+                </svg>
+            </button>
+
+            <div id="storiesTrack"
+                 class="flex gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4
+                        [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                @foreach (var testimonial in Model.Testimonials)
+                {
+                    <div class="snap-start shrink-0
+                                w-[85%] sm:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)]">
+                        @await Html.PartialAsync("_TestimonialCard", testimonial)
+                    </div>
+                }
+            </div>
+
+            <button type="button" aria-label="@T["Next"]" data-dir="1"
+                    class="slider-btn absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10
+                           w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-tajan-red/10
+                           shadow-[0_4px_20px_rgba(0,0,0,0.1)] flex items-center justify-center
+                           text-tajan-red hover:bg-tajan-red hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                    <path d="M9 6l6 6-6 6" />
+                </svg>
+            </button>
+        </div>
+
+        <script>
+            (function () {
+                const root  = document.getElementById('storiesSlider');
+                const track = document.getElementById('storiesTrack');
+                const GAP = 32; // gap-8
+                let timer;
+
+                function step() {
+                    const card = track.firstElementChild;
+                    return card ? card.getBoundingClientRect().width + GAP : 0;
+                }
+
+                function move(dir) {
+                    const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
+                    const atStart = track.scrollLeft <= 5;
+
+                    if (dir > 0 && atEnd) {
+                        track.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else if (dir < 0 && atStart) {
+                        track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+                    } else {
+                        track.scrollBy({ left: step() * dir, behavior: 'smooth' });
+                    }
+                }
+
+                function start() { stop(); timer = setInterval(() => move(1), 3000); }
+                function stop()  { clearInterval(timer); }
+
+                root.querySelectorAll('.slider-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        move(Number(btn.dataset.dir));
+                        start();
+                    });
+                });
+
+                root.addEventListener('mouseenter', stop);
+                root.addEventListener('mouseleave', start);
+                root.addEventListener('touchstart', stop, { passive: true });
+                root.addEventListener('touchend', start, { passive: true });
+                document.addEventListener('visibilitychange', () => {
+                    document.hidden ? stop() : start();
+                });
+
+                start();
+            })();
+        </script>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="max-w-7xl mx-auto px-6 py-16 sm:py-24 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20">
+
+    <!-- Left -->
+    <div class="text-center lg:text-left">
+        <div class="flex items-center justify-center lg:justify-start gap-3 text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-tajan-gold mb-4">
+            <span class="w-5 h-px bg-tajan-gold"></span>
+            @T["Good to Know Before You Go"]
+        </div>
+
+        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight mb-4 sm:mb-6 text-tajan-red">
+            @T["Frequently"]<br />@T["Asked Questions"]
+        </h2>
+
+        <p class="text-tajan-red/60 text-sm leading-relaxed mb-6 sm:mb-8 max-w-sm mx-auto lg:mx-0">
+            @T["Essential information to help you plan your trip to Egypt."]
+        </p>
+
+        <a asp-controller="Faq" asp-action="Index"
+           class="hidden lg:inline-flex items-center gap-2 bg-tajan-red text-white px-6 py-3 text-xs uppercase tracking-widest hover:bg-tajan-red/90 transition">
+            @T["View All FAQs"]
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <path d="M5 12h14" />
+                <path d="M13 6l6 6-6 6" />
+            </svg>
+        </a>
+    </div>
+
+    <!-- Right -->
+    <div>
+        <div id="faq-accordion">
+            @{
+                var faqs = Model.Faqs;
+            }
+
+            @for (int i = 0; i < faqs.Count; i++)
+            {
+                var faq = faqs[i];
+                var isOpen = i == 0;
+
+                <div class="border-t border-tajan-gold/30 @(i == faqs.Count - 1 ? "border-b" : "")">
+                    <button type="button"
+                            class="faq-toggle w-full flex items-center justify-between gap-4 sm:gap-6 py-5 sm:py-6 text-left"
+                            data-target="faq-item-@i">
+                        <span class="font-display font-semibold text-sm sm:text-base lg:text-lg text-tajan-red">@faq.Question</span>
+
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                             class="faq-icon w-4 h-4 shrink-0 text-tajan-gold transition-transform @(isOpen ? "rotate-180" : "")">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </button>
+
+                    <div id="faq-item-@i" class="faq-panel overflow-hidden transition-all duration-300 @(isOpen ? "" : "grid grid-rows-[0fr]")"
+                         style="@(isOpen ? "" : "max-height:0;")">
+                        <p class="text-tajan-red/60 text-xs sm:text-sm leading-relaxed pb-5 sm:pb-6 pr-8 sm:pr-10">
+                            @faq.Answer
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <a asp-controller="Faq" asp-action="Index"
+           class="lg:hidden mt-8 flex items-center justify-center gap-2 border border-tajan-gold text-tajan-red px-6 py-4 text-xs uppercase tracking-widest hover:bg-tajan-gold/10 transition">
+            @T["View All FAQs"]
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <path d="M5 12h14" />
+                <path d="M13 6l6 6-6 6" />
+            </svg>
+        </a>
+    </div>
+</section>
+
+<script>
+    (function () {
+        const root  = document.getElementById('dayToursSlider');
+        const track = document.getElementById('dayToursTrack');
+        const prev  = root.querySelector('[data-dir="-1"]');
+        const next  = root.querySelector('[data-dir="1"]');
+        const GAP = 24; // gap-6
+        let timer;
+        let inView = false; // السلايدر ظاهر في الشاشة ولا لأ
+
+        const atEnd   = () => track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
+        const atStart = () => track.scrollLeft <= 5;
+
+        function step() {
+            const card = track.firstElementChild;
+            return card ? card.getBoundingClientRect().width + GAP : 0;
+        }
+
+        function updateBtns() {
+            prev.classList.toggle('opacity-40', atStart());
+            prev.classList.toggle('pointer-events-none', atStart());
+            next.classList.toggle('opacity-40', atEnd());
+            next.classList.toggle('pointer-events-none', atEnd());
+        }
+
+        function move(dir) {
+            if ((dir > 0 && atEnd()) || (dir < 0 && atStart())) return;
+            track.scrollBy({ left: step() * dir, behavior: 'smooth' });
+        }
+
+        function start() {
+            stop();
+            if (!inView || atEnd()) return; // ما تبدأش غير لو السكشن ظاهر
+            timer = setInterval(() => {
+                if (atEnd()) { stop(); return; }
+                move(1);
+            }, 3000);
+        }
+        function stop() { clearInterval(timer); }
+
+        [prev, next].forEach(btn => {
+            btn.addEventListener('click', () => {
+                move(Number(btn.dataset.dir));
+                start();
+            });
+        });
+
+        track.addEventListener('scroll', updateBtns, { passive: true });
+        root.addEventListener('mouseenter', stop);
+        root.addEventListener('mouseleave', start);
+        root.addEventListener('touchstart', stop, { passive: true });
+        root.addEventListener('touchend', start, { passive: true });
+
+        document.addEventListener('visibilitychange', () => {
+            document.hidden ? stop() : start();
+        });
+
+        // يبدأ لما السلايدر يظهر، ويقف لما يخرج من الشاشة
+        const observer = new IntersectionObserver((entries) => {
+            inView = entries[0].isIntersecting;
+            inView ? start() : stop();
+        }, { threshold: 0.4 });
+        observer.observe(root);
+
+        updateBtns();
+        // شلنا start() من آخر السكريبت، لأن الـ observer هو اللي بيبدأه
+    })();
+</script>

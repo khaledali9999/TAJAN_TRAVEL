@@ -1,0 +1,72 @@
+@model List<TravelEvent>
+@{
+    ViewData["Title"] = "Events";
+    var q = ViewData["Q"]?.ToString() ?? "";
+}
+
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <p class="text-sm text-slate-500">@Model.Count @(Model.Count == 1 ? "event" : "events")</p>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <form asp-action="Index" method="get" class="relative w-full sm:w-64">
+            <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+            <input name="q" value="@q" type="search" placeholder="Search events..."
+                   class="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-tajan-gold focus:outline-none focus:ring-1 focus:ring-tajan-gold" />
+        </form>
+        <a asp-action="Create" class="inline-flex items-center justify-center gap-2 rounded-lg bg-tajan-red px-4 py-2 text-sm font-medium text-white hover:bg-[#3a171b]">
+            <i data-lucide="plus" class="h-4 w-4"></i> New event
+        </a>
+    </div>
+</div>
+
+<div class="card mt-5 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full min-w-[860px] text-sm">
+            <thead>
+                <tr class="bg-slate-50/70 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3">Event</th>
+                    <th class="px-3 py-3">Category</th>
+                    <th class="px-3 py-3">Date</th>
+                    <th class="px-3 py-3">Location</th>
+                    <th class="px-3 py-3 text-center">Featured</th>
+                    <th class="px-3 py-3 text-center">Active</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr class="border-t border-slate-100 hover:bg-tajan-cream/60">
+                        <td class="px-6 py-3">
+                            <div class="flex items-center gap-3">
+                                @if (!string.IsNullOrWhiteSpace(e.CoverImageUrl))
+                                {
+                                    <img src="@Url.Content(e.CoverImageUrl)" alt="" class="h-10 w-14 rounded object-cover" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="h-10 w-14 rounded bg-tajan-sand/40"></div>
+                                }
+                                <div class="min-w-0">
+                                    <a asp-action="Edit" asp-route-id="@e.Id" class="block truncate font-medium text-[#2A1215] hover:text-tajan-red hover:underline">@e.TitleEn</a>
+                                    <div class="truncate text-xs text-slate-400">@e.TitleFr</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-3 py-3 text-slate-600">@(e.Category?.NameEn ?? "—")</td>
+                        <td class="px-3 py-3 text-slate-600">@e.LongDate</td>
+                        <td class="px-3 py-3 text-slate-600">@(e.Location ?? "—")</td>
+                        <td class="px-3 py-3 text-center"><partial name="_Toggle" model='new ToggleVm("Events", e.Id, "featured", e.IsFeatured, q)' /></td>
+                        <td class="px-3 py-3 text-center"><partial name="_Toggle" model='new ToggleVm("Events", e.Id, "active", e.IsActive, q)' /></td>
+                        <td class="px-6 py-3"><partial name="_RowActions" model='new RowActionsVm("Events", e.Id, "Delete the event “" + e.TitleEn + "”?")' /></td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="px-6 py-12 text-center text-slate-400">No events found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@await Component.InvokeAsync("LookupSection", new { kind = "event", returnTo = "Events" })

@@ -1,0 +1,118 @@
+@model SearchViewModel
+@{
+    ViewData["Title"] = string.IsNullOrEmpty(Model.Query) ? T["Search"] : $"{T["Search"]}: {Model.Query}";
+}
+
+<section class="max-w-6xl mx-auto px-6 pt-32 pb-24">
+
+    <h1 class="font-display text-4xl sm:text-5xl text-tajan-red text-center mb-8">@T["Search"]</h1>
+
+    <form asp-controller="Search" asp-action="Index" method="get"
+          class="flex items-stretch max-w-2xl mx-auto bg-white rounded-lg shadow-sm border border-tajan-red/10 mb-12 overflow-hidden">
+        <input type="text" name="q" value="@Model.Query"
+               placeholder="@T["Search Egypt tours, destinations or experiences..."]"
+               class="flex-1 min-w-0 py-5 pl-7 pr-4 text-sm text-tajan-red placeholder:text-tajan-red/40 focus:outline-none bg-transparent" />
+        <button type="submit"
+                class="bg-tajan-red text-white text-xs font-semibold uppercase tracking-widest px-6 sm:px-8 shrink-0">
+            @T["Search"] →
+        </button>
+    </form>
+
+    @if (string.IsNullOrEmpty(Model.Query))
+    {
+        <p class="text-center text-tajan-red/60">@T["Search Egypt tours, destinations, experiences and more"]</p>
+    }
+    else if (Model.Total == 0)
+    {
+        <p class="text-center text-tajan-red/60 py-12">@T["No tours match these filters yet — try widening your search."]</p>
+    }
+    else
+    {
+        if (Model.Tours.Any())
+        {
+            <h2 class="font-display text-2xl text-tajan-red mb-6">@T["Our Tours"]</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-14">
+                @foreach (var t in Model.Tours)
+                {
+                    @await Html.PartialAsync("_TourCard", t)
+                }
+            </div>
+        }
+
+        if (Model.Cruises.Any())
+        {
+            <h2 class="font-display text-2xl text-tajan-red mb-6">@T["Nile Cruises"]</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-14">
+                @foreach (var t in Model.Cruises)
+                {
+                    @await Html.PartialAsync("_TourCard", t)
+                }
+            </div>
+        }
+
+        if (Model.Destinations.Any())
+        {
+            <h2 class="font-display text-2xl text-tajan-red mb-6">@T["Destinations"]</h2>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-14">
+                @foreach (var d in Model.Destinations)
+                {
+                    <li>
+                        <a asp-controller="Destinations" asp-action="Details" asp-route-slug="@d.Slug"
+                           class="block bg-white border border-tajan-red/10 rounded-lg p-5 hover:border-tajan-gold transition">
+                            <div class="font-semibold text-tajan-red">@Lang.Pick(d.NameEn, d.NameFr)</div>
+                            <div class="text-sm text-tajan-red/60 mt-1">@Lang.Pick(d.DescriptionEn, d.DescriptionFr)</div>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+
+        if (Model.Stories.Any())
+        {
+            <h2 class="font-display text-2xl text-tajan-red mb-6">@T["Stories"]</h2>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-14">
+                @foreach (var p in Model.Stories)
+                {
+                    <li>
+                        <a asp-controller="Blog" asp-action="Details" asp-route-slug="@p.Slug"
+                           class="block bg-white border border-tajan-red/10 rounded-lg p-5 hover:border-tajan-gold transition">
+                            <div class="font-semibold text-tajan-red">@Lang.Pick(p.TitleEn, p.TitleFr)</div>
+                            <div class="text-sm text-tajan-red/60 mt-1">@Lang.Pick(p.SummaryEn, p.SummaryFr)</div>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+
+        if (Model.Events.Any())
+        {
+            <h2 class="font-display text-2xl text-tajan-red mb-6">@T["Events"]</h2>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-14">
+                @foreach (var e in Model.Events)
+                {
+                    <li>
+                        <a asp-controller="Events" asp-action="Index"
+                           class="block bg-white border border-tajan-red/10 rounded-lg p-5 hover:border-tajan-gold transition">
+                            <div class="font-semibold text-tajan-red">@Lang.Pick(e.TitleEn, e.TitleFr)</div>
+                            <div class="text-sm text-tajan-red/60 mt-1">@Lang.Pick(e.SummaryEn, e.SummaryFr)</div>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+
+        if (Model.Faqs.Any())
+        {
+            <h2 class="font-display text-2xl text-tajan-red mb-6">@T["FAQ"]</h2>
+            <ul class="space-y-4 mb-14">
+                @foreach (var f in Model.Faqs)
+                {
+                    <li class="bg-white border border-tajan-red/10 rounded-lg p-5">
+                        <div class="font-semibold text-tajan-red">@Lang.Pick(f.QuestionEn, f.QuestionFr)</div>
+                        <div class="text-sm text-tajan-red/70 mt-2">@Lang.Pick(f.AnswerEn, f.AnswerFr)</div>
+                    </li>
+                }
+            </ul>
+        }
+    }
+</section>

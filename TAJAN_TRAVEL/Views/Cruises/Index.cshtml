@@ -1,0 +1,39 @@
+@model TourListViewModel
+@{
+    ViewData["Title"] = Model.PageTitle;
+}
+
+<section class="max-w-7xl mx-auto px-6 py-16">
+    <div class="text-center mb-14">
+        <div class="text-xs uppercase tracking-[0.3em] text-tajan-gold mb-3">@T["Nile Journeys"]</div>
+        <h1 class="font-display text-4xl mb-3">@Model.PageTitle</h1>
+        <p class="text-tajan-red/70">@Model.PageSubtitle</p>
+    </div>
+
+    @if (!Model.Tours.Any())
+    {
+        <p class="text-center text-tajan-red/60 py-16">@T["Cruise itineraries are coming soon — add some from the admin dashboard."]</p>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            @foreach (var cruise in Model.Tours)
+            {
+                <a asp-controller="Cruises" asp-action="Details" asp-route-slug="@cruise.Slug" class="group block">
+                    <div class="relative overflow-hidden aspect-[4/5] bg-tajan-sand/30">
+                        @if (!string.IsNullOrEmpty(cruise.CoverImageUrl))
+                        {
+                            <img src="@cruise.CoverImageUrl" alt="@Lang.Pick(cruise.TitleEn, cruise.TitleFr)"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                        }
+                    </div>
+                    <div class="pt-4">
+                        <div class="text-[11px] uppercase tracking-widest text-tajan-gold mb-1">@Lang.Pick(cruise.Destination?.NameEn, cruise.Destination?.NameFr)</div>
+                        <h3 class="font-display text-lg text-tajan-red group-hover:text-tajan-gold transition">@Lang.Pick(cruise.TitleEn, cruise.TitleFr)</h3>
+                        <div class="text-sm text-tajan-red/70 mt-1">@T["From"] @SiteCurrency.Format(cruise.PriceFrom, cruise.Currency) · @Lang.Days(cruise.DurationDays)</div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</section>

@@ -1,0 +1,62 @@
+@model LegalPageViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    var isTerms = ViewContext.RouteData.Values["action"]?.ToString() == "Terms";
+}
+
+<div class="bg-tajan-cream min-h-screen pt-20 sm:pt-28">
+    <article class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-16">
+
+        <div class="flex items-center gap-3 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.3em] text-tajan-gold mb-3">
+            <span class="w-6 sm:w-8 h-px bg-tajan-gold"></span>
+            <span>@Model.Updated</span>
+        </div>
+        <h1 class="font-display text-3xl sm:text-5xl text-tajan-red leading-tight mb-6">@Model.Title</h1>
+
+        @if (!string.IsNullOrEmpty(Model.Intro))
+        {
+            <p class="text-sm sm:text-[15px] text-tajan-red/80 leading-relaxed mb-10">@Model.Intro</p>
+        }
+
+        <div class="bg-white rounded-2xl border border-tajan-red/5 p-6 sm:p-10 space-y-8">
+            @foreach (var s in Model.Sections)
+            {
+                <section>
+                    <h2 class="font-display text-lg sm:text-xl text-tajan-red mb-3">@s.Heading</h2>
+                    @if (!string.IsNullOrEmpty(s.Intro))
+                    {
+                        <p class="text-sm text-tajan-red/80 leading-relaxed mb-3">@s.Intro</p>
+                    }
+                    <ul class="space-y-3">
+                        @foreach (var item in s.Items)
+                        {
+                            <li class="flex gap-3 text-sm text-tajan-red/80 leading-relaxed">
+                                <span class="mt-1.5 w-2 h-2 rotate-45 border border-tajan-gold shrink-0"></span>
+                                <span>
+                                    @if (!string.IsNullOrEmpty(item.Lead))
+                                    {
+                                        <strong class="font-semibold text-tajan-red">@item.Lead</strong>
+                                        <text> </text>
+                                    }
+                                    @item.Text
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                </section>
+            }
+        </div>
+
+        <div class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-widest">
+            @if (isTerms)
+            {
+                <a asp-controller="Legal" asp-action="Privacy" class="text-tajan-gold hover:text-tajan-red transition">@T["Privacy Policy"] →</a>
+            }
+            else
+            {
+                <a asp-controller="Legal" asp-action="Terms" class="text-tajan-gold hover:text-tajan-red transition">@T["Terms of Service"] →</a>
+            }
+            <a asp-controller="Home" asp-action="Index" class="text-tajan-red/60 hover:text-tajan-red transition">@T["Back to Home"]</a>
+        </div>
+    </article>
+</div>

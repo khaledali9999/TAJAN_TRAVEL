@@ -1,0 +1,140 @@
+@model EventsViewModel
+@using TAJAN_TRAVEL.Models.ViewModels
+@using TAJAN_TRAVEL.Models.Entities
+@{
+    string PageUrl(int p) => Url.Action("Index", "Events", new
+    {
+        category = string.IsNullOrWhiteSpace(Model.Category) ? null : Model.Category,
+        thisMonth = Model.ThisMonth ? true : (bool?)null,
+        page = p > 1 ? p : (int?)null
+    })!;
+
+    string chipBase = "shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] border transition";
+    string chipOn = chipBase + " bg-tajan-red text-white border-tajan-red";
+    string chipOff = chipBase + " bg-white text-tajan-red border-tajan-red/20 hover:border-tajan-gold hover:text-tajan-gold";
+
+    string ContactUrl(TravelEvent e) => Url.Action("Create", "Inquiry", new { eventTitle = e.TitleEn })!;
+}
+
+@* ---------- Filter chips ---------- *@
+<nav class="flex gap-2 overflow-x-auto no-scrollbar md:flex-wrap md:justify-start pb-1 mb-10" aria-label="@T["Event filters"]">
+    <a data-events-link href="@Url.Action("Index", "Events")" class="@(!Model.IsFiltered ? chipOn : chipOff)">@T["All"]</a>
+    <a data-events-link href="@Url.Action("Index", "Events", new { thisMonth = true })" class="@(Model.ThisMonth ? chipOn : chipOff)">@T["This Month"]</a>
+    @foreach (var c in Model.Categories)
+    {
+        <a data-events-link href="@Url.Action("Index", "Events", new { category = c.Slug })"
+           class="@(Model.Category == c.Slug ? chipOn : chipOff)">@Lang.Pick(c.NameEn, c.NameFr)</a>
+    }
+</nav>
+
+@* ---------- Featured event ---------- *@
+@if (Model.Featured != null)
+{
+    var f = Model.Featured;
+    <div class="flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.25em] text-tajan-gold mb-6">
+        <span class="w-6 h-px bg-tajan-gold"></span><span>@T["Featured Event"]</span>
+    </div>
+
+    <article class="grid grid-cols-1 md:grid-cols-[1.15fr_1fr] gap-6 md:gap-12 items-center mb-20 cursor-pointer group"
+             data-event-open
+             data-category="@(Lang.Pick(f.Category?.NameEn, f.Category?.NameFr))"
+             data-title="@Lang.Pick(f.TitleEn, f.TitleFr)"
+             data-date="@f.LongDate"
+             data-location="@Lang.Pick(f.Location, f.LocationFr)"
+             data-description="@Lang.Pick(f.DescriptionEn, f.DescriptionFr)"
+             data-image="@f.CoverImageUrl"
+             data-contact-url="@ContactUrl(f)">
+        <div class="relative aspect-[4/3] rounded-lg overflow-hidden bg-tajan-sand/40">
+            @if (!string.IsNullOrEmpty(f.CoverImageUrl))
+            {
+                <img src="@f.CoverImageUrl" alt="@Lang.Pick(f.TitleEn, f.TitleFr)" onerror="this.style.display='none'"
+                     class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700" />
+            }
+            <span class="absolute left-4 top-4 bg-tajan-gold text-black text-[10px] font-medium uppercase tracking-[0.15em] px-3 py-1 rounded-full">@f.ShortDate</span>
+        </div>
+        <div>
+            <div class="text-[10px] font-medium uppercase tracking-[0.25em] text-tajan-gold mb-3">@(Lang.PickN(f.Category?.NameEn, f.Category?.NameFr) ?? T["Events"])</div>
+            <h2 class="font-display text-3xl sm:text-4xl text-tajan-red leading-[1.1] mb-4">@Lang.Pick(f.TitleEn, f.TitleFr)</h2>
+            <p class="text-sm text-tajan-red/70 leading-relaxed mb-5 max-w-sm">@Lang.Pick(f.SummaryEn, f.SummaryFr)</p>
+            @if (!string.IsNullOrWhiteSpace(f.Location))
+            {
+                <div class="text-[10px] font-medium uppercase tracking-[0.15em] text-tajan-red/55 mb-4">@Lang.Pick(f.Location, f.LocationFr)</div>
+            }
+            <button type="button" class="text-[11px] font-medium uppercase tracking-[0.18em] text-tajan-red border-b-2 border-tajan-gold pb-1 hover:text-tajan-gold transition">
+                @T["View Details →"]
+            </button>
+        </div>
+    </article>
+}
+
+@* ---------- Events grid ---------- *@
+@if (!Model.Events.Any())
+{
+    <p class="text-center text-tajan-red/60 py-20">No events here yet &mdash; try another filter.</p>
+}
+else
+{
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12" data-events-grid>
+        @foreach (var e in Model.Events)
+        {
+            <article class="group cursor-pointer"
+                     data-event-open
+                     data-category="@(Lang.Pick(e.Category?.NameEn, e.Category?.NameFr))"
+                     data-title="@Lang.Pick(e.TitleEn, e.TitleFr)"
+                     data-date="@e.LongDate"
+                     data-location="@Lang.Pick(e.Location, e.LocationFr)"
+                     data-description="@Lang.Pick(e.DescriptionEn, e.DescriptionFr)"
+                     data-image="@e.CoverImageUrl"
+                     data-contact-url="@ContactUrl(e)">
+                <div class="relative aspect-[4/3] rounded-md overflow-hidden bg-tajan-sand/40 mb-4">
+                    @if (!string.IsNullOrEmpty(e.CoverImageUrl))
+                    {
+                        <img src="@e.CoverImageUrl" alt="@Lang.Pick(e.TitleEn, e.TitleFr)" loading="lazy" onerror="this.style.display='none'"
+                             class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    }
+                    <span class="absolute left-3 top-3 bg-tajan-gold text-black text-[10px] font-medium uppercase tracking-[0.15em] px-3 py-1 rounded-full">@e.ShortDate</span>
+                </div>
+                @if (e.Category != null)
+                {
+                    <div class="text-[10px] font-medium uppercase tracking-[0.2em] text-tajan-gold mb-2">@Lang.Pick(e.Category.NameEn, e.Category.NameFr)</div>
+                }
+                <h3 class="font-display text-xl text-tajan-red leading-snug mb-2 group-hover:text-tajan-gold transition">@Lang.Pick(e.TitleEn, e.TitleFr)</h3>
+                <p class="text-[13px] text-tajan-red/70 leading-relaxed mb-4">@Lang.Pick(e.SummaryEn, e.SummaryFr)</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-medium uppercase tracking-[0.15em] text-tajan-red/50">@e.ReadTimeMinutes @T["MIN READ"]</span>
+                    <button type="button" class="text-[10px] font-medium uppercase tracking-[0.18em] text-tajan-red border-b-2 border-tajan-gold pb-0.5 hover:text-tajan-gold transition">
+                        @T["View Details →"]
+                    </button>
+                </div>
+            </article>
+        }
+    </div>
+
+    <div data-events-pager>
+        @if (Model.TotalPages > 1)
+        {
+            <div class="hidden md:flex justify-center items-center gap-2 mt-14">
+                <a data-events-link href="@PageUrl(Math.Max(Model.CurrentPage - 1, 1))" aria-label="@T["Previous page"]"
+                   class="w-8 h-8 flex items-center justify-center text-tajan-red/60 hover:text-tajan-red">&lsaquo;</a>
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a data-events-link href="@PageUrl(i)"
+                       class="w-8 h-8 flex items-center justify-center rounded-full text-sm transition
+                              @(i == Model.CurrentPage ? "bg-tajan-red text-white" : "text-tajan-red/70 hover:bg-tajan-sand/40")">@i</a>
+                }
+                <a data-events-link href="@PageUrl(Math.Min(Model.CurrentPage + 1, Model.TotalPages))" aria-label="@T["Next page"]"
+                   class="w-8 h-8 flex items-center justify-center text-tajan-red/60 hover:text-tajan-red">&rsaquo;</a>
+            </div>
+
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                <div class="md:hidden mt-10">
+                    <button type="button" data-events-more data-next-url="@PageUrl(Model.CurrentPage + 1)"
+                            class="w-full bg-[#C8A44D] text-black py-3.5 text-xs font-medium uppercase tracking-[0.2em] rounded-md hover:bg-[#B8943D] transition">
+                        @T["See More"]
+                    </button>
+                </div>
+            }
+        }
+    </div>
+}

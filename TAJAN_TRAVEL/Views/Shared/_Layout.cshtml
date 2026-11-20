@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="@Lang.Code">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @{
+        // ---- SEO: title / description / canonical / social preview ----
+        var req = Context.Request;
+        var siteUrl = $"{req.Scheme}://{req.Host}";
+        var canonicalUrl = siteUrl + req.PathBase + req.Path;
+        var pageTitle = ViewData["Title"] != null
+        ? ViewData["Title"] + " | TAJAN TRAVEL"
+        : "TAJAN TRAVEL | " + T["Private Journeys, Beautifully Personal"];
+        var pageDesc = (ViewData["Description"]?.ToString()
+        ?? T["Private, tailor-made journeys across Egypt — Nile cruises, desert camping, coastal escapes and more."].ToString());
+        pageDesc = System.Text.RegularExpressions.Regex.Replace(pageDesc, "<[^>]+>|\\s+", " ").Trim();
+        if (pageDesc.Length > 160) { pageDesc = pageDesc.Substring(0, 157).TrimEnd() + "…"; }
+        var ogImage = ViewData["OgImage"]?.ToString();
+        if (string.IsNullOrWhiteSpace(ogImage)) { ogImage = "/icon-512.png"; }
+        if (!ogImage.StartsWith("http", StringComparison.OrdinalIgnoreCase)) { ogImage = siteUrl + "/" + ogImage.TrimStart('/'); }
+        var noIndex = ViewData["NoIndex"] is true;
+        var siteJson = System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, object>
+            {
+                ["@context"] = "https://schema.org",
+                ["@type"] = "TravelAgency",
+                ["name"] = "Tajan Travel",
+                ["alternateName"] = "TAJAN TRAVEL",
+                ["url"] = siteUrl + "/",
+                ["logo"] = siteUrl + "/icon-512.png",
+                ["image"] = siteUrl + "/icon-512.png"
+            });
+    }
+    <title>@pageTitle</title>
+    <meta name="description" content="@pageDesc" />
+    <link rel="canonical" href="@canonicalUrl" />
+    @if (noIndex)
+    {
+        <meta name="robots" content="noindex, follow" />
+    }
+
+    @* Favicon / site icon (shown in Google results, browser tabs, bookmarks, phone home screen) *@
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#4B1E23" />
+
+    @* Social preview (WhatsApp, Facebook, X, LinkedIn...) *@
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="TAJAN TRAVEL" />
+    <meta property="og:title" content="@pageTitle" />
+    <meta property="og:description" content="@pageDesc" />
+    <meta property="og:url" content="@canonicalUrl" />
+    <meta property="og:image" content="@ogImage" />
+    <meta property="og:locale" content="@(Lang.IsFrench ? "fr_FR" : "en_US")" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@pageTitle" />
+    <meta name="twitter:description" content="@pageDesc" />
+    <meta name="twitter:image" content="@ogImage" />
+    <script type="application/ld+json">@Html.Raw(siteJson)</script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tajan: {
+                            red: '#4B1E23',
+                            sand: '#D8C3A5',
+                            gold: '#C8A44D',
+                            cream: '#FAF6F0'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Playfair Display"', 'serif'],
+                        body: ['"Jost"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/crown-motif.css" asp-append-version="true" />
+
+    @* Light, site-wide corner radius for buttons, link-buttons and cards.
+       Anything that already sets its own "rounded-*" class (pills, circles, rounded-2xl cards...) is left alone.
+       To change the amount, edit --tajan-radius. *@
+    <style>
+        :root {
+            --tajan-radius: 0.375rem;
+        }
+        /* = Tailwind rounded-md; use 0.25rem for even lighter */
+
+        /* Buttons */
+        button:not([class*="rounded"]),
+        /* Link-buttons (CTA links: they have horizontal + vertical padding) */
+        a[class*="px-"][class*="py-"]:not([class*="rounded"]),
+        /* Cards: image blocks with a fixed aspect ratio */
+        [class*="aspect-"][class*="overflow-hidden"]:not([class*="rounded"]),
+        /* Cards: white boxes with a border (testimonials, sidebar, forms...) */
+        [class*="bg-white"][class*="border"]:not([class*="rounded"]) {
+            border-radius: var(--tajan-radius);
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="font-body text-tajan-red bg-tajan-cream">
+
+    @await Html.PartialAsync("_Navbar")
+
+    <main>
+        @RenderBody()
+    </main>
+
+    @await Html.PartialAsync("_Footer")
+    @await Html.PartialAsync("_WhatsAppButton")
+    @await Html.PartialAsync("_ChatBot")
+    @await Html.PartialAsync("_WishlistModal")
+
+    <script>
+        window.__t = @Html.Raw(Lang.ClientStringsJson());
+        window.tr = function (k) { return (window.__t && window.__t[k]) || k; };
+    </script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>lucide.createIcons();</script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,61 @@
+@model TourDetailsViewModel
+@{
+    var cruise = Model.Tour;
+    ViewData["Title"] = Lang.Pick(cruise.TitleEn, cruise.TitleFr);
+}
+
+<section class="relative h-[55vh] min-h-[380px] flex items-end">
+    <div class="absolute inset-0 bg-tajan-sand/40">
+        @if (!string.IsNullOrEmpty(cruise.CoverImageUrl))
+        {
+            <img src="@cruise.CoverImageUrl" alt="@Lang.Pick(cruise.TitleEn, cruise.TitleFr)" class="w-full h-full object-cover" />
+        }
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+    <div class="relative max-w-5xl mx-auto px-6 pb-12 text-white">
+        <div class="text-xs uppercase tracking-[0.3em] text-tajan-gold mb-3">@T["Nile Cruise"] · @Lang.Pick(cruise.Destination?.NameEn, cruise.Destination?.NameFr)</div>
+        <h1 class="font-display text-4xl sm:text-5xl">@Lang.Pick(cruise.TitleEn, cruise.TitleFr)</h1>
+    </div>
+</section>
+
+<section class="max-w-5xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
+    <div class="lg:col-span-2 space-y-10">
+        <div>
+            <h2 class="font-display text-2xl mb-4">@T["Overview"]</h2>
+            <p class="text-tajan-red/80 leading-relaxed">@Lang.Pick(cruise.DescriptionEn, cruise.DescriptionFr)</p>
+        </div>
+
+        @if (cruise.Itinerary.Any())
+        {
+            <div>
+                <h2 class="font-display text-2xl mb-4">@T["Itinerary"]</h2>
+                <div class="space-y-4">
+                    @foreach (var day in cruise.Itinerary)
+                    {
+                        <div class="border-l-2 border-tajan-gold pl-4">
+                            <div class="text-xs uppercase tracking-widest text-tajan-gold mb-1">Day @day.DayNumber</div>
+                            <h3 class="font-display text-lg mb-1">@Lang.Pick(day.TitleEn, day.TitleFr)</h3>
+                            <p class="text-sm text-tajan-red/70">@Lang.Pick(day.DescriptionEn, day.DescriptionFr)</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <aside class="lg:col-span-1">
+        <div class="bg-white border border-tajan-gold/20 p-6 sticky top-24">
+            <div class="text-xs uppercase tracking-widest text-tajan-red/60 mb-1">@T["From"]</div>
+            <div class="font-display text-3xl text-tajan-red mb-4">@SiteCurrency.Format(cruise.PriceFrom, cruise.Currency)</div>
+            <ul class="text-sm text-tajan-red/70 space-y-2 mb-6">
+                <li>Duration: @cruise.DurationDays days</li>
+                <li>@T["100% Private Cruise"]</li>
+                <li>@T["Pay 50% now, rest upon arrival"]</li>
+            </ul>
+            <a asp-controller="Inquiry" asp-action="Create" asp-route-tourId="@cruise.Id"
+               class="block text-center bg-tajan-red text-white px-4 py-3 text-xs uppercase tracking-widest hover:bg-tajan-red/90 transition">
+                @T["Request This Cruise"]
+            </a>
+        </div>
+    </aside>
+</section>

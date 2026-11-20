@@ -1,0 +1,42 @@
+@model ReviewFormVm
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "Add review" : "Edit review";
+    var formAction = Url.Action(isNew ? "Create" : "Edit", new { area = "Admin", id = isNew ? (int?)null : Model.Id });
+}
+
+<a asp-action="Index" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-tajan-red">
+    <i data-lucide="arrow-left" class="h-4 w-4"></i> Back to reviews
+</a>
+
+<form action="@formAction" method="post" enctype="multipart/form-data" class="mt-4">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+
+    <div class="space-y-6">
+        <section class="card p-6">
+            <div class="grid gap-5 sm:grid-cols-2">
+                @Html.AdminText(m => m.ClientName, "Guest name", required: true)
+                @Html.AdminText(m => m.ClientCountry, "Country", placeholder: "France")
+                @Html.AdminText(m => m.ClientCountryFr, "Country (Français)", placeholder: "France")
+                @Html.AdminSelect(m => m.TourId, "Tour", Model.TourOptions, "— Not linked to a tour —")
+                @Html.AdminNumber(m => m.Rating, "Rating (1–5)", required: true, min: "1", max: "5")
+                @Html.AdminTextArea(m => m.QuoteEn, "Review (English)", rows: 5, required: true)
+                @Html.AdminTextArea(m => m.QuoteFr, "Review (Français)", rows: 5, required: true)
+                @Html.AdminNumber(m => m.DisplayOrder, "Display order", hint: "Lower numbers appear first.")
+            </div>
+            <div class="mt-5">
+                @Html.AdminImage(m => m.ClientPhotoUrl, "PhotoFile", "Guest photo (optional)")
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <div class="grid gap-3 sm:grid-cols-2">
+                @Html.AdminToggle(m => m.IsApproved, "Approved", "Visible on the website.")
+                @Html.AdminToggle(m => m.IsFeatured, "Featured", "Highlighted on the home page.")
+            </div>
+        </section>
+    </div>
+
+    <partial name="_FormActions" model='isNew ? "Add review" : "Save changes"' />
+</form>

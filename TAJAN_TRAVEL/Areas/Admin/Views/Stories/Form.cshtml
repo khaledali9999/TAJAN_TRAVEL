@@ -1,0 +1,59 @@
+@model StoryFormVm
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "New story" : "Edit story";
+    var formAction = Url.Action(isNew ? "Create" : "Edit", new { area = "Admin", id = isNew ? (int?)null : Model.Id });
+}
+
+<a asp-action="Index" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-tajan-red">
+    <i data-lucide="arrow-left" class="h-4 w-4"></i> Back to stories
+</a>
+
+<form action="@formAction" method="post" enctype="multipart/form-data" class="mt-4">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+
+    <div class="space-y-6">
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Basics</h2>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                @Html.AdminText(m => m.TitleEn, "Title (English)", required: true)
+                @Html.AdminText(m => m.TitleFr, "Title (Français)", required: true)
+                @Html.AdminText(m => m.Slug, "URL slug", hint: isNew ? "Leave empty to generate it from the English title." : "Changing it breaks existing links to this story.", placeholder: "beyond-the-pyramids")
+                @Html.AdminSelect(m => m.BlogCategoryId, "Category", Model.CategoryOptions, "— No category —")
+                @Html.AdminText(m => m.Author, "Author")
+                @Html.AdminNumber(m => m.ReadTimeMinutes, "Read time (minutes)", required: true, min: "1", max: "120")
+                @Html.AdminDate(m => m.PublishedAt, "Publish date", hint: "Leave empty to use today's date when you publish.")
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Summary & content</h2>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                @Html.AdminTextArea(m => m.SummaryEn, "Summary (English)", rows: 3, required: true, hint: "Shown on story cards.")
+                @Html.AdminTextArea(m => m.SummaryFr, "Summary (Français)", rows: 3, required: true)
+                @Html.AdminTextArea(m => m.ContentEn, "Story (English)", rows: 16, required: true, hint: "Separate paragraphs with a blank line.")
+                @Html.AdminTextArea(m => m.ContentFr, "Story (Français)", rows: 16, required: true)
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Cover image</h2>
+            <div class="mt-5 space-y-5">
+                @Html.AdminImage(m => m.CoverImageUrl, "CoverFile", "Cover image")
+                @Html.AdminText(m => m.CoverImageCaption, "Image caption", hint: "Small text under the image in the story pop-up.", placeholder: "Morning light along Al-Muizz Street, Cairo.")
+                @Html.AdminText(m => m.CoverImageCaptionFr, "Image caption (Français)", hint: "Petit texte sous l'image dans la fenêtre de l'article.", placeholder: "Lumière du matin sur la rue Al-Muizz, Le Caire.")
+            </div>
+        </section>
+
+        <section class="card p-6">
+            <h2 class="font-display text-[17px] font-semibold text-[#2A1215]">Visibility</h2>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                @Html.AdminToggle(m => m.IsPublished, "Published", "Untick to keep it as a draft.")
+                @Html.AdminToggle(m => m.IsFeatured, "Featured story", "The newest featured story is the big card on the Stories page.")
+            </div>
+        </section>
+    </div>
+
+    <partial name="_FormActions" model='isNew ? "Create story" : "Save changes"' />
+</form>

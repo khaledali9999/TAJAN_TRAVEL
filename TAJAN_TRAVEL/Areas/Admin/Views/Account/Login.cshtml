@@ -1,0 +1,59 @@
+@model LoginViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Sign in | TAJAN TRAVEL Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: {
+            colors: { tajan: { red: '#4B1E23', sand: '#D8C3A5', gold: '#C8A44D', cream: '#F7F3EE' } },
+            fontFamily: { display: ['"Playfair Display"', 'serif'], body: ['"Jost"', 'sans-serif'] }
+        } } }
+    </script>
+</head>
+<body class="flex min-h-screen items-center justify-center bg-tajan-cream px-4 font-body text-slate-800 antialiased">
+    <div class="w-full max-w-sm">
+        <div class="mb-8 text-center">
+            <div class="font-display text-2xl font-semibold uppercase tracking-wide text-tajan-red">Tajan Travel</div>
+            <div class="mt-1 text-[11px] uppercase tracking-[0.14em] text-slate-400">Admin Panel</div>
+        </div>
+
+        <form asp-action="Login" method="post" class="rounded-xl bg-white p-8 shadow-[0_1px_3px_rgba(75,30,35,.08)]">
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            <h1 class="font-display text-xl font-semibold text-[#2A1215]">Sign in</h1>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" asp-validation-summary="All"></div>
+            }
+
+            <div class="mt-6">
+                <label asp-for="Email" class="mb-1.5 block text-sm text-slate-600"></label>
+                <input asp-for="Email" autocomplete="username" autofocus
+                       class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-tajan-gold focus:bg-white focus:outline-none focus:ring-1 focus:ring-tajan-gold" />
+            </div>
+
+            <div class="mt-4">
+                <label asp-for="Password" class="mb-1.5 block text-sm text-slate-600"></label>
+                <input asp-for="Password" autocomplete="current-password"
+                       class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-tajan-gold focus:bg-white focus:outline-none focus:ring-1 focus:ring-tajan-gold" />
+            </div>
+
+            <label class="mt-4 flex items-center gap-2 text-sm text-slate-600">
+                <input asp-for="RememberMe" class="h-4 w-4 rounded border-slate-300 accent-[#4B1E23]" /> Remember me
+            </label>
+
+            <button type="submit" class="mt-6 w-full rounded-lg bg-tajan-red py-2.5 text-sm font-medium text-white hover:bg-[#3a171b]">Sign in</button>
+        </form>
+    </div>
+</body>
+</html>
